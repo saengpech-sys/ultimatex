@@ -103,9 +103,47 @@
                 </select>
             </div>
             <div id="player-names" class="mb-6"></div>
-            <button id="start-game-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">เริ่มเกม</button>
+            <div class="flex gap-4 justify-center">
+                <button id="rules-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">วิธีเล่น</button>
+                <button id="start-game-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">เริ่มเกม</button>
+            </div>
         </div>
     </div>
+    
+    <!-- Rules Modal -->
+    <div id="rules-modal" class="modal fixed inset-0 bg-black bg-opacity-75 justify-center items-center z-50 p-4">
+        <div class="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-2xl text-left">
+            <h2 class="text-3xl font-bold mb-4 text-center text-teal-300">วิธีเล่น Digital Citizen Quest</h2>
+            <div class="text-gray-300 space-y-4 max-h-[70vh] overflow-y-auto pr-4">
+                <p><strong>เป้าหมาย:</strong> สะสม <strong>DF Score (Digital Footprint Score)</strong> ให้ได้มากที่สุดเมื่อจบเกม เพื่อเป็นสุดยอดพลเมืองดิจิทัล!</p>
+                
+                <h3 class="font-bold text-xl text-teal-400 mt-4">การเล่นเบื้องต้น</h3>
+                <ol class="list-decimal list-inside space-y-2">
+                    <li>เลือกจำนวนผู้เล่น (1-4 คน) และใส่ชื่อ</li>
+                    <li>ผู้เล่นจะผลัดกันทอยลูกเต๋าเพื่อเดินไปตามช่องต่างๆ บนกระดาน</li>
+                    <li>เมื่อเดินผ่าน <strong>"จุดเริ่มต้น"</strong> จะได้รับโบนัส 200 DF Score</li>
+                    <li>เกมจะจบลงเมื่อเล่นครบ 15 รอบ ผู้ที่มี DF Score สูงสุดคือผู้ชนะ</li>
+                </ol>
+
+                <h3 class="font-bold text-xl text-teal-400 mt-4">ประเภทของช่อง</h3>
+                <ul class="list-disc list-inside space-y-2">
+                    <li><strong class="text-green-400">จุดเริ่มต้น:</strong> รับโบนัสเมื่อเดินผ่าน</li>
+                    <li><strong class="text-blue-400">ช่องกิจกรรม:</strong> ช่องทั่วไปที่อาจทำให้คุณได้หรือเสีย DF Score เล็กน้อย</li>
+                    <li><strong class="text-yellow-400">การ์ดโอกาส:</strong> จั่วการ์ดแห่งโชค! คุณจะเจอเรื่องราวดีๆ ที่ช่วยเพิ่ม DF Score</li>
+                    <li><strong class="text-red-400">การ์ดสถานการณ์:</strong> บททดสอบ! คุณต้องตัดสินใจในสถานการณ์ยากๆ ซึ่งจะส่งผลต่อ DF Score ของคุณ</li>
+                    <li><strong class="text-purple-400">ช่องพิเศษ:</strong> พบกับเหตุการณ์เฉพาะที่ทดสอบทักษะพลเมืองดิจิทัลของคุณโดยตรง</li>
+                    <li><strong class="text-gray-400">Digital Detox:</strong> เหมือนติดคุก! คุณต้องหยุดเดิน 2 ตาเพื่อพักผ่อนจากโลกออนไลน์</li>
+                </ul>
+
+                <h3 class="font-bold text-xl text-teal-400 mt-4">8 ทักษะพลเมืองดิจิทัล</h3>
+                <p>การ์ดและเหตุการณ์ต่างๆ ในเกมถูกออกแบบมาเพื่อทดสอบและให้ความรู้เกี่ยวกับ 8 ทักษะสำคัญในโลกดิจิทัล ขอให้สนุกกับการเรียนรู้!</p>
+            </div>
+            <div class="text-center mt-6">
+                <button id="close-rules-btn" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-6 rounded-lg">เข้าใจแล้ว</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Main Game Area -->
     <div id="game-container" class="hidden w-full">
@@ -154,7 +192,7 @@
             { name: "การ์ดสถานการณ์", type: "scenario" },
             { name: "Group Project ออนไลน์", type: "special", skill: "Communication" },
             { name: "การ์ดโอกาส", type: "opportunity" },
-            { name: "Wi-Fi ฟรี @โดม ส.บ.ว.", type: "special", skill: "Rest" },
+            { name: "Wi-Fi ฟรี @โดม ส.ว.ค.", type: "special", skill: "Rest" },
             { name: "ค้นข้อมูลทำ Portfolio", type: "activity", score: 30 },
             { name: "การ์ดสถานการณ์", type: "scenario" },
             { name: "เจอ Phishing Mail", type: "special", skill: "Safety" },
@@ -253,7 +291,7 @@
         let currentRound = 1;
 
         // --- DOM ELEMENTS (DECLARED) ---
-        let board, playerCountSelect, playerNamesDiv, startGameBtn, setupModal, gameContainer, playerInfoContainer, eventModal, eventModalContent, eventTitle, eventDescription, eventChoices, eventCloseBtn, gameOverModal;
+        let board, playerCountSelect, playerNamesDiv, startGameBtn, setupModal, gameContainer, playerInfoContainer, eventModal, eventModalContent, eventTitle, eventDescription, eventChoices, eventCloseBtn, gameOverModal, rulesModal, closeRulesBtn, rulesBtn;
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -272,11 +310,16 @@
             eventChoices = document.getElementById('event-choices');
             eventCloseBtn = document.getElementById('event-close-btn');
             gameOverModal = document.getElementById('game-over-modal');
+            rulesModal = document.getElementById('rules-modal');
+            closeRulesBtn = document.getElementById('close-rules-btn');
+            rulesBtn = document.getElementById('rules-btn');
 
             // Attach event listeners
             playerCountSelect.addEventListener('change', updatePlayerNameInputs);
             startGameBtn.addEventListener('click', setupGame);
             eventCloseBtn.addEventListener('click', closeEventModal);
+            rulesBtn.addEventListener('click', () => rulesModal.classList.add('active'));
+            closeRulesBtn.addEventListener('click', () => rulesModal.classList.remove('active'));
             
             // Initial setup call
             updatePlayerNameInputs();
