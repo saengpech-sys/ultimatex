@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>บทเรียนพลเมืองดิจิทัล - โรงเรียนสระบุรีวิทยาคม</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Canvas-Confetti for success animation -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .lesson-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .lesson-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .quiz-option {
+            transition: all 0.2s ease-in-out;
+        }
+        .quiz-option:hover {
+            transform: scale(1.03);
+            background-color: #dbeafe; /* blue-100 */
+            border-color: #60a5fa; /* blue-400 */
+        }
+        .gradient-header {
+            background: linear-gradient(to right, #4f46e5, #3b82f6);
+        }
+        #progressBar {
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8 bg-white p-6 rounded-xl shadow-lg gradient-header text-white animate__animated animate__fadeInDown">
+            <h1 class="text-3xl md:text-4xl font-bold">บทเรียนพลเมืองดิจิทัล (Digital Citizenship)</h1>
+            <p class="opacity-90 mt-2">สำหรับนักเรียนชั้นมัธยมศึกษาปีที่ 6 โรงเรียนสระบุรีวิทยาคม</p>
+        </header>
+
+        <!-- Page 1: Lesson Content -->
+        <div id="lessonPage" class="page active bg-white p-6 md:p-8 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 border-b-2 border-blue-500 pb-2 animate__animated animate__fadeIn" style="animation-delay: 0.2s;">8 ทักษะสำคัญในการเป็นพลเมืองดิจิทัล</h2>
+            <p class="mb-6 animate__animated animate__fadeIn" style="animation-delay: 0.4s;">
+                ทักษะสำคัญในการเป็นพลเมืองดิจิทัล จะช่วยให้เราสามารถอยู่ในสังคมออนไลน์ได้อย่างเข้าใจและปลอดภัย ซึ่งประกอบด้วยทักษะที่สำคัญ 8 ด้านดังนี้
+            </p>
+
+            <div class="space-y-8">
+                <!-- 1. Digital Citizen Identity -->
+                <div class="lesson-card animate__animated animate__fadeInUp" style="animation-delay: 0.6s;">
+                    <h3 class="text-xl font-bold text-blue-700 mb-2">1. ทักษะการรักษาอัตลักษณ์ที่ดีของตัวเอง (Digital Citizen Identity)</h3>
+                    <p class="mb-2">คือ ความสามารถในการสร้างและจัดการภาพลักษณ์ของตนเองในสื่อโซเชียลในเชิงบวกภายใต้พื้นฐานความเป็นจริง รับผิดชอบในการกระทำ และไม่กระทำการที่ผิดกฎหมายหรือละเมิดจริยธรรม</p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-800 p-4 rounded-r-lg">
+                        <p><strong>ตัวอย่าง:</strong> นักเรียนสร้างโปรไฟล์ LinkedIn ด้วยรูปภาพและข้อมูลที่เป็นทางการสำหรับโอกาสในอนาคต และระมัดระวังการโพสต์ข้อความที่ไม่เหมาะสมซึ่งอาจส่งผลกระทบต่อภาพลักษณ์ของตนเอง</p>
+                    </div>
+                </div>
+
+                <!-- 2. Screen Time Management -->
+                <div class="lesson-card animate__animated animate__fadeInUp" style="animation-delay: 0.7s;">
+                    <h3 class="text-xl font-bold text-green-700 mb-2">2. ทักษะในการบริหารจัดการเวลาในโลกดิจิทัล (Screen Time Management)</h3>
+                    <p class="mb-2">คือ ความสามารถในการบริหารเวลาและควบคุมตนเองในโลกออนไลน์กับในชีวิตจริงได้อย่างสมดุล ไม่ให้กระทบต่อสุขภาพ การเรียน หรือความสัมพันธ์กับคนรอบข้าง</p>
+                    <div class="bg-green-50 border-l-4 border-green-500 text-green-800 p-4 rounded-r-lg">
+                        <p><strong>ตัวอย่าง:</strong> กำหนดเวลาเล่นโซเชียลมีเดียวันละไม่เกิน 2 ชั่วโมง และวางโทรศัพท์มือถือไว้นอกห้องนอนก่อนเวลาเข้านอน 1 ชั่วโมง เพื่อให้ร่างกายและสมองได้พักผ่อนเต็มที่</p>
+                    </div>
+                </div>
+
+                <!-- 3. Cyberbullying Management -->
+                <div class="lesson-card animate__animated animate__fadeInUp" style="animation-delay: 0.8s;">
+                    <h3 class="text-xl font-bold text-red-700 mb-2">3. ทักษะการรับมือการกลั่นแกล้งบนโลกไซเบอร์ (Cyberbullying Management)</h3>
+                    <p class="mb-2">คือ ความสามารถในการรับมือ ป้องกัน และมีภูมิคุ้มกันต่อการข่มขู่บนโลกไซเบอร์อย่างเหมาะสม โดยไม่ใช้อารมณ์เป็นที่ตั้ง</p>
+                    <div class="bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-r-lg">
+                        <p><strong>ตัวอย่าง:</strong> เมื่อเจอความคิดเห็นที่หยาบคายในโพสต์ของตนเอง แทนที่จะตอบโต้ด้วยความโกรธ ให้เลือกที่จะลบความคิดเห็นนั้น บล็อกผู้ใช้งาน และปรึกษาผู้ปกครองหรือคุณครูที่ไว้ใจ</p>
+                    </div>
+                </div>
+
+                <!-- 4. Cybersecurity Management -->
+                <div class="lesson-card animate__animated animate__fadeInUp" style="animation-delay: 0.9s;">
+                    <h3 class="text-xl font-bold text-purple-700 mb-2">4. ทักษะการรักษาความปลอดภัยของตนเองบนโลกไซเบอร์ (Cybersecurity Management)</h3>
+                    <p class="mb-2">คือ ความสามารถในการป้องกันการถูกโจรกรรมข้อมูลหรือถูกโจมตีในโลกออนไลน์ เช่น การตั้งรหัสผ่านให้ปลอดภัย และการสังเกตอีเมลหลอกลวง</p>
+                    <div class="bg-purple-50 border-l-4 border-purple-500 text-purple-800 p-4 rounded-r-lg">
+                        <p><strong>ตัวอย่าง:</strong> ตั้งรหัสผ่านอีเมลและโซเชียลมีเดียให้คาดเดายาก โดยผสมตัวอักษรพิมพ์ใหญ่-เล็ก ตัวเลข และสัญลักษณ์ และเปิดใช้งานการยืนยันตัวตนสองชั้น (2FA) เพื่อเพิ่มความปลอดภัย</p>
+                    </div>
+                </div>
+
+                <!-- 5. Privacy Management -->
+                <div class="lesson-card animate__animated animate__fadeInUp" style="animation-delay: 1.0s;">
+                    <h3 class="text-xl font-bold text-yellow-600 mb-2">5. ทักษะในการจัดการความเป็นส่วนตัว (Privacy Management)</h3>
+                    <p class="mb-2">คือ การใช้ดุลยพินิจในการปกป้องข้อมูลส่วนตัวของตนเองและเคารพความเป็นส่วนตัวของผู้อื่นในโลกออนไลน์ เพื่อความปลอดภัยของข้อมูล</p>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded-r-lg">
+                        <p><strong>ตัวอย่าง:</strong> ก่อนจะโพสต์รูปภาพกลุ่มที่ถ่ายกับเพื่อนๆ ควรขออนุญาตเพื่อนในภาพทุกคนก่อน เพื่อเป็นการเคารพสิทธิความเป็นส่วนตัวของพวกเขา</p>
+                    </div>
+                </div>
+                
+                <!-- 6. Critical Thinking -->
+                <div class="lesson-card animate__animated animate__fadeInUp" style="animation-delay: 1.1s;">
+                    <h3 class="text-xl font-bold text-indigo-700 mb-2">6. ทักษะการคิดวิเคราะห์อย่างมีวิจารณญาณ (Critical Thinking)</h3>
+                    <p class="mb-2">คือ ความสามารถในการคิดวิเคราะห์แยกแยะข้อมูลที่ได้รับบนโลกออนไลน์ ว่าสิ่งไหนเป็นความจริงหรือความคิดเห็น สิ่งไหนน่าเชื่อถือ และไม่หลงเชื่อข่าวปลอมหรือข้อมูลที่บิดเบือน</p>
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 text-indigo-800 p-4 rounded-r-lg">
+                        <p><strong>ตัวอย่าง:</strong> เมื่อเห็นหัวข้อข่าวที่น่าตกใจบน Facebook ไม่รีบแชร์ต่อ แต่ตรวจสอบข้อมูลจากสำนักข่าวที่น่าเชื่อถืออย่างน้อย 2-3 แห่ง เพื่อยืนยันความถูกต้องของข่าวก่อน</p>
+                    </div>
+                </div>
+
+                <!-- 7. Digital Footprint -->
+                <div class="lesson-card animate__animated animate__fadeInUp" style="animation-delay: 1.2s;">
+                    <h3 class="text-xl font-bold text-teal-700 mb-2">7. ทักษะในการบริหารจัดการข้อมูล ร่องรอยทางดิจิทัล (Digital Footprint)</h3>
+                    <p class="mb-2">คือ ความเข้าใจว่าทุกการกระทำบนโลกออนไลน์จะทิ้งร่องรอยไว้เสมอ ซึ่งอาจส่งผลต่ออนาคตได้ จึงต้องคิดอย่างรอบคอบก่อนโพสต์หรือแชร์สิ่งต่างๆ</p>
+                    <div class="bg-teal-50 border-l-4 border-teal-500 text-teal-800 p-4 rounded-r-lg">
+                        <p><strong>ตัวอย่าง:</strong> ก่อนสมัครเข้ามหาวิทยาลัย ลองค้นหาชื่อของตัวเองใน Google เพื่อตรวจสอบว่ามีข้อมูลหรือภาพลักษณ์ที่ไม่เหมาะสมปรากฏอยู่หรือไม่ และจัดการลบโพสต์เก่าๆ ที่ไม่เหมาะสมออกไป</p>
+                    </div>
+                </div>
+
+                <!-- 8. Digital Empathy -->
+                <div class="lesson-card animate__animated animate__fadeInUp" style="animation-delay: 1.3s;">
+                    <h3 class="text-xl font-bold text-orange-600 mb-2">8. ทักษะการใช้เทคโนโลยีอย่างมีความเห็นอกเห็นใจ (Digital Empathy)</h3>
+                    <p class="mb-2">คือ ความสามารถในการเข้าใจและเห็นใจผู้อื่น มีปฏิสัมพันธ์ที่ดีต่อกันในโลกออนไลน์ และให้ความช่วยเหลือซึ่งกันและกัน</p>
+                    <div class="bg-orange-50 border-l-4 border-orange-500 text-orange-800 p-4 rounded-r-lg">
+                        <p><strong>ตัวอย่าง:</strong> เมื่อเห็นคนตั้งคำถามที่ไม่ซับซ้อนในกลุ่มสนทนา แทนที่จะตำหนิว่าทำไมไม่รู้ ควรตอบคำถามด้วยความสุภาพและให้ความช่วยเหลือ เพราะทุกคนต่างมีจุดเริ่มต้นในการเรียนรู้</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12 animate__animated animate__pulse animate__infinite" style="--animate-duration: 2s;">
+                <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    เริ่มทำแบบทดสอบ
+                </button>
+            </div>
+        </div>
+
+        <!-- Page 2: Quiz -->
+        <div id="quizPage" class="page bg-white p-6 md:p-8 rounded-xl shadow-lg">
+            <div id="quizContainer">
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="text-2xl font-bold">แบบทดสอบวัดความรู้</h2>
+                        <span id="questionCounter" class="text-gray-600 font-semibold"></span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full"></div>
+                    </div>
+                </div>
+                <div id="question" class="text-xl mb-6 font-semibold"></div>
+                <div id="options" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+            <div id="quizResult" class="hidden text-center">
+                 <h2 class="text-3xl font-bold mb-4 text-gray-800 animate__animated animate__fadeInDown">สรุปผลคะแนน</h2>
+                 <div id="scoreCircle" class="w-40 h-40 mx-auto rounded-full flex items-center justify-center text-4xl font-bold text-white mb-6 shadow-lg animate__animated animate__bounceIn">
+                 </div>
+                 <p id="scoreText" class="text-xl mb-8 animate__animated animate__fadeInUp"></p>
+                 <div class="flex flex-col sm:flex-row justify-center gap-4 animate__animated animate__fadeInUp" style="animation-delay: 0.5s;">
+                     <button onclick="restartQuiz()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105">
+                         ทำแบบทดสอบใหม่
+                     </button>
+                     <button onclick="showSubmissionForm()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 transform hover:scale-105">
+                         ยืนยันและส่งคะแนน
+                     </button>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submission Modal -->
+    <div id="submissionModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md animate__animated animate__fadeInUpSmall" id="modalContent">
+            <h2 class="text-2xl font-bold mb-6 text-center">กรอกข้อมูลเพื่อส่งคะแนน</h2>
+            <form id="submissionForm">
+                <div class="mb-4">
+                    <label for="studentId" class="block text-sm font-medium text-gray-700">รหัสนักเรียน (5 หลัก)</label>
+                    <input type="text" id="studentId" name="studentId" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required pattern="\d{5}" title="กรุณากรอกรหัสนักเรียน 5 หลัก">
+                </div>
+                <div class="mb-4">
+                    <label for="fullName" class="block text-sm font-medium text-gray-700">ชื่อ-สกุล</label>
+                    <input type="text" id="fullName" name="fullName" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="grade" class="block text-sm font-medium text-gray-700">ชั้น</label>
+                        <select id="grade" name="grade" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    <div>
+                        <label for="classRoom" class="block text-sm font-medium text-gray-700">ห้อง</label>
+                        <select id="classRoom" name="classRoom" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                            <!-- Options will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+                 <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label for="studentNumber" class="block text-sm font-medium text-gray-700">เลขที่</label>
+                        <input type="number" id="studentNumber" name="studentNumber" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required min="1">
+                    </div>
+                    <div>
+                        <label for="section" class="block text-sm font-medium text-gray-700">ตอน</label>
+                        <select id="section" name="section" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                            <option value="ก">ก</option>
+                            <option value="ข">ข</option>
+                            <option value="ไม่มีตอน">ไม่มีตอน</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-4">
+                    <button type="button" onclick="hideSubmissionForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition transform hover:scale-105">ยกเลิก</button>
+                    <button type="submit" id="submitButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center transition transform hover:scale-105">
+                        <span id="submitText">ส่งคะแนน</span>
+                        <svg id="submitSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+            <div id="submissionStatus" class="mt-4 text-center"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- Quiz Data ---
+        const quizData = [
+            { question: "ข้อใดคือความหมายของ 'Digital Footprint' หรือ 'รอยเท้าดิจิทัล' ที่ถูกต้องที่สุด?", options: ["ความเร็วอินเทอร์เน็ตที่บ้าน", "ประวัติการเข้าชมเว็บไซต์และการกระทำต่างๆ บนโลกออนไลน์", "ขนาดไฟล์ที่ดาวน์โหลด", "จำนวนอุปกรณ์ที่เชื่อมต่ออินเทอร์เน็ต"], answer: "ประวัติการเข้าชมเว็บไซต์และการกระทำต่างๆ บนโลกออนไลน์" },
+            { question: "การกระทำใดต่อไปนี้เป็นการป้องกัน 'Phishing' ที่ดีที่สุด?", options: ["คลิกลิงก์ในอีเมลเพื่อตรวจสอบทันที", "ให้ข้อมูลส่วนตัวเมื่อถูกร้องขอทางอีเมล", "ไม่คลิกลิงก์น่าสงสัยและตรวจสอบผู้ส่งก่อนเสมอ", "ใช้รหัสผ่านเดียวกันทุกเว็บไซต์"], answer: "ไม่คลิกลิงก์น่าสงสัยและตรวจสอบผู้ส่งก่อนเสมอ" },
+            { question: "พ.ร.บ. ว่าด้วยการกระทำความผิดเกี่ยวกับคอมพิวเตอร์ เกี่ยวข้องกับเรื่องใดโดยตรง?", options: ["การซื้อขายของออนไลน์", "การละเมิดลิขสิทธิ์และการหมิ่นประมาททางออนไลน์", "การจำกัดเวลาเล่นเกม", "การติดตั้งโปรแกรม"], answer: "การละเมิดลิขสิทธิ์และการหมิ่นประมาททางออนไลน์" },
+            { question: "ข้อใดคือลักษณะของรหัสผ่าน (Password) ที่ดีและปลอดภัย?", options: ["ใช้ชื่อเล่นและวันเกิด", "สั้นๆ และจำง่าย เช่น 123456", "ยาวกว่า 8 ตัวอักษร มีตัวพิมพ์ใหญ่-เล็ก ตัวเลข และสัญลักษณ์ผสมกัน", "ใช้คำที่มีในพจนานุกรม"], answer: "ยาวกว่า 8 ตัวอักษร มีตัวพิมพ์ใหญ่-เล็ก ตัวเลข และสัญลักษณ์ผสมกัน" },
+            { question: "การนำผลงานของผู้อื่นมาใช้โดยไม่อ้างอิงแหล่งที่มา หรือแอบอ้างเป็นของตนเอง ถือเป็นการกระทำผิดเรื่องใด?", options: ["การกลั่นแกล้งทางไซเบอร์ (Cyberbullying)", "การละเมิดลิขสิทธิ์ (Copyright Infringement)", "การสร้างข่าวปลอม (Fake News)", "การสแปม (Spamming)"], answer: "การละเมิดลิขสิทธิ์ (Copyright Infringement)" },
+            { question: "เมื่อพบเห็นเพื่อนถูกกลั่นแกล้งทางออนไลน์ (Cyberbullying) สิ่งที่ควรทำคืออะไร?", options: ["แชร์โพสต์นั้นต่อเพื่อให้คนอื่นเห็นเยอะๆ", "เข้าไปแสดงความคิดเห็นด่าทอคนที่มาแกล้ง", "เก็บหลักฐาน (แคปหน้าจอ) รายงานโพสต์ และให้กำลังใจเพื่อน", "ทำเป็นไม่เห็นแล้วปล่อยผ่านไป"], answer: "เก็บหลักฐาน (แคปหน้าจอ) รายงานโพสต์ และให้กำลังใจเพื่อน" },
+            { question: "ข้อใดคือความหมายของ 'การรู้เท่าทันสื่อดิจิทัล' (Digital Literacy)?", options: ["ความสามารถในการใช้คอมพิวเตอร์ได้คล่องแคล่ว", "ความสามารถในการเขียนโปรแกรม", "ความสามารถในการวิเคราะห์และประเมินข้อมูลข่าวสารบนสื่อดิจิทัล", "ความสามารถในการซ่อมคอมพิวเตอร์"], answer: "ความสามารถในการวิเคราะห์และประเมินข้อมูลข่าวสารบนสื่อดิจิทัล" },
+            { question: "การเปิดใช้งาน 'Two-Factor Authentication' (2FA) มีประโยชน์อย่างไร?", options: ["ทำให้คอมพิวเตอร์เร็วขึ้น", "เพิ่มชั้นความปลอดภัยในการเข้าสู่ระบบ", "ป้องกันไวรัสได้ 100%", "ทำให้ไม่ต้องจำรหัสผ่าน"], answer: "เพิ่มชั้นความปลอดภัยในการเข้าสู่ระบบ" },
+            { question: "ข้อใดไม่ใช่การสร้างอัตลักษณ์ดิจิทัล (Digital Identity) ที่ดี?", options: ["โพสต์เนื้อหาที่สร้างสรรค์และเป็นประโยชน์", "แสดงความคิดเห็นอย่างสุภาพและให้เกียรติผู้อื่น", "แชร์ข้อมูลส่วนตัวของผู้อื่นโดยไม่ได้รับอนุญาต", "รักษาความเป็นส่วนตัวของตนเอง"], answer: "แชร์ข้อมูลส่วนตัวของผู้อื่นโดยไม่ได้รับอนุญาต" },
+            { question: "การใช้ Wi-Fi สาธารณะฟรี มีความเสี่ยงในเรื่องใดมากที่สุด?", options: ["สัญญาณอินเทอร์เน็ตช้า", "ข้อมูลส่วนตัวอาจถูกดักจับได้ง่าย", "ทำให้แบตเตอรี่หมดเร็ว", "มีโฆษณาเยอะ"], answer: "ข้อมูลส่วนตัวอาจถูกดักจับได้ง่าย" },
+            { question: "ข้อใดคือ Hate Speech?", options: ["การวิจารณ์ภาพยนตร์", "การแสดงความเห็นทางการเมืองที่แตกต่าง", "การใช้ถ้อยคำสร้างความเกียรติชังต่อกลุ่มคน", "การรายงานข่าวอาชญากรรม"], answer: "การใช้ถ้อยคำสร้างความเกลียดชังต่อกลุ่มคน" },
+            { question: "หากต้องการแชร์บทความจากเว็บไซต์ ควรทำอย่างไรจึงจะเหมาะสมที่สุด?", options: ["คัดลอกเนื้อหาทั้งหมดมาโพสต์ในหน้าของตัวเอง", "แชร์ลิงก์จากต้นฉบับโดยตรง พร้อมให้เครดิต", "แคปหน้าจอแล้วโพสต์เป็นรูปภาพ", "สรุปเนื้อหาใหม่แล้วบอกว่าเป็นความคิดของตัวเอง"], answer: "แชร์ลิงก์จากต้นฉบับโดยตรง พร้อมให้เครดิต" },
+            { question: "'Netiquette' หรือ มารยาทเน็ต หมายถึงอะไร?", options: ["กฎหมายอินเทอร์เน็ต", "มารยาทและข้อควรปฏิบัติในการสื่อสารออนไลน์", "โปรแกรมป้องกันไวรัส", "ชื่อเรียกเครือข่ายอินเทอร์เน็ต"], answer: "มารยาทและข้อควรปฏิบัติในการสื่อสารออนไลน์" },
+            { question: "การโพสต์ภาพถ่ายติดใบหน้าของบุคคลอื่นโดยไม่ได้รับอนุญาต อาจละเมิดสิทธิใด?", options: ["สิทธิในทรัพย์สิน", "สิทธิในการแสดงออก", "สิทธิความเป็นส่วนตัว", "สิทธิในการเลือกตั้ง"], answer: "สิทธิความเป็นส่วนตัว" },
+            { question: "ข้อใดคือตัวอย่างของข่าวปลอม (Fake News)?", options: ["พยากรณ์อากาศจากกรมอุตุนิยมวิทยา", "ข่าวผลการแข่งขันกีฬาจากสำนักข่าวที่น่าเชื่อถือ", "บทความสุขภาพที่อ้างว่า 'มะนาวโซดารักษามะเร็งได้' โดยไม่มีงานวิจัยรองรับ", "ประกาศวันหยุดราชการจากรัฐบาล"], answer: "บทความสุขภาพที่อ้างว่า 'มะนาวโซดารักษามะเร็งได้' โดยไม่มีงานวิจัยรองรับ" },
+            { question: "การกระทำใดที่อาจทิ้ง 'รอยเท้าดิจิทัล' ในแง่ลบไว้?", options: ["การกดไลค์เพจให้ความรู้", "การโพสต์ข้อความด่าทอผู้อื่นด้วยอารมณ์", "การแชร์สูตรทำอาหาร", "การอวยพรวันเกิดเพื่อนบนโซเชียลมีเดีย"], answer: "การโพสต์ข้อความด่าทอผู้อื่นด้วยอารมณ์" },
+            { question: "'Cookie' ในเว็บบราวเซอร์ทำหน้าที่อะไร?", options: ["ทำความสะอาดคอมพิวเตอร์", "จดจำข้อมูลการใช้งานเว็บไซต์เพื่อความสะดวกในครั้งถัดไป", "เพิ่มความเร็วอินเทอร์เน็ต", "ป้องกันการแฮก"], answer: "จดจำข้อมูลการใช้งานเว็บไซต์เพื่อความสะดวกในครั้งถัดไป" },
+            { question: "การซื้อของออนไลน์อย่างปลอดภัยควรคำนึงถึงสิ่งใดเป็นอันดับแรก?", options: ["สินค้าราคาถูกที่สุด", "ร้านค้ามีผู้ติดตามเยอะที่สุด", "ร้านค้ามีเว็บไซต์ที่ปลอดภัย (HTTPS) และมีรีวิวที่น่าเชื่อถือ", "ร้านค้าที่โปรโมทบ่อยที่สุด"], answer: "ร้านค้ามีเว็บไซต์ที่ปลอดภัย (HTTPS) และมีรีวิวที่น่าเชื่อถือ" },
+            { question: "ข้อใดคือการสื่อสารแบบ 'Synchronous' บนโลกดิจิทัล?", options: ["การส่งอีเมล", "การโพสต์ข้อความบนเว็บบอร์ด", "การวิดีโอคอล (Video Call)", "การแสดงความคิดเห็นในบล็อก"], answer: "การวิดีโอคอล (Video Call)" },
+            { question: "การเป็นพลเมืองดิจิทัลที่ดีมีความสำคัญอย่างไร?", options: ["ทำให้มีเพื่อนในโลกออนไลน์เยอะขึ้น", "ช่วยสร้างสังคมออนไลน์ที่ปลอดภัย น่าเชื่อถือ และสร้างสรรค์", "ทำให้เล่นเกมเก่งขึ้น", "ทำให้ซื้อของออนไลน์ได้ในราคาถูก"], answer: "ช่วยสร้างสังคมออนไลน์ที่ปลอดภัย น่าเชื่อถือ และสร้างสรรค์" }
+        ];
+
+        // --- Global Variables ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let userAnswers = [];
+        const totalQuestions = quizData.length;
+
+        // --- DOM Elements ---
+        const lessonPage = document.getElementById('lessonPage');
+        const quizPage = document.getElementById('quizPage');
+        const quizContainer = document.getElementById('quizContainer');
+        const quizResult = document.getElementById('quizResult');
+        const questionCounter = document.getElementById('questionCounter');
+        const progressBar = document.getElementById('progressBar');
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const scoreCircle = document.getElementById('scoreCircle');
+        const scoreText = document.getElementById('scoreText');
+        const submissionModal = document.getElementById('submissionModal');
+        const submissionForm = document.getElementById('submissionForm');
+
+        // --- Functions ---
+        function startQuiz() {
+            lessonPage.classList.remove('active', 'animate__animated', 'animate__fadeIn');
+            lessonPage.classList.add('animate__animated', 'animate__fadeOut');
+            setTimeout(() => {
+                lessonPage.classList.remove('active');
+                quizPage.classList.add('active', 'animate__animated', 'animate__fadeIn');
+                currentQuestionIndex = 0;
+                score = 0;
+                userAnswers = [];
+                quizResult.classList.add('hidden');
+                quizContainer.classList.remove('hidden');
+                showQuestion();
+            }, 500);
+        }
+
+        function showQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            const quizContent = quizContainer.querySelector('#question, #options');
+            if (quizContent) {
+                quizContent.className = 'animate__animated animate__fadeOut';
+            }
+
+            setTimeout(() => {
+                questionEl.textContent = currentQuestion.question;
+                optionsEl.innerHTML = '';
+                
+                const shuffledOptions = [...currentQuestion.options].sort(() => Math.random() - 0.5);
+
+                shuffledOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = "w-full text-left p-4 bg-gray-50 rounded-lg border-2 border-gray-200 quiz-option";
+                    button.onclick = () => selectAnswer(option);
+                    optionsEl.appendChild(button);
+                });
+                
+                questionEl.className = 'text-xl mb-6 font-semibold animate__animated animate__fadeIn';
+                optionsEl.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 animate__animated animate__fadeIn';
+
+                updateProgress();
+            }, 300);
+        }
+
+        function selectAnswer(selectedOption) {
+            userAnswers.push(selectedOption);
+            if (selectedOption === quizData[currentQuestionIndex].answer) {
+                score++;
+            }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < totalQuestions) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function updateProgress() {
+            questionCounter.textContent = `ข้อที่ ${currentQuestionIndex + 1} / ${totalQuestions}`;
+            const progressPercentage = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+        
+        function showResult() {
+            quizContainer.classList.add('hidden');
+            quizResult.classList.remove('hidden');
+            
+            scoreText.textContent = `คุณทำได้ ${score} คะแนน จากทั้งหมด ${totalQuestions} ข้อ`;
+            scoreCircle.textContent = `${score}/${totalQuestions}`;
+
+            const percentage = (score / totalQuestions) * 100;
+            if (percentage >= 80) {
+                scoreCircle.className += " bg-green-500";
+            } else if (percentage >= 50) {
+                scoreCircle.className += " bg-yellow-500";
+            } else {
+                scoreCircle.className += " bg-red-500";
+            }
+        }
+
+        function restartQuiz() {
+            quizPage.classList.remove('active', 'animate__animated', 'animate__fadeIn');
+            quizPage.classList.add('animate__animated', 'animate__fadeOut');
+            setTimeout(() => {
+                quizPage.classList.remove('active');
+                lessonPage.classList.add('active', 'animate__animated', 'animate__fadeIn');
+            }, 500);
+        }
+
+        function showSubmissionForm() {
+            submissionModal.classList.remove('hidden');
+            submissionModal.classList.add('animate__animated', 'animate__fadeIn');
+            submissionForm.reset();
+            document.getElementById('submissionStatus').textContent = '';
+            document.getElementById('submitButton').disabled = false;
+            document.getElementById('submitText').classList.remove('hidden');
+            document.getElementById('submitSpinner').classList.add('hidden');
+        }
+
+        function hideSubmissionForm() {
+            submissionModal.classList.remove('animate__fadeIn');
+            submissionModal.classList.add('animate__fadeOut');
+            setTimeout(() => {
+                submissionModal.classList.add('hidden');
+                submissionModal.classList.remove('animate__fadeOut');
+            }, 500);
+        }
+
+        submissionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitButton = document.getElementById('submitButton');
+            const submitText = document.getElementById('submitText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            const submissionStatus = document.getElementById('submissionStatus');
+
+            submitButton.disabled = true;
+            submitText.classList.add('hidden');
+            submitSpinner.classList.remove('hidden');
+            submissionStatus.textContent = 'กำลังส่งข้อมูล...';
+            submissionStatus.className = 'mt-4 text-center text-blue-600';
+
+            const formData = new FormData(this);
+            formData.append('score', score);
+            formData.append('total', totalQuestions);
+            
+            const url = 'https://script.google.com/macros/s/AKfycbyXTsn3lvYN097zO4WWBz36bRvjBOQTBuIkgM2Vswqc9sQ_cJ70FMhurdfLHM3wYGsMEg/exec';
+
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    submissionStatus.textContent = 'ส่งคะแนนสำเร็จ! 🎉';
+                    submissionStatus.className = 'mt-4 text-center text-green-600 font-bold text-lg';
+                    
+                    // Fire confetti!
+                    confetti({
+                        particleCount: 150,
+                        spread: 180,
+                        origin: { y: 0.6 }
+                    });
+
+                    setTimeout(hideSubmissionForm, 2500);
+                } else {
+                    throw new Error(data.message || 'เกิดข้อผิดพลาดในการส่งข้อมูล');
+                }
+            })
+            .catch(error => {
+                submissionStatus.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                submissionStatus.className = 'mt-4 text-center text-red-600 font-bold';
+                submitButton.disabled = false;
+                submitText.classList.remove('hidden');
+                submitSpinner.classList.add('hidden');
+            });
+        });
+
+        // --- Function to populate dropdowns ---
+        function populateSelectOptions() {
+            const gradeSelect = document.getElementById('grade');
+            const classRoomSelect = document.getElementById('classRoom');
+            
+            gradeSelect.innerHTML = ''; // Clear existing options
+            classRoomSelect.innerHTML = ''; // Clear existing options
+
+            // Populate grades (ม.1 - ม.6)
+            for (let i = 1; i <= 6; i++) {
+                const option = document.createElement('option');
+                option.value = `ม.${i}`;
+                option.textContent = `ม.${i}`;
+                if (i === 6) {
+                    option.selected = true; // Default to ม.6
+                }
+                gradeSelect.appendChild(option);
+            }
+
+            // Populate class rooms (1 - 15)
+            for (let i = 1; i <= 15; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                classRoomSelect.appendChild(option);
+            }
+        }
+
+        // --- Initialize the page by populating the dropdowns ---
+        populateSelectOptions();
+
+    </script>
+</body>
+</html>
