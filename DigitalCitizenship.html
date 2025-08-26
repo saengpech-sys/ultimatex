@@ -79,6 +79,7 @@
         <header class="text-center mb-8 bg-white p-6 rounded-xl shadow-lg gradient-header text-white animate__animated animate__fadeInDown">
             <h1 class="text-3xl md:text-4xl font-bold">บทเรียนพลเมืองดิจิทัล (Digital Citizenship)</h1>
             <p class="opacity-90 mt-2">สำหรับนักเรียนชั้นมัธยมศึกษาปีที่ 6 โรงเรียนสระบุรีวิทยาคม</p>
+            <p class="opacity-90 mt-2">จัดทำโดย ครูแสงเพชร คำโพธิ์</p>
         </header>
 
         <!-- Page 1: Lesson Content -->
@@ -201,6 +202,10 @@
         </div>
     </div>
 
+    <footer class="text-center p-4 text-gray-500 text-sm mt-4">
+        
+    </footer>
+
     <!-- Submission Modal -->
     <div id="submissionModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md animate__animated animate__fadeInUpSmall" id="modalContent">
@@ -304,10 +309,9 @@
 
         // --- Functions ---
         function startQuiz() {
-            lessonPage.classList.remove('active', 'animate__animated', 'animate__fadeIn');
             lessonPage.classList.add('animate__animated', 'animate__fadeOut');
             setTimeout(() => {
-                lessonPage.classList.remove('active');
+                lessonPage.classList.remove('active', 'animate__animated', 'animate__fadeOut');
                 quizPage.classList.add('active', 'animate__animated', 'animate__fadeIn');
                 currentQuestionIndex = 0;
                 score = 0;
