@@ -122,6 +122,7 @@
                                 <th class="p-3 text-center" title="คำนวณค่าไฟ">คำนวณค่าไฟ</th>
                                 <th class="p-3 text-center" title="Nice to meet you">Nice to meet you</th>
                                 <th class="p-3 text-center" title="เครื่องคิดเลข">เครื่องคิดเลข</th>
+                                <th class="p-3 text-center" title="BMI">BMI</th>
                                 <th class="p-3 text-center sortable sort-desc" data-sort="total">รวม</th>
                             </tr>
                         </thead>
@@ -137,62 +138,68 @@
 
     <script>
         const studentData = [
-            { name: 'ศศิกาญจน์ สุวรรณเพ็ญ', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'วันวิสา เพชรกวัก', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'กุลษนัณฆ์ เตมียศิลปิน', submissions: [true, true, true, true, true, true, true, true, false], total: 8 },
-            { name: 'ธัยชนก สินธุศรี', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'ธีรานนนท์ เสริฐศรี', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'จารุพิชญา สิงหาเพ็ญ', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'พฒณวง โพธิ์ศรี', submissions: [true, true, true, true, true, false, true, true, true], total: 8 },
-            { name: 'ณัฐปภัสร์ ธนวิโรจน์กุล', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'กมลวรรณ แจ่มเมือง', submissions: [true, true, true, true, true, false, true, true, true], total: 8 },
-            { name: 'กฤตทธรรษ มิลินทานุช', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'ธนวินท์ ระยับศรี', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'ถิรพงศ กาบตุ้ม', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'วรธน จอมสูงเนิน', submissions: [true, true, true, true, true, false, false, false, false], total: 5 },
-            { name: 'ชุติพนธ์ ไมลหรือ', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'อุษยากร อุดม', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'ธนากร เฒ่าสีสุราช', submissions: [true, true, false, false, false, false, false, false, false], total: 2 },
-            { name: 'ลีลาวดี เยาวยอด', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'วชิรญาณ์ สมตัว', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'ธนภัทร แตงทอง', submissions: [true, true, true, true, true, false, false, false, false], total: 5 },
-            { name: 'นภัสสร บรรลือทรัพย์', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'ปวริศา หมื่นมี', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'วิชญาดา สมจิตร', submissions: [true, true, false, true, false, false, false, true, false], total: 4 },
-            { name: 'ปาณิสรา หรุ่นพานิช', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'อนุวัฒน์ สิงห์ใส', submissions: [false, true, false, false, false, false, false, false, false], total: 1 },
-            { name: 'จิรัชยา พุ่มพวง', submissions: [true, true, true, true, true, false, true, true, true], total: 8 },
-            { name: 'จิตรภาณุ กาญจน์แก้ว', submissions: [true, true, true, true, true, false, false, false, false], total: 5 },
-            { name: 'ปัญชลิกา ชูหิรัญ', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
-            { name: 'มานิตา วิเทียนเทียบ', submissions: [false, true, true, true, true, false, false, false, false], total: 4 },
-            { name: 'สิรกดนัย ดวงเนตร', submissions: [false, true, true, true, true, false, true, true, false], total: 6 },
-            { name: 'พิมพ์สุดา งามขำ', submissions: [true, true, true, true, true, true, true, true, false], total: 8 },
-            { name: 'เจิมขวัญ โฉมชิต', submissions: [false, true, false, false, false, false, false, false, false], total: 1 },
-            { name: 'วริศรา พนมสวย', submissions: [true, true, true, true, true, false, false, false, false], total: 5 },
-            { name: 'ธัญญาพร แสนวิเศษ', submissions: [false, true, true, true, true, false, true, true, false], total: 6 },
-            { name: 'กัญญาภัค วิมล', submissions: [false, true, true, true, true, false, true, true, false], total: 6 },
-            { name: 'ณัฐวดี พรพงษ์', submissions: [false, false, true, true, true, false, true, true, false], total: 5 },
-            { name: 'ปุญญพัฒน์ สุปิณะ', submissions: [false, false, true, true, true, false, false, false, false], total: 3 }
+            { name: 'ศศิกาญจน์ สุวรรณเพ็ญ', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'วันวิสา เพชรกวัก', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'กุลษนัณฆ์ เตมียศิลปิน', submissions: [true, true, true, true, true, true, true, true, false, true], total: 9 },
+            { name: 'ธัยชนก สินธุศรี', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'ธีรานนท์ เสริฐศรี', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'จารุพิชญา สิงหาเพ็ญ', submissions: [true, true, true, true, true, false, true, true, false, false], total: 7 },
+            { name: 'พฒณวง โพธิ์ศรี', submissions: [true, true, true, true, true, false, true, true, true, true], total: 9 },
+            { name: 'ณัฐปภัสร์ ธนวิโรจน์กุล', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'กมลวรรณ แจ่มเมือง', submissions: [true, true, true, true, true, false, true, true, true, true], total: 9 },
+            { name: 'กฤตทธรรษ มิลินทานุช', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'ธนวินท์ ระยับศรี', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'ถิรพงศ กาบตุ้ม', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'วรธน จอมสูงเนิน', submissions: [true, true, true, true, true, false, false, false, false, true], total: 6 },
+            { name: 'ชุติพนธ์ ไมลหรือ', submissions: [true, true, true, true, true, false, true, true, false, false], total: 7 },
+            { name: 'อุษยากร อุดม', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'ธนากร เฒ่าสีสุราช', submissions: [true, true, false, false, false, false, false, false, false, false], total: 2 },
+            { name: 'ลีลาวดี เยาวยอด', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'วชิรญาณ์ สมตัว', submissions: [true, true, true, true, true, false, true, true, false, false], total: 7 },
+            { name: 'ธนภัทร แตงทอง', submissions: [true, true, true, true, true, false, false, false, false, false], total: 5 },
+            { name: 'นภัสสร บรรลือทรัพย์', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'ปวริศา หมื่นมี', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'วิชญาดา สมจิตร', submissions: [true, true, false, true, false, false, false, true, false, false], total: 4 },
+            { name: 'ปาณิสรา หรุ่นพานิช', submissions: [true, true, true, true, true, false, true, true, false, false], total: 7 },
+            { name: 'อนุวัฒน์ สิงห์ใส', submissions: [false, true, false, false, false, false, false, false, false, false], total: 1 },
+            { name: 'จิรัชยา พุ่มพวง', submissions: [true, true, true, true, true, false, true, true, true, true], total: 9 },
+            { name: 'จิตรภาณุ กาญจน์แก้ว', submissions: [true, true, true, true, true, false, false, false, false, true], total: 6 },
+            { name: 'ปัญชลิกา ชูหิรัญ', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
+            { name: 'มานิตา วิเทียนเทียบ', submissions: [false, true, true, true, true, false, false, false, false, false], total: 4 },
+            { name: 'สิรกดนัย ดวงเนตร', submissions: [false, true, true, true, true, false, true, true, false, false], total: 6 },
+            { name: 'พิมพ์สุดา งามขำ', submissions: [true, true, true, true, true, true, true, true, false, true], total: 9 },
+            { name: 'เจิมขวัญ โฉมชิต', submissions: [false, true, false, false, false, false, false, false, false, false], total: 1 },
+            { name: 'วริศรา พนมสวย', submissions: [true, true, true, true, true, false, false, false, false, true], total: 6 },
+            { name: 'ธัญญาพร แสนวิเศษ', submissions: [false, true, true, true, true, false, true, true, false, false], total: 6 },
+            { name: 'กัญญาภัค วิมล', submissions: [false, true, true, true, true, false, true, true, false, false], total: 6 },
+            { name: 'ณัฐวดี พรพงษ์', submissions: [false, false, true, true, true, false, true, true, false, false], total: 5 },
+            { name: 'ปุญญพัฒน์ สุปิณะ', submissions: [false, false, true, true, true, false, false, false, false, false], total: 3 }
         ];
 
         const assignments = [
             'ฟังก์ชั่น', 'เครื่องหมายฯ', 'หาปริมาตร', 'แปลงวินาทีฯ', 'เงินทอน',
-            'คำสั่งเงื่อนไข', 'คำนวณค่าไฟ', 'Nice to meet you', 'เครื่องคิดเลข'
+            'คำสั่งเงื่อนไข', 'คำนวณค่าไฟ', 'Nice to meet you', 'เครื่องคิดเลข', 'BMI'
         ];
 
         let sortState = {
             column: 'total',
             direction: 'desc'
         };
+        
+        let charts = {};
 
         document.addEventListener('DOMContentLoaded', () => {
-            updateKPIs();
-            renderAssignmentsChart();
-            renderStudentStatusChart();
-            renderTable(studentData);
+            updateDashboard();
             setupEventListeners();
         });
         
+        function updateDashboard() {
+            updateKPIs();
+            renderAssignmentsChart();
+            renderStudentStatusChart();
+            sortData(sortState.column, true); 
+        }
+
         function updateKPIs() {
             const totalStudents = studentData.length;
             const totalAssignments = assignments.length;
@@ -231,15 +238,21 @@
             });
         }
 
-        function sortData(column) {
-            if (sortState.column === column) {
-                sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                sortState.column = column;
-                sortState.direction = 'asc';
+        function sortData(column, keepDirection = false) {
+            if (!keepDirection) {
+                if (sortState.column === column) {
+                    sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortState.column = column;
+                    sortState.direction = 'asc';
+                }
             }
 
-            const sortedData = [...studentData].sort((a, b) => {
+            const currentFilter = document.getElementById('searchInput').value.toLowerCase();
+            const dataToSort = studentData.filter(student => student.name.toLowerCase().includes(currentFilter));
+
+
+            dataToSort.sort((a, b) => {
                 let valA, valB;
                 if (column === 'name') {
                     valA = a.name.toLowerCase();
@@ -255,7 +268,7 @@
             });
             
             updateSortHeaders();
-            renderTable(sortedData);
+            renderTable(dataToSort);
         }
         
         function updateSortHeaders() {
@@ -270,11 +283,7 @@
         function setupEventListeners() {
             const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('keyup', () => {
-                const searchTerm = searchInput.value.toLowerCase();
-                const filteredData = studentData.filter(student => 
-                    student.name.toLowerCase().includes(searchTerm)
-                );
-                renderTable(filteredData);
+                sortData(sortState.column, true);
             });
 
             document.querySelectorAll('.sortable').forEach(header => {
@@ -286,11 +295,13 @@
 
         function renderAssignmentsChart() {
             const ctx = document.getElementById('assignmentsChart').getContext('2d');
+            if(charts.assignments) charts.assignments.destroy();
+            
             const submissionCounts = assignments.map((_, index) => 
                 studentData.filter(student => student.submissions[index]).length
             );
 
-            new Chart(ctx, {
+            charts.assignments = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: assignments,
@@ -334,6 +345,8 @@
 
         function renderStudentStatusChart() {
             const ctx = document.getElementById('studentStatusChart').getContext('2d');
+            if(charts.studentStatus) charts.studentStatus.destroy();
+            
             const totalAssignments = assignments.length;
             const statusCounts = {
                 complete: 0,
@@ -342,22 +355,22 @@
             };
 
             studentData.forEach(student => {
-                if (student.total === totalAssignments) {
+                 if (student.total === totalAssignments) {
                     statusCounts.complete++;
-                } else if (student.total >= totalAssignments - 2) {
+                } else if (student.total >= totalAssignments - 3) {
                     statusCounts.nearlyComplete++;
                 } else {
                     statusCounts.needsAttention++;
                 }
             });
 
-            new Chart(ctx, {
+            charts.studentStatus = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: [
                         `ส่งครบ (${statusCounts.complete} คน)`, 
-                        `ค้าง 1-2 งาน (${statusCounts.nearlyComplete} คน)`, 
-                        `ค้าง 3+ งาน (${statusCounts.needsAttention} คน)`
+                        `ค้าง 1-3 งาน (${statusCounts.nearlyComplete} คน)`, 
+                        `ค้าง 4+ งาน (${statusCounts.needsAttention} คน)`
                     ],
                     datasets: [{
                         data: Object.values(statusCounts),
@@ -388,3 +401,4 @@
     </script>
 </body>
 </html>
+
