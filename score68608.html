@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แดชบอร์ดสรุปการส่งงาน ม.6/8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Blue/Green accents -->
+    <!-- Application Structure Plan: The application is designed as an interactive dashboard. The structure begins with high-level Key Performance Indicators (KPIs) for a quick overview (overall submission rate, top student). This is followed by two main visualizations: a horizontal bar chart showing submission rates per assignment to easily identify difficult tasks, and a donut chart categorizing students by submission volume for a class-wide performance snapshot. Finally, a detailed, searchable, and sortable table allows for granular exploration of each student's data. This top-down structure (from summary to detail) provides a logical and efficient user flow for a teacher to analyze class performance effectively. -->
+    <!-- Visualization & Content Choices: 
+        1. KPIs: (Goal: Inform) -> HTML Cards. Simple, direct presentation of key stats.
+        2. Submission Rate per Assignment: (Goal: Compare) -> Chart.js Horizontal Bar Chart. Chosen for its clear comparison of categories with long Thai labels. Interaction: Tooltips on hover.
+        3. Student Performance Groups: (Goal: Organize) -> Chart.js Donut Chart. Shows parts-of-a-whole distribution of the class into performance tiers. Interaction: Tooltips on hover.
+        4. Detailed Student List: (Goal: Organize/Explore) -> Interactive HTML Table. The best format for detailed data. Interaction: Live search/filter and column sorting via JavaScript to make the data highly usable.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .sortable:hover {
+            cursor: pointer;
+            background-color: #e9ecef;
+        }
+        .sort-asc::after {
+            content: ' ▲';
+            font-size: 0.8em;
+        }
+        .sort-desc::after {
+            content: ' ▼';
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-700">แดชบอร์ดสรุปการส่งงาน</h1>
+            <p class="text-lg text-gray-500 mt-1">ห้องเรียน ม.6/8</p>
+        </header>
+
+        <main>
+            <!-- KPIs Section -->
+            <section id="kpi-section" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+                <div class="bg-white p-4 rounded-xl shadow-md text-center">
+                    <h3 class="text-md sm:text-lg font-semibold text-gray-500">นักเรียนทั้งหมด</h3>
+                    <p id="total-students" class="text-3xl font-bold text-blue-600 mt-2">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-md text-center">
+                    <h3 class="text-md sm:text-lg font-semibold text-gray-500">งานทั้งหมด</h3>
+                    <p id="total-assignments" class="text-3xl font-bold text-blue-600 mt-2">0</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-md text-center">
+                    <h3 class="text-md sm:text-lg font-semibold text-gray-500">อัตราการส่งเฉลี่ย</h3>
+                    <p id="avg-submission-rate" class="text-3xl font-bold text-green-600 mt-2">0%</p>
+                </div>
+                 <div class="bg-white p-4 rounded-xl shadow-md text-center">
+                    <h3 class="text-md sm:text-lg font-semibold text-gray-500">งานที่ส่งน้อยที่สุด</h3>
+                    <p id="least-submitted" class="text-md sm:text-lg font-bold text-red-500 mt-2 leading-tight">-</p>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8 mb-8">
+                <div class="lg:col-span-3 bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-center mb-4">อัตราการส่งงานแต่ละหัวข้อ</h2>
+                    <p class="text-center text-gray-500 mb-4 text-sm">แสดงจำนวนนักเรียนที่ส่งงานในแต่ละหัวข้อ เพื่อให้เห็นภาพรวมว่าหัวข้อใดที่นักเรียนส่วนใหญ่ทำเสร็จแล้ว หรือหัวข้อใดยังมีนักเรียนค้างส่งอยู่เป็นจำนวนมาก</p>
+                    <div class="chart-container">
+                        <canvas id="assignmentsChart"></canvas>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-center mb-4">ภาพรวมการส่งงานของนักเรียน</h2>
+                    <p class="text-center text-gray-500 mb-4 text-sm">แบ่งกลุ่มนักเรียนตามจำนวนงานที่ส่ง เพื่อให้เห็นสัดส่วนของนักเรียนที่ส่งงานครบ, เกือบครบ, หรือยังค้างส่งอยู่หลายชิ้น</p>
+                    <div class="chart-container">
+                        <canvas id="studentStatusChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Table Section -->
+            <section class="bg-white p-4 sm:p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-bold mb-4">ตารางสรุปรายบุคคล</h2>
+                <p class="text-gray-500 mb-4 text-sm">
+                    ตารางนี้แสดงข้อมูลการส่งงานของนักเรียนแต่ละคนอย่างละเอียด คุณสามารถค้นหาชื่อนักเรียน หรือจัดเรียงข้อมูลตามชื่อและจำนวนงานที่ส่งได้โดยการคลิกที่หัวตาราง
+                </p>
+                <div class="mb-4">
+                    <input type="text" id="searchInput" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="ค้นหาชื่อนักเรียน...">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-100 text-gray-600">
+                            <tr>
+                                <th class="p-3 sortable" data-sort="name">ชื่อ-สกุล</th>
+                                <th class="p-3 text-center" title="ฟังก์ชั่น">ฟังก์ชั่น</th>
+                                <th class="p-3 text-center" title="เครื่องหมายฯ">เครื่องหมายฯ</th>
+                                <th class="p-3 text-center" title="หาปริมาตร">หาปริมาตร</th>
+                                <th class="p-3 text-center" title="แปลงวินาทีฯ">แปลงวินาทีฯ</th>
+                                <th class="p-3 text-center" title="เงินทอน">เงินทอน</th>
+                                <th class="p-3 text-center" title="คำสั่งเงื่อนไข">คำสั่งเงื่อนไข</th>
+                                <th class="p-3 text-center" title="คำนวณค่าไฟ">คำนวณค่าไฟ</th>
+                                <th class="p-3 text-center" title="Nice to meet you">Nice to meet you</th>
+                                <th class="p-3 text-center" title="เครื่องคิดเลข">เครื่องคิดเลข</th>
+                                <th class="p-3 text-center sortable sort-desc" data-sort="total">รวม</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <!-- JS will populate this -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        const studentData = [
+            { name: 'ศศิกาญจน์ สุวรรณเพ็ญ', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'วันวิสา เพชรกวัก', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'กุลษนัณฆ์ เตมียศิลปิน', submissions: [true, true, true, true, true, true, true, true, false], total: 8 },
+            { name: 'ธัยชนก สินธุศรี', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'ธีรานนนท์ เสริฐศรี', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'จารุพิชญา สิงหาเพ็ญ', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'พฒณวง โพธิ์ศรี', submissions: [true, true, true, true, true, false, true, true, true], total: 8 },
+            { name: 'ณัฐปภัสร์ ธนวิโรจน์กุล', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'กมลวรรณ แจ่มเมือง', submissions: [true, true, true, true, true, false, true, true, true], total: 8 },
+            { name: 'กฤตทธรรษ มิลินทานุช', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'ธนวินท์ ระยับศรี', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'ถิรพงศ กาบตุ้ม', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'วรธน จอมสูงเนิน', submissions: [true, true, true, true, true, false, false, false, false], total: 5 },
+            { name: 'ชุติพนธ์ ไมลหรือ', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'อุษยากร อุดม', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'ธนากร เฒ่าสีสุราช', submissions: [true, true, false, false, false, false, false, false, false], total: 2 },
+            { name: 'ลีลาวดี เยาวยอด', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'วชิรญาณ์ สมตัว', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'ธนภัทร แตงทอง', submissions: [true, true, true, true, true, false, false, false, false], total: 5 },
+            { name: 'นภัสสร บรรลือทรัพย์', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'ปวริศา หมื่นมี', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'วิชญาดา สมจิตร', submissions: [true, true, false, true, false, false, false, true, false], total: 4 },
+            { name: 'ปาณิสรา หรุ่นพานิช', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'อนุวัฒน์ สิงห์ใส', submissions: [false, true, false, false, false, false, false, false, false], total: 1 },
+            { name: 'จิรัชยา พุ่มพวง', submissions: [true, true, true, true, true, false, true, true, true], total: 8 },
+            { name: 'จิตรภาณุ กาญจน์แก้ว', submissions: [true, true, true, true, true, false, false, false, false], total: 5 },
+            { name: 'ปัญชลิกา ชูหิรัญ', submissions: [true, true, true, true, true, false, true, true, false], total: 7 },
+            { name: 'มานิตา วิเทียนเทียบ', submissions: [false, true, true, true, true, false, false, false, false], total: 4 },
+            { name: 'สิรกดนัย ดวงเนตร', submissions: [false, true, true, true, true, false, true, true, false], total: 6 },
+            { name: 'พิมพ์สุดา งามขำ', submissions: [true, true, true, true, true, true, true, true, false], total: 8 },
+            { name: 'เจิมขวัญ โฉมชิต', submissions: [false, true, false, false, false, false, false, false, false], total: 1 },
+            { name: 'วริศรา พนมสวย', submissions: [true, true, true, true, true, false, false, false, false], total: 5 },
+            { name: 'ธัญญาพร แสนวิเศษ', submissions: [false, true, true, true, true, false, true, true, false], total: 6 },
+            { name: 'กัญญาภัค วิมล', submissions: [false, true, true, true, true, false, true, true, false], total: 6 },
+            { name: 'ณัฐวดี พรพงษ์', submissions: [false, false, true, true, true, false, true, true, false], total: 5 },
+            { name: 'ปุญญพัฒน์ สุปิณะ', submissions: [false, false, true, true, true, false, false, false, false], total: 3 }
+        ];
+
+        const assignments = [
+            'ฟังก์ชั่น', 'เครื่องหมายฯ', 'หาปริมาตร', 'แปลงวินาทีฯ', 'เงินทอน',
+            'คำสั่งเงื่อนไข', 'คำนวณค่าไฟ', 'Nice to meet you', 'เครื่องคิดเลข'
+        ];
+
+        let sortState = {
+            column: 'total',
+            direction: 'desc'
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateKPIs();
+            renderAssignmentsChart();
+            renderStudentStatusChart();
+            renderTable(studentData);
+            setupEventListeners();
+        });
+        
+        function updateKPIs() {
+            const totalStudents = studentData.length;
+            const totalAssignments = assignments.length;
+            const totalPossibleSubmissions = totalStudents * totalAssignments;
+            const totalActualSubmissions = studentData.reduce((sum, student) => sum + student.total, 0);
+            const avgSubmissionRate = totalPossibleSubmissions > 0 ? (totalActualSubmissions / totalPossibleSubmissions * 100).toFixed(0) : 0;
+
+            const submissionCounts = assignments.map((_, index) => 
+                studentData.filter(student => student.submissions[index]).length
+            );
+            const minSubmissions = Math.min(...submissionCounts);
+            const leastSubmittedIndex = submissionCounts.indexOf(minSubmissions);
+            const leastSubmittedAssignment = assignments[leastSubmittedIndex];
+
+            document.getElementById('total-students').textContent = totalStudents;
+            document.getElementById('total-assignments').textContent = totalAssignments;
+            document.getElementById('avg-submission-rate').textContent = `${avgSubmissionRate}%`;
+            document.getElementById('least-submitted').textContent = leastSubmittedAssignment;
+        }
+
+        function renderTable(data) {
+            const tableBody = document.getElementById('studentTableBody');
+            tableBody.innerHTML = '';
+            data.forEach(student => {
+                const row = document.createElement('tr');
+                row.className = 'border-b hover:bg-gray-50';
+                
+                let cells = `<td class="p-3 font-medium">${student.name}</td>`;
+                student.submissions.forEach(submitted => {
+                    cells += `<td class="p-3 text-center">${submitted ? '✅' : '❌'}</td>`;
+                });
+                cells += `<td class="p-3 text-center font-bold">${student.total}</td>`;
+                
+                row.innerHTML = cells;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function sortData(column) {
+            if (sortState.column === column) {
+                sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortState.column = column;
+                sortState.direction = 'asc';
+            }
+
+            const sortedData = [...studentData].sort((a, b) => {
+                let valA, valB;
+                if (column === 'name') {
+                    valA = a.name.toLowerCase();
+                    valB = b.name.toLowerCase();
+                } else {
+                    valA = a.total;
+                    valB = b.total;
+                }
+
+                if (valA < valB) return sortState.direction === 'asc' ? -1 : 1;
+                if (valA > valB) return sortState.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+            
+            updateSortHeaders();
+            renderTable(sortedData);
+        }
+        
+        function updateSortHeaders() {
+            document.querySelectorAll('.sortable').forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+                if (header.dataset.sort === sortState.column) {
+                    header.classList.add(sortState.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keyup', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                const filteredData = studentData.filter(student => 
+                    student.name.toLowerCase().includes(searchTerm)
+                );
+                renderTable(filteredData);
+            });
+
+            document.querySelectorAll('.sortable').forEach(header => {
+                header.addEventListener('click', () => {
+                    sortData(header.dataset.sort);
+                });
+            });
+        }
+
+        function renderAssignmentsChart() {
+            const ctx = document.getElementById('assignmentsChart').getContext('2d');
+            const submissionCounts = assignments.map((_, index) => 
+                studentData.filter(student => student.submissions[index]).length
+            );
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: assignments,
+                    datasets: [{
+                        label: 'จำนวนนักเรียนที่ส่ง',
+                        data: submissionCounts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: studentData.length,
+                            title: {
+                                display: true,
+                                text: 'จำนวนนักเรียน'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.raw} คน`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderStudentStatusChart() {
+            const ctx = document.getElementById('studentStatusChart').getContext('2d');
+            const totalAssignments = assignments.length;
+            const statusCounts = {
+                complete: 0,
+                nearlyComplete: 0,
+                needsAttention: 0
+            };
+
+            studentData.forEach(student => {
+                if (student.total === totalAssignments) {
+                    statusCounts.complete++;
+                } else if (student.total >= totalAssignments - 2) {
+                    statusCounts.nearlyComplete++;
+                } else {
+                    statusCounts.needsAttention++;
+                }
+            });
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        `ส่งครบ (${statusCounts.complete} คน)`, 
+                        `ค้าง 1-2 งาน (${statusCounts.nearlyComplete} คน)`, 
+                        `ค้าง 3+ งาน (${statusCounts.needsAttention} คน)`
+                    ],
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(255, 99, 132, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
