@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>แดชบอร์ดสรุปการส่งงาน ม.6/8</title>
+    <title>แดชบอร์ดสรุปการส่งงาน ว30297 วิชาเขียนโปรแกรม ม.6/8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -120,7 +120,8 @@
                                 <th class="p-3 text-center" title="เงินทอน">เงินทอน</th>
                                 <th class="p-3 text-center" title="คำสั่งเงื่อนไข">คำสั่งเงื่อนไข</th>
                                 <th class="p-3 text-center" title="คำนวณค่าไฟ">คำนวณค่าไฟ</th>
-                                <th class="p-3 text-center" title="Nice to meet you">Nice to meet you</th>
+                                <th class="p-3 text-center" title="ประยุกต์ใช้ While">While</th>
+                                <th class="p-3 text-center" title="Nice to meet you">Nice...</th>
                                 <th class="p-3 text-center" title="เครื่องคิดเลข">เครื่องคิดเลข</th>
                                 <th class="p-3 text-center" title="BMI">BMI</th>
                                 <th class="p-3 text-center sortable sort-desc" data-sort="total">รวม</th>
@@ -138,47 +139,47 @@
 
     <script>
         const studentData = [
-            { name: 'ศศิกาญจน์ สุวรรณเพ็ญ', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'วันวิสา เพชรกวัก', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'กุลษนัณฆ์ เตมียศิลปิน', submissions: [true, true, true, true, true, true, true, true, false, true], total: 9 },
-            { name: 'ธัยชนก สินธุศรี', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'ธีรานนท์ เสริฐศรี', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'จารุพิชญา สิงหาเพ็ญ', submissions: [true, true, true, true, true, false, true, true, false, false], total: 7 },
-            { name: 'พฒณวง โพธิ์ศรี', submissions: [true, true, true, true, true, false, true, true, true, true], total: 9 },
-            { name: 'ณัฐปภัสร์ ธนวิโรจน์กุล', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'กมลวรรณ แจ่มเมือง', submissions: [true, true, true, true, true, false, true, true, true, true], total: 9 },
-            { name: 'กฤตทธรรษ มิลินทานุช', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'ธนวินท์ ระยับศรี', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'ถิรพงศ กาบตุ้ม', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'วรธน จอมสูงเนิน', submissions: [true, true, true, true, true, false, false, false, false, true], total: 6 },
-            { name: 'ชุติพนธ์ ไมลหรือ', submissions: [true, true, true, true, true, false, true, true, false, false], total: 7 },
-            { name: 'อุษยากร อุดม', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'ธนากร เฒ่าสีสุราช', submissions: [true, true, false, false, false, false, false, false, false, false], total: 2 },
-            { name: 'ลีลาวดี เยาวยอด', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'วชิรญาณ์ สมตัว', submissions: [true, true, true, true, true, false, true, true, false, false], total: 7 },
-            { name: 'ธนภัทร แตงทอง', submissions: [true, true, true, true, true, false, false, false, false, false], total: 5 },
-            { name: 'นภัสสร บรรลือทรัพย์', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'ปวริศา หมื่นมี', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'วิชญาดา สมจิตร', submissions: [true, true, false, true, false, false, false, true, false, false], total: 4 },
-            { name: 'ปาณิสรา หรุ่นพานิช', submissions: [true, true, true, true, true, false, true, true, false, false], total: 7 },
-            { name: 'อนุวัฒน์ สิงห์ใส', submissions: [false, true, false, false, false, false, false, false, false, false], total: 1 },
-            { name: 'จิรัชยา พุ่มพวง', submissions: [true, true, true, true, true, false, true, true, true, true], total: 9 },
-            { name: 'จิตรภาณุ กาญจน์แก้ว', submissions: [true, true, true, true, true, false, false, false, false, true], total: 6 },
-            { name: 'ปัญชลิกา ชูหิรัญ', submissions: [true, true, true, true, true, false, true, true, false, true], total: 8 },
-            { name: 'มานิตา วิเทียนเทียบ', submissions: [false, true, true, true, true, false, false, false, false, false], total: 4 },
-            { name: 'สิรกดนัย ดวงเนตร', submissions: [false, true, true, true, true, false, true, true, false, false], total: 6 },
-            { name: 'พิมพ์สุดา งามขำ', submissions: [true, true, true, true, true, true, true, true, false, true], total: 9 },
-            { name: 'เจิมขวัญ โฉมชิต', submissions: [false, true, false, false, false, false, false, false, false, false], total: 1 },
-            { name: 'วริศรา พนมสวย', submissions: [true, true, true, true, true, false, false, false, false, true], total: 6 },
-            { name: 'ธัญญาพร แสนวิเศษ', submissions: [false, true, true, true, true, false, true, true, false, false], total: 6 },
-            { name: 'กัญญาภัค วิมล', submissions: [false, true, true, true, true, false, true, true, false, false], total: 6 },
-            { name: 'ณัฐวดี พรพงษ์', submissions: [false, false, true, true, true, false, true, true, false, false], total: 5 },
-            { name: 'ปุญญพัฒน์ สุปิณะ', submissions: [false, false, true, true, true, false, false, false, false, false], total: 3 }
+            { name: 'ศศิกาญจน์ สุวรรณเพ็ญ', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'วันวิสา เพชรกวัก', submissions: [true, true, true, true, true, true, true, false, true, true, true], total: 10 },
+            { name: 'กุลษนัณฆ์ เตมียศิลปิน', submissions: [true, true, true, true, true, true, false, true, true, true, true], total: 10 },
+            { name: 'ธัญชนก สินธุศรี', submissions: [true, true, true, true, true, false, true, false, true, true, true], total: 9 },
+            { name: 'ธีรานนท์ เสริฐศรี', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'จารุพิชญา สิงหาเพ็ญ', submissions: [true, true, true, true, true, false, true, false, true, true, true], total: 9 },
+            { name: 'พฒณวง โพธิ์ศรี', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'ณัฐปภัสร์ ธนวิโรจน์กุล', submissions: [true, true, true, true, true, true, true, true, true, true, true], total: 11 },
+            { name: 'กมลวรรณ แจ่มเมือง', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'กฤตทธรรษ มิลินทานุช', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'ธนวินท์ ระยับศรี', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'ถิรพงศ กาบตุ้ม', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'วรธน จอมสูงเนิน', submissions: [true, true, true, true, true, false, false, false, false, false, true], total: 6 },
+            { name: 'ชุติพนธ์ ไมล์หรือ', submissions: [true, true, true, true, true, false, true, true, true, true, false], total: 9 },
+            { name: 'อุษยากร อุดม', submissions: [true, true, true, true, true, false, true, false, true, true, true], total: 9 },
+            { name: 'ธนากร เฒ่าสีสุราช', submissions: [true, true, false, false, false, false, false, false, false, false, false], total: 2 },
+            { name: 'ลีลาวดี เยาวยอด', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'วชิรญาณ์ สมตัว', submissions: [true, true, true, true, true, false, true, true, true, true, false], total: 9 },
+            { name: 'ธนภัทร แตงทอง', submissions: [true, true, true, true, true, false, false, false, false, false, false], total: 5 },
+            { name: 'นภัสสร บรรลือทรัพย์', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'ปวริศา หมื่นมี', submissions: [true, true, true, true, true, false, true, false, true, true, true], total: 9 },
+            { name: 'วิชญาดา สมจิตร', submissions: [true, true, false, true, false, false, false, false, true, false, false], total: 4 },
+            { name: 'ปาณิสรา หรุ่นพานิช', submissions: [true, true, true, true, true, false, true, true, true, true, false], total: 9 },
+            { name: 'อนุวัฒน์ สิงห์ใส', submissions: [false, true, false, false, false, false, false, false, false, false, false], total: 1 },
+            { name: 'จิรัชยา พุ่มพวง', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'จิตรภาณุ กาญจน์แก้ว', submissions: [true, true, true, true, true, false, true, true, false, true, true], total: 9 },
+            { name: 'ปัญชลิกา ชูหิรัญ', submissions: [true, true, true, true, true, false, true, true, true, true, true], total: 10 },
+            { name: 'มานิตา วิเทียนเทียบ', submissions: [false, true, true, true, true, false, false, false, false, false, true], total: 5 },
+            { name: 'สิรกดนัย ดวงเนตร', submissions: [false, true, true, true, true, false, true, false, false, false, true], total: 6 },
+            { name: 'พิมพ์สุดา งามขำ', submissions: [true, true, true, true, true, true, false, true, true, true, true], total: 10 },
+            { name: 'เจิมขวัญ โฉมชิต', submissions: [false, true, false, false, false, false, false, false, false, false, false], total: 1 },
+            { name: 'วริศรา พนมสวย', submissions: [true, true, true, true, true, false, false, true, true, true, false], total: 8 },
+            { name: 'ธัญญาพร แสนวิเศษ', submissions: [false, true, true, true, true, false, true, false, true, false, false], total: 6 },
+            { name: 'กัญญาภัค วิมล', submissions: [false, true, true, true, true, false, true, false, false, false, true], total: 6 },
+            { name: 'ณัฐวดี พรพงษ์', submissions: [false, false, true, true, true, false, true, false, false, true, false], total: 5 },
+            { name: 'ปุญญพัฒน์ สุปิณะ', submissions: [false, false, true, true, true, false, false, false, false, false, false], total: 3 }
         ];
 
         const assignments = [
             'ฟังก์ชั่น', 'เครื่องหมายฯ', 'หาปริมาตร', 'แปลงวินาทีฯ', 'เงินทอน',
-            'คำสั่งเงื่อนไข', 'คำนวณค่าไฟ', 'Nice to meet you', 'เครื่องคิดเลข', 'BMI'
+            'คำสั่งเงื่อนไข', 'คำนวณค่าไฟ', 'ประยุกต์ใช้ While', 'Nice to meet you', 'เครื่องคิดเลข', 'BMI'
         ];
 
         let sortState = {
