@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กลยุทธ์การจัดกิจกรรมการเรียนรู้เพื่อพัฒนาทักษะการคิดขั้นสูง</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Scholarly Serenity -->
+    <!-- Application Structure Plan: The application is designed as an interactive, tab-based dashboard rather than a linear report. This structure was chosen for superior usability, allowing educators to directly access strategies for a specific thinking skill (Analysis, Evaluation, Creation) they wish to focus on. The main sections are: 1) An introduction with a visual hierarchy of thinking skills. 2) A core interactive section with tabs for each of the three higher-order skills. Within each tab, users can click on specific strategy cards to reveal detailed information (description, examples, roles), promoting active exploration. 3) A synthesis section with a radar chart to visually compare how different strategies might address multiple skills. This user-centric, non-linear approach is more practical for lesson planning than a static document. -->
+    <!-- Visualization & Content Choices: 1. Bloom's Taxonomy -> Goal: Organize/Inform -> Viz: HTML/CSS Pyramid -> Interaction: Static Visual -> Justification: Provides an immediate visual framework for the concepts, built with accessible HTML to avoid SVG. 2. Teaching Strategies -> Goal: Inform/Organize -> Viz: Interactive Cards -> Interaction: Click-to-reveal details -> Justification: Encourages user engagement and breaks down complex information into manageable, on-demand chunks. 3. Strategy Comparison -> Goal: Compare/Relationships -> Viz: Radar Chart -> Interaction: Hover tooltips -> Justification: Effectively visualizes the multi-faceted nature of complex teaching methods and how they service different cognitive skills simultaneously, using Chart.js for dynamic rendering. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #FDFBF8;
+            color: #3D405B;
+        }
+        .tab-active {
+            background-color: #81B29A;
+            color: #FFFFFF;
+            border-color: #81B29A;
+        }
+        .tab-inactive {
+            background-color: #FFFFFF;
+            color: #3D405B;
+            border-color: #D1D5DB;
+        }
+        .strategy-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .strategy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .strategy-card-active {
+            border-color: #81B29A;
+            border-width: 2px;
+            background-color: #F0F7F4;
+        }
+        .pyramid-level {
+            clip-path: polygon(10% 0, 90% 0, 100% 100%, 0% 100%);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-bold text-[#3D405B] mb-2">กลยุทธ์การเรียนรู้เพื่อทักษะการคิดขั้นสูง</h1>
+            <p class="text-lg md:text-xl text-[#81B29A] font-medium">วิเคราะห์ | ประเมินค่า | สร้างสรรค์</p>
+        </header>
+
+        <main>
+            <section id="introduction" class="mb-12 bg-white p-6 rounded-2xl shadow-sm">
+                <h2 class="text-2xl font-bold text-center mb-6 text-[#3D405B]">ทักษะการคิดขั้นสูงคืออะไร?</h2>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="text-base text-gray-700 leading-relaxed">
+                        <p class="mb-4">ทักษะการคิดขั้นสูง (Higher-Order Thinking Skills) คือความสามารถทางสติปัญญาที่ซับซ้อนกว่าแค่การจดจำข้อเท็จจริง โดยอ้างอิงตามทฤษฎีของบลูม (Bloom's Taxonomy) จะเน้นที่ 3 ระดับบนสุดของพีระมิดการเรียนรู้ ซึ่งเป็นหัวใจสำคัญของการศึกษาในศตวรรษที่ 21 เพื่อสร้างผู้เรียนที่สามารถนำความรู้ไปประยุกต์ใช้ แก้ปัญหา และสร้างสรรค์นวัตกรรมใหม่ๆ ได้</p>
+                        <p>แอปพลิเคชันนี้จะนำเสนอแนวทางและกลยุทธ์การจัดกิจกรรมการเรียนรู้ เพื่อส่งเสริมทักษะการคิดในแต่ละด้านอย่างเป็นระบบและเห็นผลจริง</p>
+                    </div>
+                    <div class="flex justify-center items-center p-4">
+                        <div class="w-full max-w-xs text-center font-semibold">
+                             <div class="bg-[#E07A5F] text-white py-4 rounded-t-lg">สร้างสรรค์ (Create)</div>
+                             <div class="bg-[#F2CC8F] text-[#3D405B] py-4">ประเมินค่า (Evaluate)</div>
+                             <div class="bg-[#81B29A] text-white py-4">วิเคราะห์ (Analyze)</div>
+                             <div class="bg-gray-200 text-gray-600 py-3 text-sm">ประยุกต์ใช้ (Apply)</div>
+                             <div class="bg-gray-300 text-gray-500 py-3 text-sm">เข้าใจ (Understand)</div>
+                             <div class="bg-gray-400 text-gray-500 py-3 text-sm rounded-b-lg">จดจำ (Remember)</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="strategies" class="mb-12">
+                <div class="flex justify-center mb-8 border-b border-gray-200">
+                    <nav class="flex flex-wrap justify-center -mb-px">
+                        <button id="tab-analyze" class="tab-btn tab-active text-lg font-semibold py-3 px-6 border-b-2 rounded-t-lg" data-target="panel-analyze">การวิเคราะห์</button>
+                        <button id="tab-evaluate" class="tab-btn tab-inactive text-lg font-semibold py-3 px-6 border-b-2 rounded-t-lg" data-target="panel-evaluate">การประเมินค่า</button>
+                        <button id="tab-create" class="tab-btn tab-inactive text-lg font-semibold py-3 px-6 border-b-2 rounded-t-lg" data-target="panel-create">การสร้างสรรค์</button>
+                    </nav>
+                </div>
+
+                <div id="panels-container">
+                    <div id="panel-analyze" class="tab-panel">
+                        <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">ส่วนนี้จะสำรวจกลยุทธ์ที่ช่วยให้นักเรียนสามารถแยกแยะองค์ประกอบ เปรียบเทียบ จัดกลุ่ม และมองเห็นความสัมพันธ์ของข้อมูล เพื่อให้เกิดความเข้าใจในโครงสร้างและความเชื่อมโยงของสิ่งต่างๆ อย่างลึกซึ้ง</p>
+                        <div class="grid md:grid-cols-12 gap-8">
+                            <div class="md:col-span-4">
+                                <div id="strategy-cards-analyze" class="space-y-4"></div>
+                            </div>
+                            <div class="md:col-span-8 bg-white p-6 rounded-2xl shadow-sm min-h-[300px]">
+                                <div id="strategy-details-analyze">
+                                    <div class="text-center text-gray-500 flex flex-col justify-center items-center h-full">
+                                        <span class="text-4xl mb-2">↑</span>
+                                        <p>เลือกกลยุทธ์ด้านซ้ายเพื่อดูรายละเอียด</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="panel-evaluate" class="tab-panel hidden">
+                        <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">กลยุทธ์ในส่วนนี้มุ่งเน้นการพัฒนาความสามารถในการตัดสินใจ วิจารณ์ และให้คุณค่าต่อข้อมูลหรือสถานการณ์ต่างๆ โดยใช้เกณฑ์และเหตุผลประกอบที่น่าเชื่อถือ ซึ่งเป็นทักษะสำคัญในการแก้ปัญหาที่ซับซ้อน</p>
+                        <div class="grid md:grid-cols-12 gap-8">
+                            <div class="md:col-span-4">
+                                <div id="strategy-cards-evaluate" class="space-y-4"></div>
+                            </div>
+                            <div class="md:col-span-8 bg-white p-6 rounded-2xl shadow-sm min-h-[300px]">
+                                <div id="strategy-details-evaluate">
+                                     <div class="text-center text-gray-500 flex flex-col justify-center items-center h-full">
+                                        <span class="text-4xl mb-2">↑</span>
+                                        <p>เลือกกลยุทธ์ด้านซ้ายเพื่อดูรายละเอียด</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="panel-create" class="tab-panel hidden">
+                        <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">ค้นพบกลยุทธ์ที่ส่งเสริมให้ผู้เรียนสามารถคิดค้น สร้างสรรค์สิ่งใหม่ หรือหาแนวทางแก้ปัญหาที่ไม่ซ้ำเดิม โดยการสังเคราะห์ความรู้และประสบการณ์เดิมเพื่อสร้างเป็นผลงานหรือแนวคิดที่มีเอกลักษณ์</p>
+                         <div class="grid md:grid-cols-12 gap-8">
+                            <div class="md:col-span-4">
+                                <div id="strategy-cards-create" class="space-y-4"></div>
+                            </div>
+                            <div class="md:col-span-8 bg-white p-6 rounded-2xl shadow-sm min-h-[300px]">
+                                <div id="strategy-details-create">
+                                     <div class="text-center text-gray-500 flex flex-col justify-center items-center h-full">
+                                        <span class="text-4xl mb-2">↑</span>
+                                        <p>เลือกกลยุทธ์ด้านซ้ายเพื่อดูรายละเอียด</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="synthesis" class="bg-white p-6 rounded-2xl shadow-sm">
+                <h2 class="text-2xl font-bold text-center mb-2 text-[#3D405B]">การบูรณาการทักษะผ่านกิจกรรม</h2>
+                <p class="text-center text-gray-600 mb-6 max-w-3xl mx-auto">กิจกรรมการเรียนรู้ที่มีประสิทธิภาพมักไม่ได้ส่งเสริมเพียงทักษะเดียว แต่เป็นการผสมผสานทักษะการคิดขั้นสูงหลายด้านเข้าด้วยกัน แผนภูมินี้แสดงให้เห็นว่ากิจกรรมแต่ละประเภทเน้นทักษะใดเป็นพิเศษ</p>
+                <div class="chart-container relative mx-auto w-full max-w-2xl h-80 md:h-96">
+                    <canvas id="synthesisChart"></canvas>
+                </div>
+            </section>
+
+        </main>
+        
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>พัฒนาขึ้นเพื่อเป็นเครื่องมือสำหรับนักการศึกษาในการออกแบบการเรียนรู้</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const strategyData = {
+                analyze: [
+                    {
+                        title: "การใช้ผังกราฟิก (Graphic Organizers)",
+                        description: "เครื่องมือที่ช่วยจัดระเบียบความคิดและข้อมูล ทำให้เห็นความสัมพันธ์ของข้อมูลได้ชัดเจน เช่น แผนผังความคิด (Mind Map), แผนผังเวนน์ (Venn Diagram), แผนภูมิก้างปลา (Fishbone Diagram)",
+                        example: "ให้นักเรียนสรุปเนื้อหาเรื่องระบบนิเวศโดยใช้ Mind Map เพื่อแสดงความเชื่อมโยงของสิ่งมีชีวิตและไม่มีชีวิต",
+                        teacherRole: "แนะนำรูปแบบผังกราฟิกที่เหมาะสม ตั้งคำถามกระตุ้น และอำนวยความสะดวก",
+                        studentRole: "รวบรวมข้อมูล, จัดกลุ่ม, และสร้างผังเพื่อนำเสนอความเข้าใจของตนเอง"
+                    },
+                    {
+                        title: "การเปรียบเทียบ (Comparing & Contrasting)",
+                        description: "กิจกรรมที่ให้นักเรียนค้นหาความเหมือนและความแตกต่างระหว่าง 2 สิ่งขึ้นไป เพื่อให้เข้าใจลักษณะเฉพาะของแต่ละสิ่งอย่างลึกซึ้ง",
+                        example: "เปรียบเทียบการปกครองระบอบประชาธิปไตยกับระบอบเผด็จการ โดยใช้ตารางเปรียบเทียบ",
+                        teacherRole: "กำหนดประเด็นในการเปรียบเทียบ และกระตุ้นให้หาเหตุผลสนับสนุน",
+                        studentRole: "ค้นคว้าข้อมูล, วิเคราะห์, และสรุปจุดเหมือน/จุดต่างอย่างมีหลักการ"
+                    },
+                    {
+                        title: "การตั้งคำถามแบบหมวก 6 ใบ (Six Thinking Hats)",
+                        description: "เทคนิคที่ใช้มุมมอง 6 ด้าน (แทนด้วยหมวก 6 สี) ในการวิเคราะห์สถานการณ์หรือปัญหา ทำให้ได้มุมมองที่รอบด้านและครบถ้วน",
+                        example: "วิเคราะห์ข่าวสถานการณ์ปัจจุบัน โดยให้กลุ่มนักเรียนสวมหมวกแต่ละสีเพื่อแสดงความคิดเห็นในมุมมองที่ต่างกัน",
+                        teacherRole: "อธิบายบทบาทของหมวกแต่ละใบ และควบคุมกระบวนการอภิปราย",
+                        studentRole: "สวมบทบาทตามสีหมวกและนำเสนอความคิดเห็นตามมุมมองนั้นๆ"
+                    }
+                ],
+                evaluate: [
+                    {
+                        title: "การโต้วาที (Debate)",
+                        description: "กิจกรรมที่ฝึกให้นักเรียนหาเหตุผลและหลักฐานมาสนับสนุนหรือโต้แย้งในประเด็นที่กำหนด เป็นการฝึกตัดสินและประเมินความน่าเชื่อถือของข้อมูล",
+                        example: "จัดโต้วาทีในญัตติ 'เทคโนโลยีมีผลดีมากกว่าผลเสียต่อการศึกษา' โดยแบ่งเป็นฝ่ายเสนอและฝ่ายค้าน",
+                        teacherRole: "กำหนดญัตติ, กติกา, และเป็นผู้ดำเนินรายการพร้อมให้ข้อมูลป้อนกลับ",
+                        studentRole: "ค้นคว้าข้อมูล, เตรียมประเด็น, และนำเสนอเหตุผลเพื่อหักล้างฝ่ายตรงข้าม"
+                    },
+                    {
+                        title: "การวิจารณ์วรรณกรรม/ผลงาน (Critique)",
+                        description: "กิจกรรมที่ให้นักเรียนประเมินคุณค่าของผลงานต่างๆ โดยใช้หลักการหรือเกณฑ์การประเมินที่ชัดเจน พร้อมให้เหตุผลประกอบการตัดสินใจ",
+                        example: "ให้นักเรียนเขียนบทวิจารณ์ภาพยนตร์ที่เพิ่งชม โดยอิงตามหลักการวิจารณ์ เช่น โครงเรื่อง, การแสดง, และการกำกับ",
+                        teacherRole: "ให้กรอบหรือเกณฑ์ในการวิจารณ์ และสอนวิธีการให้เหตุผลอย่างสร้างสรรค์",
+                        studentRole: "วิเคราะห์ผลงานตามเกณฑ์ที่กำหนด และเขียนแสดงความคิดเห็นอย่างมีเหตุผล"
+                    },
+                    {
+                        title: "การจำลองสถานการณ์ (Simulation)",
+                        description: "สร้างสถานการณ์จำลองที่นักเรียนต้องตัดสินใจเลือกทางเลือกต่างๆ และเผชิญกับผลลัพธ์ที่ตามมา เพื่อฝึกการประเมินสถานการณ์และตัดสินใจภายใต้เงื่อนไขที่จำกัด",
+                        example: "สถานการณ์จำลองการบริหารจัดการงบประมาณของห้องเรียน นักเรียนต้องตัดสินใจว่าจะจัดสรรเงินไปในกิจกรรมใดจึงจะเกิดประโยชน์สูงสุด",
+                        teacherRole: "ออกแบบสถานการณ์, กำหนดเงื่อนไข, และชวนอภิปรายผลหลังจบกิจกรรม",
+                        studentRole: "เข้าร่วมสถานการณ์, ตัดสินใจ, และสะท้อนคิดถึงผลของการตัดสินใจของตน"
+                    }
+                ],
+                create: [
+                    {
+                        title: "การเรียนรู้โดยใช้โครงงานเป็นฐาน (Project-Based Learning)",
+                        description: "ให้นักเรียนได้เรียนรู้ผ่านการทำโครงงานตามความสนใจ โดยมีการวางแผน, ลงมือปฏิบัติ, แก้ปัญหา และสร้างผลงานออกมาเป็นรูปธรรม",
+                        example: "โครงงาน 'ชุมชนของเราน่าอยู่' ให้นักเรียนสำรวจปัญหาในชุมชนและออกแบบแนวทางการแก้ไขในรูปแบบที่จับต้องได้ เช่น แคมเปญรณรงค์, สิ่งประดิษฐ์",
+                        teacherRole: "เป็นที่ปรึกษา, ตั้งคำถามท้าทาย, และสนับสนุนทรัพยากรที่จำเป็น",
+                        studentRole: "กำหนดหัวข้อ, วางแผน, ดำเนินการ, และนำเสนอผลงาน/องค์ความรู้ใหม่"
+                    },
+                    {
+                        title: "การออกแบบเชิงแก้ปัญหา (Problem-Based Learning)",
+                        description: "เริ่มต้นจากปัญหาหรือสถานการณ์ที่ซับซ้อนและไม่มีคำตอบตายตัว ให้นักเรียนระดมสมองเพื่อหาวิธีการแก้ปัญหาที่หลากหลายและสร้างสรรค์",
+                        example: "ตั้งโจทย์ปัญหา 'จะทำอย่างไรให้ขยะในโรงเรียนลดลง?' ให้นักเรียนทำงานกลุ่มเพื่อออกแบบวิธีการแก้ปัญหาที่ปฏิบัติได้จริง",
+                        teacherRole: "นำเสนอปัญหาที่น่าสนใจ และกระตุ้นให้เกิดกระบวนการสืบเสาะหาความรู้",
+                        studentRole: "ทำความเข้าใจปัญหา, ตั้งสมมติฐาน, ค้นคว้า, และนำเสนอแนวทางแก้ไข"
+                    },
+                    {
+                        title: "การเขียนเชิงสร้างสรรค์ (Creative Writing)",
+                        description: "เปิดโอกาสให้นักเรียนใช้จินตนาการและความคิดสร้างสรรค์ในการสร้างผลงานเขียนรูปแบบต่างๆ เช่น การแต่งเรื่องสั้น, บทกวี, หรือเขียนตอนจบใหม่ของนิทาน",
+                        example: "ให้นักเรียนจินตนาการว่า 'ถ้าฉันมีพลังวิเศษ 1 อย่าง' แล้วเขียนบรรยายว่าจะใช้พลังนั้นทำอะไรบ้าง",
+                        teacherRole: "สร้างบรรยากาศที่ผ่อนคลาย, กำหนดหัวข้อที่เปิดกว้าง, และให้กำลังใจ",
+                        studentRole: "ใช้จินตนาการและภาษาในการสร้างสรรค์เรื่องราวที่เป็นเอกลักษณ์ของตนเอง"
+                    }
+                ]
+            };
+
+            const tabs = document.querySelectorAll('.tab-btn');
+            const panels = document.querySelectorAll('.tab-panel');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(item => {
+                        item.classList.remove('tab-active');
+                        item.classList.add('tab-inactive');
+                    });
+                    tab.classList.add('tab-active');
+                    tab.classList.remove('tab-inactive');
+
+                    const target = document.getElementById(tab.dataset.target);
+                    panels.forEach(panel => {
+                        panel.classList.add('hidden');
+                    });
+                    target.classList.remove('hidden');
+                });
+            });
+            
+            function createStrategyCards(skill) {
+                const container = document.getElementById(`strategy-cards-${skill}`);
+                const detailsContainer = document.getElementById(`strategy-details-${skill}`);
+                if (!container) return;
+
+                container.innerHTML = '';
+                strategyData[skill].forEach((strategy, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'strategy-card bg-white p-4 rounded-lg border cursor-pointer';
+                    card.innerHTML = `<h4 class="font-semibold text-lg text-[#3D405B]">${strategy.title}</h4>`;
+                    
+                    card.addEventListener('click', () => {
+                        document.querySelectorAll(`#strategy-cards-${skill} .strategy-card`).forEach(c => c.classList.remove('strategy-card-active'));
+                        card.classList.add('strategy-card-active');
+                        
+                        detailsContainer.innerHTML = `
+                            <h3 class="text-xl font-bold text-[#81B29A] mb-3">${strategy.title}</h3>
+                            <p class="text-gray-700 mb-4">${strategy.description}</p>
+                            <div class="space-y-4 text-sm">
+                                <div class="bg-blue-50 p-3 rounded-lg">
+                                    <p class="font-semibold text-blue-800">ตัวอย่างกิจกรรม:</p>
+                                    <p class="text-blue-700">${strategy.example}</p>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="bg-green-50 p-3 rounded-lg">
+                                        <p class="font-semibold text-green-800">บทบาทครู:</p>
+                                        <p class="text-green-700">${strategy.teacherRole}</p>
+                                    </div>
+                                    <div class="bg-yellow-50 p-3 rounded-lg">
+                                        <p class="font-semibold text-yellow-800">บทบาทนักเรียน:</p>
+                                        <p class="text-yellow-700">${strategy.studentRole}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.appendChild(card);
+                });
+            }
+
+            createStrategyCards('analyze');
+            createStrategyCards('evaluate');
+            createStrategyCards('create');
+
+            const ctx = document.getElementById('synthesisChart').getContext('2d');
+            const synthesisChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['การวิเคราะห์', 'การประเมินค่า', 'การสร้างสรรค์'],
+                    datasets: [{
+                        label: 'การโต้วาที',
+                        data: [7, 9, 3],
+                        backgroundColor: 'rgba(224, 122, 95, 0.2)',
+                        borderColor: 'rgba(224, 122, 95, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'โครงงานเป็นฐาน (PBL)',
+                        data: [8, 8, 9],
+                        backgroundColor: 'rgba(129, 178, 154, 0.2)',
+                        borderColor: 'rgba(129, 178, 154, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'ใช้ผังกราฟิก',
+                        data: [9, 5, 6],
+                        backgroundColor: 'rgba(242, 204, 143, 0.2)',
+                        borderColor: 'rgba(242, 204, 143, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(61, 64, 91, 0.2)'
+                            },
+                            grid: {
+                                color: 'rgba(61, 64, 91, 0.2)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    family: 'Sarabun, sans-serif'
+                                },
+                                color: '#3D405B'
+                            },
+                            ticks: {
+                                backdropColor: '#FDFBF8',
+                                color: '#3D405B',
+                                stepSize: 2
+                            },
+                             min: 0,
+                             max: 10
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                 font: {
+                                    size: 14,
+                                    family: 'Sarabun, sans-serif'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            titleFont: { family: 'Sarabun, sans-serif' },
+                            bodyFont: { family: 'Sarabun, sans-serif' }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
