@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สถิติการส่งงาน วิชา การเขียนโปรแกรม ม.6/10</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1f2937; /* bg-gray-800 */
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #4b5563; /* bg-gray-600 */
+            border-radius: 20px;
+            border: 3px solid #1f2937; /* bg-gray-800 */
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #6b7280; /* bg-gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 antialiased">
+
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight">สถิติการส่งงาน วิชา การเขียนโปรแกรม</h1>
+            <p class="mt-2 text-lg text-indigo-400 font-semibold">ภาคเรียนที่ 1 ปีการศึกษา 2568 — ห้อง ม.6/10</p>
+        </header>
+
+        <!-- Table Container -->
+        <main class="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl shadow-indigo-900/10 overflow-hidden ring-1 ring-white/10">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full min-w-max text-sm text-left">
+                    <thead class="bg-gray-700/50 text-xs text-gray-300 uppercase tracking-wider">
+                        <tr>
+                            <th scope="col" class="sticky left-0 bg-gray-700/50 px-6 py-4 z-10">
+                                ชื่อ - สกุล
+                            </th>
+                            <th scope="col" class="px-6 py-4 text-center">คำนวณค่าน้ำมัน</th>
+                            <th scope="col" class="px-6 py-4 text-center">คำนวณ BMI</th>
+                            <th scope="col" class="px-6 py-4 text-center">เครื่องหมายเปรียบเทียบ</th>
+                            <th scope="col" class="px-6 py-4 text-center">ทอนเงิน</th>
+                            <th scope="col" class="px-6 py-4 text-center">ธนาคารจำลอง</th>
+                            <th scope="col" class="px-6 py-4 text-center">ปริมาตรทรงกระบอก</th>
+                            <th scope="col" class="px-6 py-4 text-center">แปลงวินาที</th>
+                            <th scope="col" class="px-6 py-4 text-center">Switch Case</th>
+                            <th scope="col" class="px-6 py-4 text-center">เงื่อนไข While</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-table-body" class="divide-y divide-gray-700">
+                        <!-- Rows will be dynamically inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+             <footer class="px-6 py-3 bg-gray-800/50 text-xs text-gray-400">
+                <div class="flex items-center justify-end space-x-4">
+                     <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <span>ส่งแล้ว</span>
+                    </div>
+                     <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <span>ยังไม่ส่ง</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                         <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full">2+</span>
+                         <span>ส่งมากกว่า 1 ครั้ง</span>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Data for student submissions
+            // Note: The assignment keys are shortened for easier handling in JS
+            const submissionData = [
+                { name: "ธัชพันธุ์ ปภาวันโชติสิริ", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 0 } },
+                { name: "สิรภพ คุตชนม์", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 0, while: 1 } },
+                { name: "นรีกานต์ ตรีลาภี", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 0, cylinder: 0, seconds: 0, switch: 2, while: 1 } },
+                { name: "พิชญุตม์ เงินประดับ", assignments: { oil: 0, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 2 } },
+                { name: "กาญจนาภรณ์ เลี้ยงพานิชย์", assignments: { oil: 2, bmi: 1, comparison: 1, change: 2, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "สิทธวีร์ น้าวิไลเจริญ", assignments: { oil: 1, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 0, while: 2 } },
+                { name: "ณฐกร รอดสน", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "ปภาวรินทร์ ลิมปิทีป", assignments: { oil: 0, bmi: 1, comparison: 1, change: 2, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 0 } },
+                { name: "ปัณณรัตน์ กรีมานนท์", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "กิตติภูมิ สาธุพงษ์", assignments: { oil: 0, bmi: 1, comparison: 0, change: 0, bank: 0, cylinder: 0, seconds: 0, switch: 0, while: 0 } },
+                { name: "ศุภกฤต แสงดาว", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 0, seconds: 1, switch: 0, while: 1 } },
+                { name: "นิรัชพร เจริญพันธุ์", assignments: { oil: 2, bmi: 0, comparison: 1, change: 1, bank: 0, cylinder: 1, seconds: 1, switch: 1, while: 0 } },
+                { name: "วรัชยา กรอบจินดา", assignments: { oil: 0, bmi: 1, comparison: 1, change: 0, bank: 0, cylinder: 1, seconds: 1, switch: 0, while: 1 } },
+                { name: "ธนิดา จันทร์เขียว", assignments: { oil: 2, bmi: 1, comparison: 1, change: 2, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "กฤษณะ เหมือนแม้น", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "ธนพัฒน์ ต้นวงศ์", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 0, while: 1 } },
+                { name: "พงศกร พานสุวรรณ์", assignments: { oil: 2, bmi: 0, comparison: 1, change: 1, bank: 0, cylinder: 1, seconds: 1, switch: 0, while: 0 } },
+                { name: "พุทธกร วงษ์สมบูรณ์", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "ศรัณยพงศ์ บริบูรณ์", assignments: { oil: 0, bmi: 0, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 0, switch: 0, while: 1 } },
+                { name: "ปรวรรษ ทองไทย", assignments: { oil: 0, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 0, while: 1 } },
+                { name: "อภิวัฒน์ ดวงดี", assignments: { oil: 0, bmi: 1, comparison: 1, change: 0, bank: 0, cylinder: 1, seconds: 1, switch: 0, while: 1 } },
+                { name: "ปิยะศักดิ์ ศิริสลุง", assignments: { oil: 0, bmi: 0, comparison: 0, change: 1, bank: 0, cylinder: 0, seconds: 0, switch: 0, while: 0 } },
+                { name: "พัทธนันท์ เหล็กพิมาย", assignments: { oil: 0, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 0, while: 1 } },
+                { name: "อาคิรา รวงผึ้งทอง", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "กิ่งกาญจน์ วินิยม", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "กฤษณกันต์ กาศติ๊บ", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "ญาธิป ชัยมาตย์", assignments: { oil: 2, bmi: 1, comparison: 1, change: 2, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "นิศารัตน์ คำรพ", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "ไอรดา สุทธิโป", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "วงศพัทธ์ แก้วภักดี", assignments: { oil: 0, bmi: 0, comparison: 0, change: 1, bank: 0, cylinder: 0, seconds: 0, switch: 0, while: 0 } },
+                { name: "ฉันท์ชนิต คล้ายกล่ำ", assignments: { oil: 2, bmi: 1, comparison: 1, change: 2, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "พรรษมน บุญมาก", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "ยุทธภูมิ เพิ่มผล", assignments: { oil: 2, bmi: 0, comparison: 1, change: 1, bank: 0, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "สิราวรรณ ภู่ดี", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 0, while: 1 } },
+                { name: "ณัชพล พนาวัน", assignments: { oil: 1, bmi: 1, comparison: 1, change: 1, bank: 0, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "พิสิษฐ์ จันทร์สวน", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 0, while: 1 } },
+                { name: "สุวีรยา ศรีลาดเบอร์", assignments: { oil: 2, bmi: 1, comparison: 1, change: 1, bank: 1, cylinder: 1, seconds: 1, switch: 1, while: 1 } },
+                { name: "ยุพาวรรณ กองขุนทด", assignments: { oil: 2, bmi: 1, comparison: 2, change: 2, bank: 1, cylinder: 0, seconds: 1, switch: 0, while: 1 } },
+
+            ];
+
+            const tableBody = document.getElementById('stats-table-body');
+            const assignmentOrder = ['oil', 'bmi', 'comparison', 'change', 'bank', 'cylinder', 'seconds', 'switch', 'while'];
+
+            // Green checkmark SVG icon
+            const checkIcon = `
+                <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>`;
+
+            // Red X SVG icon
+            const xIcon = `
+                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>`;
+            
+            // Function to create a cell for submission status
+            function createStatusCell(count) {
+                let content = '';
+                if (count > 0) {
+                    content = `<div class="relative flex items-center justify-center">${checkIcon}`;
+                    if (count > 1) {
+                        content += `<span class="absolute -top-1 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-blue-500 rounded-full">${count}</span>`;
+                    }
+                    content += '</div>';
+                } else {
+                    content = `<div class="flex justify-center">${xIcon}</div>`;
+                }
+                return `<td class="px-6 py-4">${content}</td>`;
+            }
+
+            // Populate table
+            submissionData.forEach(student => {
+                let rowHtml = `
+                    <tr class="hover:bg-gray-700/50 transition-colors duration-200">
+                        <th scope="row" class="sticky left-0 bg-gray-800/50 hover:bg-gray-700/50 transition-colors duration-200 px-6 py-4 font-medium text-white whitespace-nowrap z-10">
+                            ${student.name}
+                        </th>
+                `;
+                assignmentOrder.forEach(key => {
+                    const count = student.assignments[key] || 0;
+                    rowHtml += createStatusCell(count);
+                });
+                rowHtml += `</tr>`;
+                tableBody.innerHTML += rowHtml;
+            });
+        });
+    </script>
+
+</body>
+</html>
