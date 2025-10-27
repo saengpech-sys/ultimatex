@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infographic: ทักษะการคิดขั้นสูง (HOTS)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Energetic & Playful (#FF6B6B, #FFD166, #06D6A0, #118AB2, #073B4C) -->
+    <!-- Application Structure Plan: The infographic follows a narrative flow: 1. Hook (What is HOTS?), 2. Definition (The 5 Core Components), 3. Identification (4 Key Indicators), 4. Application (4 Steps to a HOTS Answer), 5. Example (Basic vs. HOTS comparison), 6. Anatomy (Breakdown of the HOTS answer). This logical progression guides the user from the abstract concept to practical application, mirroring an educational lesson. -->
+    <!-- Visualization & Content Choices: 
+      - HOTS Components -> Goal: Organize -> Viz: Radar Chart -> Justification: Shows 5 interconnected parts of one profile. -> Lib: Chart.js (Canvas) - NO SVG.
+      - HOTS Indicators -> Goal: Organize/Inform -> Viz: 4-Col Card Grid w/ Unicode Icons -> Justification: Clear categorization. -> Method: HTML/Tailwind - NO SVG.
+      - HOTS Answer Steps -> Goal: Show Process -> Viz: HTML/CSS Flow Diagram -> Justification: Shows a clear sequence. -> Method: HTML/Tailwind (Flexbox) - NO SVG/Mermaid.
+      - Answer Comparison -> Goal: Compare -> Viz: Side-by-side text cards -> Justification: Direct comparison. -> Method: HTML/Tailwind (Grid) - NO SVG.
+      - HOTS Answer Anatomy -> Goal: Compare/Composition -> Viz: Donut Chart -> Justification: Shows the elements of the strong answer. -> Lib: Chart.js (Canvas) - NO SVG.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+                max-height: 500px;
+            }
+        }
+        .material-card {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .material-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="text-[#073B4C]">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-[#073B4C] mb-4">ทักษะการคิดขั้นสูง (HOTS)</h1>
+            <p class="text-xl md:text-2xl text-[#118AB2]">คู่มือสำหรับนักเรียนมัธยมศึกษาเพื่อพัฒนาการคิดและตอบคำถามอย่างเหนือชั้น</p>
+        </header>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-6 text-[#118AB2]">HOTS คืออะไร?</h2>
+            <div class="material-card">
+                <p class="text-lg text-center mb-6">
+                    ทักษะการคิดขั้นสูง (HOTS) ไม่ใช่แค่การ "จำ" แต่คือกลุ่มทักษะการคิดที่ซับซ้อน ช่วยให้เราวิเคราะห์ ประเมิน และสร้างสรรค์สิ่งใหม่ๆ ได้อย่างมีประสิทธิภาพ โดยมี 5 องค์ประกอบหลักที่ทำงานร่วมกัน
+                </p>
+                <div class="chart-container w-full max-w-2xl mx-auto h-96 max-h-[500px]">
+                    <canvas id="hotsRadarChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-6 text-[#118AB2]">4 สัญญาณ: คุณมีทักษะ HOTS หรือไม่?</h2>
+            <p class="text-lg text-center mb-8 max-w-3xl mx-auto">
+                เราสามารถสังเกตว่านักเรียนมีทักษะ HOTS หรือไม่ จากพฤติกรรมและการแสดงออกที่สำคัญ 4 ด้าน ดังนี้:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="material-card text-center">
+                    <span class="text-5xl" role="img" aria-label="Brain">🧠</span>
+                    <h3 class="text-xl font-bold mt-4 mb-2 text-[#073B4C]">1. การประมวลผลข้อมูล</h3>
+                    <p>ไม่เชื่อทันที แต่จะประเมินความน่าเชื่อถือ แยกแยะข้อเท็จจริงออกจากความคิดเห็น และวิเคราะห์ข้อโต้แย้งได้</p>
+                </div>
+                <div class="material-card text-center">
+                    <span class="text-5xl" role="img" aria-label="Question Mark">❓</span>
+                    <h3 class="text-xl font-bold mt-4 mb-2 text-[#073B4C]">2. การตั้งคำถาม</h3>
+                    <p>ตั้งคำถามเชิงลึกว่า "ทำไม" และ "จะเป็นอย่างไรถ้า..." แทนที่จะถามแค่ "อะไร" "ที่ไหน" "เมื่อไหร่"</p>
+                </div>
+                <div class="material-card text-center">
+                    <span class="text-5xl" role="img" aria-label="Lightbulb">💡</span>
+                    <h3 class="text-xl font-bold mt-4 mb-2 text-[#073B4C]">3. การแก้ปัญหา</h3>
+                    <p>ระบุปัญหาที่ซับซ้อนได้ชัดเจน สามารถเสนอทางเลือกในการแก้ปัญหาได้หลากหลาย และอธิบายเหตุผลในการเลือกได้</p>
+                </div>
+                <div class="material-card text-center">
+                    <span class="text-5xl" role="img" aria-label="Speaking Head">🗣️</span>
+                    <h3 class="text-xl font-bold mt-4 mb-2 text-[#073B4C]">4. การสื่อสาร</h3>
+                    <p>วิพากษ์วิจารณ์อย่างมีเหตุผล สามารถสังเคราะห์ข้อมูลจากหลายแหล่งมาเป็นความคิดใหม่ของตนเองได้</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-6 text-[#118AB2]">4 ขั้นตอน ตอบคำถามอย่างไรให้โลกรู้ว่า "คิดเป็น"</h2>
+            <p class="text-lg text-center mb-8 max-w-3xl mx-auto">
+                การตอบคำถามคือเวทีที่ดีที่สุดในการแสดงทักษะ HOTS แทนที่จะตอบแค่ "ข้อเท็จจริง" ให้แสดง "กระบวนการคิด" ของคุณผ่าน 4 ขั้นตอนนี้
+            </p>
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+                
+                <div class="material-card flex-1 w-full md:w-auto text-center">
+                    <div class="text-3xl font-bold text-[#FF6B6B] mb-2">1</div>
+                    <h3 class="text-xl font-bold mb-2">วิเคราะห์คำถาม</h3>
+                    <p>ตีความให้ชัดว่าคำถามต้องการให้เรา "เปรียบเทียบ" "วิเคราะห์" หรือ "ประเมินค่า" อะไร</p>
+                </div>
+                
+                <div class="text-4xl font-bold text-[#FFD166] transform rotate-90 md:rotate-0">→</div>
+
+                <div class="material-card flex-1 w-full md:w-auto text-center">
+                    <div class="text-3xl font-bold text-[#FFD166] mb-2">2</div>
+                    <h3 class="text-xl font-bold mb-2">สร้างโครงสร้าง</h3>
+                    <p>ระบุ "ประเด็นหลัก" (Claim) ของคุณให้ชัด แล้วตามด้วย "เหตุผลและหลักฐาน" (Reasoning)</p>
+                </div>
+
+                <div class="text-4xl font-bold text-[#06D6A0] transform rotate-90 md:rotate-0">→</div>
+                
+                <div class="material-card flex-1 w-full md:w-auto text-center">
+                    <div class="text-3xl font-bold text-[#06D6A0] mb-2">3</div>
+                    <h3 class="text-xl font-bold mb-2">แสดงการวิพากษ์</h3>
+                    <p>มองหลายมุม ("ในขณะที่บางคนมองว่า...") และประเมินข้อดี-ข้อเสียอย่างสมเหตุสมผล</p>
+                </div>
+
+                <div class="text-4xl font-bold text-[#118AB2] transform rotate-90 md:rotate-0">→</div>
+
+                <div class="material-card flex-1 w-full md:w-auto text-center">
+                    <div class="text-3xl font-bold text-[#118AB2] mb-2">4</div>
+                    <h3 class="text-xl font-bold mb-2">สังเคราะห์สรุป</h3>
+                    <p>เชื่อมโยงข้อมูลทั้งหมด และสรุปเป็นข้อเสนอแนะหรือองค์ความรู้ใหม่ในแบบของคุณ</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-6 text-[#118AB2]">ตัวอย่างเปรียบเทียบ: การตอบคำถาม</h2>
+            <p class="text-lg text-center mb-8 max-w-3xl mx-auto font-bold">
+                คำถาม: "การใช้โซเชียลมีเดียส่งผลดีหรือผลเสียต่อนักเรียนมัธยมมากกว่ากัน?"
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="material-card border-l-8 border-[#FF6B6B]">
+                    <h3 class="text-2xl font-bold mb-4 text-[#FF6B6B]">คำตอบแบบคิดขั้นพื้นฐาน</h3>
+                    <p class="text-lg italic">
+                        "มีทั้งผลดีและผลเสียค่ะ ผลดีคือใช้ติดต่อเพื่อน ผลเสียคือทำให้เสียเวลาเรียน"
+                    </p>
+                    <hr class="my-4">
+                    <p class="font-bold">วิเคราะห์คำตอบ:</p>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>ตอบตามข้อเท็จจริง (ตื้นเขิน)</li>
+                        <li>ไม่แสดงการวิเคราะห์เชิงลึก</li>
+                        <li>ไม่ให้น้ำหนัก หรือเกณฑ์ตัดสิน</li>
+                    </ul>
+                </div>
+
+                <div class="material-card border-l-8 border-[#06D6A0]">
+                    <h3 class="text-2xl font-bold mb-4 text-[#06D6A0]">คำตอบแบบคิดขั้นสูง (HOTS)</h3>
+                    <p class="text-lg italic">
+                        "ดิฉันมองว่ามีแนวโน้มที่จะสร้าง <strong class='text-[#FF6B6B]'>'ผลเสีย'</strong> ที่รุนแรงกว่าค่ะ 
+                        <strong class='text-[#118AB2]'>(ระบุจุดยืน)</strong> 
+                        แม้ผลดีด้านการสื่อสารจะชัดเจน แต่ผลเสียเชิงจิตวิทยา เช่น <strong class='text-[#073B4C]'>การเปรียบเทียบตนเองกับผู้อื่น (Social Comparison)</strong> หรือ <strong class='text-[#073B4C]'>การกลั่นแกล้งทางไซเบอร์ (Cyberbullying)</strong> นั้นส่งผลกระทบที่ลึกและแก้ไขยากกว่า
+                        <strong class='text-[#118AB2]'>(วิเคราะห์และประเมินผลกระทบ)</strong> 
+                        ในขณะที่บางคนมองว่ามันจำเป็นต่อการเรียนรู้ <strong class='text-[#FFD166]'>(มองหลายมุม)</strong> 
+                        แต่มันจะเป็นเครื่องมือที่ดีก็ต่อเมื่อผู้ใช้มี <strong class='text-[#06D6A0]'>'ทักษะการคิดวิจารณญาณ'</strong> ในการกลั่นกรองสื่อค่ะ
+                        <strong class='text-[#118AB2]'>(สังเคราะห์และสรุป)</strong>"
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-center mb-6 text-[#118AB2]">เจาะลึก: องค์ประกอบในคำตอบแบบ HOTS</h2>
+            <div class="material-card">
+                <p class="text-lg text-center mb-6">
+                    จากตัวอย่างคำตอบแบบ HOTS เราสามารถแยกแยะองค์ประกอบของการให้เหตุผลได้ดังนี้ ซึ่งแสดงให้เห็นถึงการคิดที่รอบด้านและมีโครงสร้างชัดเจน
+                </p>
+                <div class="chart-container w-full max-w-xl mx-auto h-80 max-h-[450px]">
+                    <canvas id="hotsDonutChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="text-center mt-12 py-6 border-t border-gray-300">
+            <p class="text-gray-600">Infographic นี้สร้างขึ้นโดยวิเคราะห์ข้อมูลจาก "ผลการค้นคว้า: ทักษะการคิดขั้นสูง (HOTS)"</p>
+        </footer>
+
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+
+            function wrapLabels(label, maxWidth) {
+                if (typeof label !== 'string') return label;
+                const words = label.split(' ');
+                let lines = [];
+                let currentLine = '';
+                for (const word of words) {
+                    if ((currentLine + word).length > maxWidth) {
+                        lines.push(currentLine.trim());
+                        currentLine = '';
+                    }
+                    currentLine += word + ' ';
+                }
+                lines.push(currentLine.trim());
+                return lines.filter(line => line.length > 0);
+            }
+
+            const MAX_LABEL_WIDTH = 16;
+
+            const tooltipTitleCallback = {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                    return label.join(' ');
+                                } else {
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const radarLabels = [
+                "การคิดวิเคราะห์", 
+                "การคิดอย่างมีวิจารณญาณ", 
+                "การคิดแก้ปัญหา", 
+                "การคิดสร้างสรรค์", 
+                "การคิดเชิงระบบ"
+            ];
+            const wrappedRadarLabels = radarLabels.map(label => wrapLabels(label, MAX_LABEL_WIDTH));
+
+            const ctxRadar = document.getElementById('hotsRadarChart').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: wrappedRadarLabels,
+                    datasets: [{
+                        label: 'โปรไฟล์ทักษะ HOTS',
+                        data: [5, 5, 5, 5, 5],
+                        backgroundColor: 'rgba(17, 138, 178, 0.2)',
+                        borderColor: '#118AB2',
+                        pointBackgroundColor: '#118AB2',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#118AB2'
+                    }]
+                },
+                options: {
+                    ...tooltipTitleCallback,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: '#d1d5db'
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 14,
+                                    family: 'Sarabun, sans-serif'
+                                },
+                                color: '#073B4C'
+                            },
+                            ticks: {
+                                backdropColor: '#f8fafc',
+                                color: '#6b7280',
+                                stepSize: 1,
+                                display: false
+                            },
+                            min: 0,
+                            max: 5
+                        }
+                    }
+                }
+            });
+
+            const donutLabels = [
+                "ระบุจุดยืน", 
+                "วิเคราะห์เชิงจิตวิทยา", 
+                "ประเมินผลกระทบ", 
+                "มองหลายมุม", 
+                "สังเคราะห์ข้อสรุป"
+            ];
+
+            const ctxDonut = document.getElementById('hotsDonutChart').getContext('2d');
+            new Chart(ctxDonut, {
+                type: 'doughnut',
+                data: {
+                    labels: donutLabels,
+                    datasets: [{
+                        label: 'องค์ประกอบคำตอบ',
+                        data: [15, 25, 25, 20, 15],
+                        backgroundColor: [
+                            '#118AB2',
+                            '#06D6A0',
+                            '#FFD166',
+                            '#FF6B6B',
+                            '#073B4C'
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    ...tooltipTitleCallback,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        ...tooltipTitleCallback.plugins,
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    family: 'Sarabun, sans-serif'
+                                },
+                                color: '#073B4C'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
