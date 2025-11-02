@@ -3,572 +3,377 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-src https://udify.app https://*.udify.app; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://udify.app https://*.udify.app https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://udify.app https://*.udify.app; img-src 'self' data: https:;">
-    <title>เรียนรู้ IoT สำหรับนักเรียน ม.3</title>
+    <title>Markdown Showcase</title>
+    <!-- 1. โหลด Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- 2. โหลด Showdown.js (สำหรับแปลง Markdown เป็น HTML) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <!-- 3. โหลดฟอนต์ Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Kanit', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
-        .pulse-animation { animation: pulse 2s infinite; }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        /* ใช้ฟอนต์ Sarabun สำหรับภาษาไทย และ Inter สำหรับภาษาอังกฤษ */
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
         }
-        #dify-chatbot-bubble-button {
-            background-color: #1C64F2 !important;
+
+        /* สไตล์สำหรับเนื้อหาที่แปลงจาก Markdown */
+        #modal-content-view h1, #modal-content-view h2, #modal-content-view h3 {
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
         }
-        #dify-chatbot-bubble-window {
-            width: 24rem !important;
-            height: 40rem !important;
+        #modal-content-view h1 { font-size: 2.25rem; }
+        #modal-content-view h2 { font-size: 1.75rem; }
+        #modal-content-view h3 { font-size: 1.25rem; }
+        #modal-content-view p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
         }
-        /* Fix for chatbot permissions */
-        iframe[src*="udify.app"] {
-            allow: microphone; camera; fullscreen;
+        #modal-content-view ul, #modal-content-view ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            list-style-position: outside;
+        }
+        #modal-content-view ul { list-style-type: disc; }
+        #modal-content-view ol { list-style-type: decimal; }
+        #modal-content-view a {
+            color: #2563eb; /* text-blue-600 */
+            text-decoration: underline;
+        }
+        #modal-content-view pre {
+            background-color: #0f172a; /* bg-slate-900 */
+            color: #f1f5f9; /* text-slate-100 */
+            padding: 1.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        #modal-content-view code {
+            font-family: monospace;
+            background-color: #dbeafe; /* bg-blue-100 */
+            color: #1e40af; /* text-blue-800 */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem; /* rounded */
+            font-weight: 600;
+        }
+        #modal-content-view pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-weight: 400;
+        }
+        #modal-content-view blockquote {
+            border-left: 4px solid #3b82f6; /* border-blue-500 */
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: #1e3a8a; /* text-blue-900 */
+            background-color: #eff6ff; /* bg-blue-50 */
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 min-h-screen">
+
     <!-- Header -->
-    <header class="gradient-bg text-white py-6 shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
-                        <span class="text-2xl">🌐</span>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold">IoT Learning Hub</h1>
-                        <p class="text-blue-100">สำหรับนักเรียน ม.3</p>
-                    </div>
-                </div>
-                <nav class="hidden md:flex space-x-6">
-                    <a href="#home" class="hover:text-blue-200 transition-colors">หน้าแรก</a>
-                    <a href="#lessons" class="hover:text-blue-200 transition-colors">บทเรียน</a>
-                    <a href="#projects" class="hover:text-blue-200 transition-colors">โปรเจค</a>
-                    <a href="#quiz" class="hover:text-blue-200 transition-colors">แบบทดสอบ</a>
-                </nav>
-            </div>
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-xl sticky top-0 z-30">
+        <div class="container mx-auto px-6 py-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold">คลังเนื้อหา Markdown</h1>
+            <button id="add-post-btn" class="bg-white text-blue-700 font-bold py-2 px-6 rounded-lg shadow-md hover:bg-gray-100 transition duration-300 transform hover:-translate-y-0.5">
+                + เพิ่มเนื้อหาใหม่
+            </button>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="home" class="py-16 bg-gradient-to-r from-blue-50 to-indigo-100">
-        <div class="container mx-auto px-4 text-center">
-            <div class="max-w-4xl mx-auto">
-                <h2 class="text-4xl font-bold text-gray-800 mb-6">
-                    ยินดีต้อนรับสู่โลกของ <span class="text-blue-600">Internet of Things</span>
-                </h2>
-                <p class="text-xl text-gray-600 mb-8">
-                    เรียนรู้เทคโนโลยี IoT ที่จะเปลี่ยนโลกในอนาคต ผ่านบทเรียนที่เข้าใจง่าย และโปรเจคที่สนุก
-                </p>
-                <div class="flex justify-center space-x-4">
-                    <button onclick="scrollToSection('lessons')" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
-                        เริ่มเรียนเลย
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="flex justify-center items-center py-20">
+        <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="ml-4 text-2xl font-semibold text-gray-700">กำลังโหลดข้อมูล...</span>
+    </div>
+
+    <!-- Card Grid -->
+    <main id="card-grid" class="container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <!-- การ์ดจะถูกเพิ่มที่นี่โดย JavaScript -->
+    </main>
+
+    <!-- Add/Edit Post Modal -->
+    <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center p-6 hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl transform transition-all scale-95 opacity-0" id="form-modal-content">
+            <form id="post-form" class="p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8">เพิ่ม/แก้ไข เนื้อหา</h2>
+                <div class="mb-4">
+                    <label for="title" class="block text-gray-700 font-semibold mb-2">ชื่อเรื่อง</label>
+                    <input type="text" id="title" name="title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ใส่ชื่อเรื่องที่นี่..." required>
+                </div>
+                <div class="mb-6">
+                    <label for="markdownContent" class="block text-gray-700 font-semibold mb-2">เนื้อหา (Markdown)</label>
+                    <textarea id="markdownContent" name="markdownContent" rows="12" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" placeholder="ใส่เนื้อหา Markdown ของคุณ... (เช่น # หัวข้อ, *ตัวเอียง*)" required></textarea>
+                </div>
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="cancel-btn" class="bg-gray-200 text-gray-800 font-semibold py-3 px-6 rounded-lg hover:bg-gray-300 transition duration-300">ยกเลิก</button>
+                    <button type="submit" id="submit-btn" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition duration-300">
+                        บันทึก
                     </button>
-                    <button onclick="scrollToSection('projects')" class="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 rounded-lg font-medium transition-colors">
-                        ดูโปรเจค
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Post Modal -->
+    <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-start p-6 hidden z-40 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-16 transform transition-all scale-95 opacity-0" id="view-modal-content">
+            <div class="p-8 md:p-12">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 id="modal-title-view" class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-2"></h2>
+                    <button id="close-view-btn" class="text-gray-400 hover:text-gray-600 transition duration-300">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-            </div>
-        </div>
-    </section>
+                <!-- เส้นขีดคั่นตกแต่ง -->
+                <div class="h-1 w-24 bg-indigo-200 rounded-full mb-8"></div>
 
-    <!-- What is IoT Section -->
-    <section class="py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold text-gray-800 mb-4">IoT คืออะไร?</h3>
-                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-                    Internet of Things หรือ IoT คือการเชื่อมต่ออุปกรณ์ต่างๆ เข้ากับอินเทอร์เน็ต เพื่อให้สามารถสื่อสารและแลกเปลี่ยนข้อมูลกันได้
-                </p>
-            </div>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="text-center p-6 bg-blue-50 rounded-xl card-hover">
-                    <div class="text-4xl mb-4">📱</div>
-                    <h4 class="text-xl font-semibold mb-3">อุปกรณ์อัจฉริยะ</h4>
-                    <p class="text-gray-600">สมาร์ทโฟน, สมาร์ทวอทช์, และอุปกรณ์ที่เชื่อมต่ออินเทอร์เน็ตได้</p>
-                </div>
-                <div class="text-center p-6 bg-green-50 rounded-xl card-hover">
-                    <div class="text-4xl mb-4">🏠</div>
-                    <h4 class="text-xl font-semibold mb-3">บ้านอัจฉริยะ</h4>
-                    <p class="text-gray-600">ควบคุมไฟ, แอร์, กล้องวงจรปิด ผ่านแอปพลิเคชัน</p>
-                </div>
-                <div class="text-center p-6 bg-purple-50 rounded-xl card-hover">
-                    <div class="text-4xl mb-4">🚗</div>
-                    <h4 class="text-xl font-semibold mb-3">ยานพาหนะอัจฉริยะ</h4>
-                    <p class="text-gray-600">รถยนต์ที่เชื่อมต่ออินเทอร์เน็ต และระบบขับขี่อัตโนมัติ</p>
+                <!-- เนื้อหา Markdown ที่แปลงแล้วจะแสดงที่นี่ -->
+                <div id="modal-content-view" class="prose max-w-none">
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Lessons Section -->
-    <section id="lessons" class="py-16 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold text-gray-800 mb-4">บทเรียน IoT</h3>
-                <p class="text-lg text-gray-600">เรียนรู้ IoT ทีละขั้นตอน จากพื้นฐานสู่การปฏิบัติจริง</p>
-            </div>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <span class="text-blue-600 font-bold">1</span>
-                        </div>
-                        <h4 class="text-lg font-semibold">พื้นฐาน IoT</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">ทำความรู้จักกับแนวคิดและหลักการของ IoT</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">เวลา: 30 นาที</span>
-                        <button onclick="openLesson(1)" class="text-blue-600 hover:text-blue-800 font-medium">เริ่มเรียน →</button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <span class="text-blue-600 font-bold">2</span>
-                        </div>
-                        <h4 class="text-lg font-semibold">เซ็นเซอร์และการวัด</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">เรียนรู้เกี่ยวกับเซ็นเซอร์ต่างๆ และการใช้งาน</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">เวลา: 45 นาที</span>
-                        <button onclick="openLesson(2)" class="text-blue-600 hover:text-blue-800 font-medium">เริ่มเรียน →</button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <span class="text-blue-600 font-bold">3</span>
-                        </div>
-                        <h4 class="text-lg font-semibold">การเชื่อมต่อเครือข่าย</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">WiFi, Bluetooth และการเชื่อมต่ออินเทอร์เน็ต</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">เวลา: 40 นาที</span>
-                        <button onclick="openLesson(3)" class="text-blue-600 hover:text-blue-800 font-medium">เริ่มเรียน →</button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <span class="text-blue-600 font-bold">4</span>
-                        </div>
-                        <h4 class="text-lg font-semibold">Arduino และ IoT</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">เริ่มต้นเขียนโปรแกรมด้วย Arduino</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">เวลา: 60 นาที</span>
-                        <button onclick="openLesson(4)" class="text-blue-600 hover:text-blue-800 font-medium">เริ่มเรียน →</button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <span class="text-blue-600 font-bold">5</span>
-                        </div>
-                        <h4 class="text-lg font-semibold">แอปพลิเคชัน IoT</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">สร้างแอปควบคุมอุปกรณ์ IoT</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">เวลา: 50 นาที</span>
-                        <button onclick="openLesson(5)" class="text-blue-600 hover:text-blue-800 font-medium">เริ่มเรียน →</button>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-md p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <span class="text-blue-600 font-bold">6</span>
-                        </div>
-                        <h4 class="text-lg font-semibold">ความปลอดภัย IoT</h4>
-                    </div>
-                    <p class="text-gray-600 mb-4">เรียนรู้การรักษาความปลอดภัยในระบบ IoT</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">เวลา: 35 นาที</span>
-                        <button onclick="openLesson(6)" class="text-blue-600 hover:text-blue-800 font-medium">เริ่มเรียน →</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold text-gray-800 mb-4">โปรเจค IoT น่าสนใจ</h3>
-                <p class="text-lg text-gray-600">ลองทำโปรเจคเหล่านี้เพื่อฝึกฝนทักษะ IoT</p>
-            </div>
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="text-3xl mr-4">🌡️</div>
-                        <div>
-                            <h4 class="text-xl font-semibold">เครื่องวัดอุณหภูมิอัจฉริยะ</h4>
-                            <p class="text-blue-600">ระดับ: เริ่มต้น</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4">สร้างเครื่องวัดอุณหภูมิที่ส่งข้อมูลไปยังสมาร์ทโฟน</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm bg-blue-200 text-blue-800 px-3 py-1 rounded-full">Arduino + WiFi</span>
-                        <button onclick="openProject('temp')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">ดูรายละเอียด</button>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="text-3xl mr-4">💡</div>
-                        <div>
-                            <h4 class="text-xl font-semibold">ระบบไฟอัตโนมัติ</h4>
-                            <p class="text-green-600">ระดับ: กลาง</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4">ไฟที่เปิด-ปิดอัตโนมัติตามการเคลื่อนไหวและแสง</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm bg-green-200 text-green-800 px-3 py-1 rounded-full">เซ็นเซอร์ + LED</span>
-                        <button onclick="openProject('light')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">ดูรายละเอียด</button>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="text-3xl mr-4">🚨</div>
-                        <div>
-                            <h4 class="text-xl font-semibold">ระบบแจ้งเตือนความปลอดภัย</h4>
-                            <p class="text-purple-600">ระดับ: สูง</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4">ระบบแจ้งเตือนผ่าน LINE เมื่อมีผู้บุกรุก</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm bg-purple-200 text-purple-800 px-3 py-1 rounded-full">PIR + LINE API</span>
-                        <button onclick="openProject('security')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">ดูรายละเอียด</button>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 card-hover">
-                    <div class="flex items-center mb-4">
-                        <div class="text-3xl mr-4">🌱</div>
-                        <div>
-                            <h4 class="text-xl font-semibold">ระบบรดน้ำต้นไม้อัจฉริยะ</h4>
-                            <p class="text-orange-600">ระดับ: กลาง</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-4">รดน้ำต้นไม้อัตโนมัติตามความชื้นในดิน</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm bg-orange-200 text-orange-800 px-3 py-1 rounded-full">เซ็นเซอร์ดิน + ปั๊ม</span>
-                        <button onclick="openProject('plant')" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-colors">ดูรายละเอียด</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Quiz Section -->
-    <section id="quiz" class="py-16 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold text-gray-800 mb-4">ทดสอบความรู้</h3>
-                <p class="text-lg text-gray-600">ทดสอบความเข้าใจเกี่ยวกับ IoT</p>
-            </div>
-            <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
-                <div id="quiz-container">
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-sm text-gray-500">คำถามที่ <span id="current-question">1</span> จาก 5</span>
-                            <div class="w-32 bg-gray-200 rounded-full h-2">
-                                <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
-                            </div>
-                        </div>
-                        <h4 id="question-text" class="text-xl font-semibold mb-6">IoT ย่อมาจากอะไร?</h4>
-                        <div id="answers-container" class="space-y-3">
-                            <button onclick="selectAnswer(0)" class="answer-btn w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
-                                Internet of Things
-                            </button>
-                            <button onclick="selectAnswer(1)" class="answer-btn w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
-                                Internet of Technology
-                            </button>
-                            <button onclick="selectAnswer(2)" class="answer-btn w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
-                                International of Things
-                            </button>
-                            <button onclick="selectAnswer(3)" class="answer-btn w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
-                                Internet of Thinking
-                            </button>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
-                        <button id="prev-btn" onclick="previousQuestion()" class="px-6 py-2 text-gray-600 hover:text-gray-800 transition-colors" disabled>← ก่อนหน้า</button>
-                        <button id="next-btn" onclick="nextQuestion()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors" disabled>ถัดไป →</button>
-                    </div>
-                </div>
-                <div id="quiz-result" class="hidden text-center">
-                    <div class="text-6xl mb-4">🎉</div>
-                    <h4 class="text-2xl font-bold mb-4">ยินดีด้วย!</h4>
-                    <p class="text-lg text-gray-600 mb-6">คุณได้คะแนน <span id="final-score" class="font-bold text-blue-600"></span> จาก 5 คะแนน</p>
-                    <button onclick="restartQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition-colors">ทำแบบทดสอบใหม่</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-3 gap-8">
-                <div>
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                            <span class="text-xl">🌐</span>
-                        </div>
-                        <h5 class="text-xl font-bold">IoT Learning Hub</h5>
-                    </div>
-                    <p class="text-gray-400">แหล่งเรียนรู้ IoT ที่ดีที่สุดสำหรับนักเรียน ม.3</p>
-                </div>
-                <div>
-                    <h6 class="font-semibold mb-4">เมนูหลัก</h6>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#home" class="hover:text-white transition-colors">หน้าแรก</a></li>
-                        <li><a href="#lessons" class="hover:text-white transition-colors">บทเรียน</a></li>
-                        <li><a href="#projects" class="hover:text-white transition-colors">โปรเจค</a></li>
-                        <li><a href="#quiz" class="hover:text-white transition-colors">แบบทดสอบ</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h6 class="font-semibold mb-4">ติดต่อเรา</h6>
-                    <div class="text-gray-400 space-y-2">
-                        <p>📧 info@iotlearning.com</p>
-                        <p>📱 02-xxx-xxxx</p>
-                        <p>🌐 www.iotlearning.com</p>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 IoT Learning Hub. สงวนลิขสิทธิ์.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- AI Chatbot Scripts -->
     <script>
-        // Simple chatbot configuration
-        window.difyChatbotConfig = {
-            token: 'xPg6tB5nvyJcPAjY'
-        }
+        // -----------------------------------------------------------------
+        // !! สำคัญ: กรุณาใส่ URL ของ Web App ที่คุณ Deploy จาก Google Apps Script ที่นี่
+        // -----------------------------------------------------------------
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyZNUm8W3hCsgeFl4Cnf4GP2ywvi-sVgBm-q-7KDorEuPbDbSYJhxG-zvloec9w3kV/exec'; // <--- ใส่ URL ของคุณที่นี่
+        // -----------------------------------------------------------------
+
+        // DOM Elements
+        const grid = document.getElementById('card-grid');
+        const loadingSpinner = document.getElementById('loading-spinner');
         
-        // Load chatbot with error handling
-        function loadChatbot() {
-            try {
-                const script = document.createElement('script');
-                script.src = 'https://udify.app/embed.min.js';
-                script.id = 'xPg6tB5nvyJcPAjY';
-                script.defer = true;
-                script.onload = function() {
-                    console.log('Chatbot loaded successfully');
-                };
-                script.onerror = function() {
-                    console.log('Chatbot failed to load - this is normal in some environments');
-                    // Hide any chatbot elements if they exist
-                    setTimeout(() => {
-                        const chatElements = document.querySelectorAll('[id*="dify"]');
-                        chatElements.forEach(el => el.style.display = 'none');
-                    }, 1000);
-                };
-                document.head.appendChild(script);
-            } catch (error) {
-                console.log('Chatbot initialization error:', error);
-            }
-        }
-        
-        // Load after page is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', loadChatbot);
-        } else {
-            loadChatbot();
-        }
-    </script>
+        // Form Modal
+        const addPostBtn = document.getElementById('add-post-btn');
+        const formModal = document.getElementById('form-modal');
+        const formModalContent = document.getElementById('form-modal-content');
+        const postForm = document.getElementById('post-form');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('markdownContent');
 
-    <!-- Main JavaScript -->
-    <script>
-        // Quiz Data
-        const quizData = [
-            {
-                question: "IoT ย่อมาจากอะไร?",
-                answers: ["Internet of Things", "Internet of Technology", "International of Things", "Internet of Thinking"],
-                correct: 0
-            },
-            {
-                question: "เซ็นเซอร์ใดที่ใช้วัดอุณหภูมิ?",
-                answers: ["PIR Sensor", "Temperature Sensor", "Light Sensor", "Sound Sensor"],
-                correct: 1
-            },
-            {
-                question: "Arduino คืออะไร?",
-                answers: ["ซอฟต์แวร์", "บอร์ดไมโครคอนโทรลเลอร์", "เซ็นเซอร์", "แอปพลิเคชัน"],
-                correct: 1
-            },
-            {
-                question: "การเชื่อมต่อแบบไหนที่ใช้ในระยะใกล้?",
-                answers: ["WiFi", "Bluetooth", "4G", "Ethernet"],
-                correct: 1
-            },
-            {
-                question: "ข้อใดคือประโยชน์ของ IoT?",
-                answers: ["ประหยัดพลังงาน", "ควบคุมระยะไกล", "เก็บข้อมูลอัตโนมัติ", "ถูกทุกข้อ"],
-                correct: 3
-            }
-        ];
+        // View Modal
+        const viewModal = document.getElementById('view-modal');
+        const viewModalContent = document.getElementById('view-modal-content');
+        const closeViewBtn = document.getElementById('close-view-btn');
+        const modalTitleView = document.getElementById('modal-title-view');
+        const modalContentView = document.getElementById('modal-content-view');
 
-        let currentQuestionIndex = 0;
-        let selectedAnswer = -1;
-        let score = 0;
-        let userAnswers = [];
-
-        // Smooth scrolling function
-        function scrollToSection(sectionId) {
-            document.getElementById(sectionId).scrollIntoView({
-                behavior: 'smooth'
-            });
-        }
-
-        // Lesson functions
-        function openLesson(lessonNumber) {
-            alert(`เปิดบทเรียนที่ ${lessonNumber} - ฟีเจอร์นี้จะพัฒนาในอนาคต!\n\nคุณสามารถใช้แชทบอทด้านล่างเพื่อถามคำถามเกี่ยวกับ IoT ได้เลย`);
-        }
-
-        // Project functions
-        function openProject(projectType) {
-            const projects = {
-                'temp': 'โปรเจคเครื่องวัดอุณหภูมิอัจฉริยะ',
-                'light': 'โปรเจคระบบไฟอัตโนมัติ',
-                'security': 'โปรเจคระบบแจ้งเตือนความปลอดภัย',
-                'plant': 'โปรเจคระบบรดน้ำต้นไม้อัจฉริยะ'
-            };
-            alert(`${projects[projectType]}\n\nรายละเอียดโปรเจคจะพัฒนาในอนาคต!\n\nลองถามแชทบอทเกี่ยวกับโปรเจคนี้ได้เลย`);
-        }
-
-        // Quiz functions
-        function selectAnswer(answerIndex) {
-            selectedAnswer = answerIndex;
-            
-            // Remove previous selection
-            document.querySelectorAll('.answer-btn').forEach(btn => {
-                btn.classList.remove('border-blue-500', 'bg-blue-50');
-                btn.classList.add('border-gray-200');
-            });
-            
-            // Highlight selected answer
-            const selectedBtn = document.querySelectorAll('.answer-btn')[answerIndex];
-            selectedBtn.classList.remove('border-gray-200');
-            selectedBtn.classList.add('border-blue-500', 'bg-blue-50');
-            
-            // Enable next button
-            document.getElementById('next-btn').disabled = false;
-            document.getElementById('next-btn').classList.remove('opacity-50');
-        }
-
-        function nextQuestion() {
-            if (selectedAnswer === -1) return;
-            
-            // Store answer
-            userAnswers[currentQuestionIndex] = selectedAnswer;
-            if (selectedAnswer === quizData[currentQuestionIndex].correct) {
-                score++;
-            }
-            
-            currentQuestionIndex++;
-            
-            if (currentQuestionIndex >= quizData.length) {
-                showResult();
-            } else {
-                displayQuestion();
-            }
-            
-            selectedAnswer = -1;
-        }
-
-        function previousQuestion() {
-            if (currentQuestionIndex > 0) {
-                currentQuestionIndex--;
-                selectedAnswer = userAnswers[currentQuestionIndex] || -1;
-                displayQuestion();
-            }
-        }
-
-        function displayQuestion() {
-            const question = quizData[currentQuestionIndex];
-            
-            document.getElementById('current-question').textContent = currentQuestionIndex + 1;
-            document.getElementById('question-text').textContent = question.question;
-            document.getElementById('progress-bar').style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
-            
-            const answersContainer = document.getElementById('answers-container');
-            answersContainer.innerHTML = '';
-            
-            question.answers.forEach((answer, index) => {
-                const button = document.createElement('button');
-                button.className = 'answer-btn w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors';
-                button.textContent = answer;
-                button.onclick = () => selectAnswer(index);
-                
-                if (selectedAnswer === index) {
-                    button.classList.remove('border-gray-200');
-                    button.classList.add('border-blue-500', 'bg-blue-50');
-                }
-                
-                answersContainer.appendChild(button);
-            });
-            
-            // Update navigation buttons
-            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
-            document.getElementById('next-btn').disabled = selectedAnswer === -1;
-            
-            if (selectedAnswer === -1) {
-                document.getElementById('next-btn').classList.add('opacity-50');
-            } else {
-                document.getElementById('next-btn').classList.remove('opacity-50');
-            }
-        }
-
-        function showResult() {
-            document.getElementById('quiz-container').classList.add('hidden');
-            document.getElementById('quiz-result').classList.remove('hidden');
-            document.getElementById('final-score').textContent = score;
-        }
-
-        function restartQuiz() {
-            currentQuestionIndex = 0;
-            selectedAnswer = -1;
-            score = 0;
-            userAnswers = [];
-            
-            document.getElementById('quiz-container').classList.remove('hidden');
-            document.getElementById('quiz-result').classList.add('hidden');
-            
-            displayQuestion();
-        }
-
-        // Initialize quiz
-        displayQuestion();
-
-        // Smooth scroll for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
+        // Showdown.js Converter
+        const converter = new showdown.Converter({
+            ghCompatibleHeaderId: true,
+            simpleLineBreaks: true,
+            strikethrough: true,
+            tables: true,
+            simplifiedAutoLink: true, // <-- เพิ่มตัวเลือกนี้
+            openLinksInNewWindow: true  // <-- และเพิ่มตัวเลือกนี้
         });
+
+        // --- Modal Control Functions ---
+
+        function showFormModal() {
+            formModal.classList.remove('hidden');
+            setTimeout(() => {
+                formModalContent.classList.remove('scale-95', 'opacity-0');
+                formModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function hideFormModal() {
+            formModalContent.classList.add('scale-95', 'opacity-0');
+            formModalContent.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                formModal.classList.add('hidden');
+                postForm.reset(); // รีเซ็ตฟอร์ม
+            }, 300);
+        }
+
+        function showViewModal() {
+            viewModal.classList.remove('hidden');
+            setTimeout(() => {
+                viewModalContent.classList.remove('scale-95', 'opacity-0');
+                viewModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function hideViewModal() {
+            viewModalContent.classList.add('scale-95', 'opacity-0');
+            viewModalContent.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                viewModal.classList.add('hidden');
+                modalTitleView.textContent = '';
+                modalContentView.innerHTML = '';
+            }, 300);
+        }
+
+        // --- Event Listeners for Modals ---
+        addPostBtn.addEventListener('click', showFormModal);
+        cancelBtn.addEventListener('click', hideFormModal);
+        closeViewBtn.addEventListener('click', hideViewModal);
+
+        // ปิด Modal เมื่อคลิกที่พื้นหลังสีดำ
+        formModal.addEventListener('click', (e) => {
+            if (e.target === formModal) {
+                hideFormModal();
+            }
+        });
+
+        viewModal.addEventListener('click', (e) => {
+            if (e.target === viewModal) {
+                hideViewModal();
+            }
+        });
+
+
+        // --- Data Fetching and Rendering ---
+
+        // 1. ดึงข้อมูลทั้งหมดมาแสดง
+        async function fetchData() {
+            if (checkUrlPlaceholder()) return;
+
+            grid.innerHTML = ''; // เคลียร์การ์ดเก่า
+            loadingSpinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                renderCards(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                grid.innerHTML = `<p class="text-red-600 text-center col-span-full">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</p>`;
+            } finally {
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        // 2. สร้างการ์ดแสดงผล
+        function renderCards(data) {
+            if (data.length === 0) {
+                grid.innerHTML = `<p class="text-gray-600 text-center col-span-full text-xl">ยังไม่มีเนื้อหา... คลิก 'เพิ่มเนื้อหาใหม่' เพื่อเริ่มต้น!</p>`;
+                return;
+            }
+
+            // เรียงข้อมูลจากใหม่ไปเก่า (ตาม timestamp)
+            data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 transform hover:shadow-2xl hover:-translate-y-1';
+
+                // สร้างเนื้อหาตัวอย่าง (ไม่เกิน 150 ตัวอักษร และลบ Markdown ออก)
+                let plainTextSnippet = item.markdownContent
+                    .replace(/#+\s/g, '') // ลบ h1, h2, ...
+                    .replace(/[\*_`~]/g, '') // ลบ bold, italic, ...
+                    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // ลบ link (แก้ไขบรรทัดนี้)
+                    .replace(/!\[.*\]\(.*\)/g, ''); // ลบ image
+
+                const snippet = plainTextSnippet.substring(0, 150) + (plainTextSnippet.length > 150 ? '...' : '');
+
+                card.innerHTML = `
+                    <div class="h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4 truncate">${item.title}</h3>
+                        <p class="text-gray-600 mb-8 min-h-[4.5rem]">${snippet}</p>
+                        <button class="read-more-btn bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition duration-300 self-start">
+                            อ่านเพิ่มเติม
+                        </button>
+                    </div>
+                `;
+
+                // เพิ่ม Event Listener ให้ปุ่ม "อ่านเพิ่มเติม"
+                card.querySelector('.read-more-btn').addEventListener('click', () => {
+                    showFullPost(item);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        // 3. แสดงเนื้อหาฉบับเต็มใน Modal
+        function showFullPost(item) {
+            modalTitleView.textContent = item.title;
+            // แปลง Markdown เป็น HTML
+            const htmlContent = converter.makeHtml(item.markdownContent);
+            modalContentView.innerHTML = htmlContent;
+            showViewModal();
+        }
+
+        // 4. จัดการการส่งฟอร์ม (เพิ่มเนื้อหาใหม่)
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            if (checkUrlPlaceholder()) return;
+
+            const title = titleInput.value;
+            const markdownContent = contentInput.value;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'กำลังบันทึก...';
+            submitBtn.classList.add('opacity-70');
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // 'no-cors' สำหรับการส่ง POST ไปยัง Apps Script
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title, markdownContent }),
+                });
+                
+                // หมายเหตุ: fetch แบบ 'no-cors' จะไม่สามารถอ่าน response ได้
+                // เราจึงต้อง optimistic update (อัปเดต UI โดยไม่ต้องรอการยืนยัน)
+                // หรือ fetch ข้อมูลใหม่ทั้งหมด
+                
+                hideFormModal();
+                fetchData(); // ดึงข้อมูลใหม่ทั้งหมดเพื่อแสดงผล
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'บันทึก';
+                submitBtn.classList.remove('opacity-70');
+            }
+        }
+
+        // 5. ตรวจสอบว่าผู้ใช้ใส่ URL หรือยัง
+        function checkUrlPlaceholder() {
+            if (APPS_SCRIPT_URL === 'YOUR_WEB_APP_URL_HERE') {
+                alert('กรุณาใส่ URL ของ Google Apps Script Web App ในไฟล์ index.html (ตัวแปร APPS_SCRIPT_URL) ก่อนครับ');
+                loadingSpinner.classList.add('hidden');
+                grid.innerHTML = `<p class="text-red-600 text-center col-span-full">
+                    <strong>ข้อผิดพลาด:</strong> กรุณาตั้งค่า 
+                    <code>APPS_SCRIPT_URL</code> 
+                    ในไฟล์ <code>index.html</code> ก่อนใช้งาน
+                </p>`;
+                return true;
+            }
+            return false;
+        }
+
+        // เริ่มการทำงาน: เพิ่ม Event Listener ให้ฟอร์ม และดึงข้อมูล
+        postForm.addEventListener('submit', handleFormSubmit);
+        document.addEventListener('DOMContentLoaded', fetchData);
+
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9716488e67f0894d',t:'MTc1NTU3MTE5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
