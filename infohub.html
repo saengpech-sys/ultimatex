@@ -282,7 +282,7 @@
                 let plainTextSnippet = item.markdownContent
                     .replace(/#+\s/g, '') // ลบ h1, h2, ...
                     .replace(/[\*_`~]/g, '') // ลบ bold, italic, ...
-                    .replace(/\[.*\]\(.*\)/g, '$1') // ลบ link
+                    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // ลบ link (แก้ไขบรรทัดนี้)
                     .replace(/!\[.*\]\(.*\)/g, ''); // ลบ image
 
                 const snippet = plainTextSnippet.substring(0, 150) + (plainTextSnippet.length > 150 ? '...' : '');
@@ -377,7 +377,3 @@
     </script>
 </body>
 </html>
-
-
-
-
