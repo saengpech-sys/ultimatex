@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Showcase</title>
+    <!-- 1. โหลด Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. โหลด Showdown.js (สำหรับแปลง Markdown เป็น HTML) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <!-- 3. โหลดฟอนต์ Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ใช้ฟอนต์ Sarabun สำหรับภาษาไทย และ Inter สำหรับภาษาอังกฤษ */
+        body {
+            font-family: 'Sarabun', 'Inter', sans-serif;
+        }
+
+        /* สไตล์สำหรับเนื้อหาที่แปลงจาก Markdown */
+        #modal-content-view h1, #modal-content-view h2, #modal-content-view h3 {
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        #modal-content-view h1 { font-size: 2.25rem; }
+        #modal-content-view h2 { font-size: 1.75rem; }
+        #modal-content-view h3 { font-size: 1.25rem; }
+        #modal-content-view p {
+            margin-bottom: 1rem;
+            line-height: 1.7;
+        }
+        #modal-content-view ul, #modal-content-view ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            list-style-position: outside;
+        }
+        #modal-content-view ul { list-style-type: disc; }
+        #modal-content-view ol { list-style-type: decimal; }
+        #modal-content-view a {
+            color: #2563eb; /* text-blue-600 */
+            text-decoration: underline;
+        }
+        #modal-content-view pre {
+            background-color: #0f172a; /* bg-slate-900 */
+            color: #f1f5f9; /* text-slate-100 */
+            padding: 1.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        #modal-content-view code {
+            font-family: monospace;
+            background-color: #dbeafe; /* bg-blue-100 */
+            color: #1e40af; /* text-blue-800 */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem; /* rounded */
+            font-weight: 600;
+        }
+        #modal-content-view pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            font-weight: 400;
+        }
+        #modal-content-view blockquote {
+            border-left: 4px solid #3b82f6; /* border-blue-500 */
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: #1e3a8a; /* text-blue-900 */
+            background-color: #eff6ff; /* bg-blue-50 */
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-xl sticky top-0 z-30">
+        <div class="container mx-auto px-6 py-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold">คลังเนื้อหา Markdown</h1>
+            <button id="add-post-btn" class="bg-white text-blue-700 font-bold py-2 px-6 rounded-lg shadow-md hover:bg-gray-100 transition duration-300 transform hover:-translate-y-0.5">
+                + เพิ่มเนื้อหาใหม่
+            </button>
+        </div>
+    </header>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="flex justify-center items-center py-20">
+        <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="ml-4 text-2xl font-semibold text-gray-700">กำลังโหลดข้อมูล...</span>
+    </div>
+
+    <!-- Card Grid -->
+    <main id="card-grid" class="container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <!-- การ์ดจะถูกเพิ่มที่นี่โดย JavaScript -->
+    </main>
+
+    <!-- Add/Edit Post Modal -->
+    <div id="form-modal" class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center p-6 hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl transform transition-all scale-95 opacity-0" id="form-modal-content">
+            <form id="post-form" class="p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8">เพิ่ม/แก้ไข เนื้อหา</h2>
+                <div class="mb-4">
+                    <label for="title" class="block text-gray-700 font-semibold mb-2">ชื่อเรื่อง</label>
+                    <input type="text" id="title" name="title" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ใส่ชื่อเรื่องที่นี่..." required>
+                </div>
+                <div class="mb-6">
+                    <label for="markdownContent" class="block text-gray-700 font-semibold mb-2">เนื้อหา (Markdown)</label>
+                    <textarea id="markdownContent" name="markdownContent" rows="12" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono" placeholder="ใส่เนื้อหา Markdown ของคุณ... (เช่น # หัวข้อ, *ตัวเอียง*)" required></textarea>
+                </div>
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="cancel-btn" class="bg-gray-200 text-gray-800 font-semibold py-3 px-6 rounded-lg hover:bg-gray-300 transition duration-300">ยกเลิก</button>
+                    <button type="submit" id="submit-btn" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition duration-300">
+                        บันทึก
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Post Modal -->
+    <div id="view-modal" class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-start p-6 hidden z-40 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-16 transform transition-all scale-95 opacity-0" id="view-modal-content">
+            <div class="p-8 md:p-12">
+                <div class="flex justify-between items-start mb-4">
+                    <h2 id="modal-title-view" class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-700 mb-2"></h2>
+                    <button id="close-view-btn" class="text-gray-400 hover:text-gray-600 transition duration-300">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <!-- เส้นขีดคั่นตกแต่ง -->
+                <div class="h-1 w-24 bg-indigo-200 rounded-full mb-8"></div>
+
+                <!-- เนื้อหา Markdown ที่แปลงแล้วจะแสดงที่นี่ -->
+                <div id="modal-content-view" class="prose max-w-none">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // -----------------------------------------------------------------
+        // !! สำคัญ: กรุณาใส่ URL ของ Web App ที่คุณ Deploy จาก Google Apps Script ที่นี่
+        // -----------------------------------------------------------------
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyZNUm8W3hCsgeFl4Cnf4GP2ywvi-sVgBm-q-7KDorEuPbDbSYJhxG-zvloec9w3kV/exec'; // <--- ใส่ URL ของคุณที่นี่
+        // -----------------------------------------------------------------
+
+        // DOM Elements
+        const grid = document.getElementById('card-grid');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        
+        // Form Modal
+        const addPostBtn = document.getElementById('add-post-btn');
+        const formModal = document.getElementById('form-modal');
+        const formModalContent = document.getElementById('form-modal-content');
+        const postForm = document.getElementById('post-form');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('markdownContent');
+
+        // View Modal
+        const viewModal = document.getElementById('view-modal');
+        const viewModalContent = document.getElementById('view-modal-content');
+        const closeViewBtn = document.getElementById('close-view-btn');
+        const modalTitleView = document.getElementById('modal-title-view');
+        const modalContentView = document.getElementById('modal-content-view');
+
+        // Showdown.js Converter
+        const converter = new showdown.Converter({
+            ghCompatibleHeaderId: true,
+            simpleLineBreaks: true,
+            strikethrough: true,
+            tables: true
+        });
+
+        // --- Modal Control Functions ---
+
+        function showFormModal() {
+            formModal.classList.remove('hidden');
+            setTimeout(() => {
+                formModalContent.classList.remove('scale-95', 'opacity-0');
+                formModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function hideFormModal() {
+            formModalContent.classList.add('scale-95', 'opacity-0');
+            formModalContent.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                formModal.classList.add('hidden');
+                postForm.reset(); // รีเซ็ตฟอร์ม
+            }, 300);
+        }
+
+        function showViewModal() {
+            viewModal.classList.remove('hidden');
+            setTimeout(() => {
+                viewModalContent.classList.remove('scale-95', 'opacity-0');
+                viewModalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function hideViewModal() {
+            viewModalContent.classList.add('scale-95', 'opacity-0');
+            viewModalContent.classList.remove('scale-100', 'opacity-100');
+            setTimeout(() => {
+                viewModal.classList.add('hidden');
+                modalTitleView.textContent = '';
+                modalContentView.innerHTML = '';
+            }, 300);
+        }
+
+        // --- Event Listeners for Modals ---
+        addPostBtn.addEventListener('click', showFormModal);
+        cancelBtn.addEventListener('click', hideFormModal);
+        closeViewBtn.addEventListener('click', hideViewModal);
+
+        // ปิด Modal เมื่อคลิกที่พื้นหลังสีดำ
+        formModal.addEventListener('click', (e) => {
+            if (e.target === formModal) {
+                hideFormModal();
+            }
+        });
+
+        viewModal.addEventListener('click', (e) => {
+            if (e.target === viewModal) {
+                hideViewModal();
+            }
+        });
+
+
+        // --- Data Fetching and Rendering ---
+
+        // 1. ดึงข้อมูลทั้งหมดมาแสดง
+        async function fetchData() {
+            if (checkUrlPlaceholder()) return;
+
+            grid.innerHTML = ''; // เคลียร์การ์ดเก่า
+            loadingSpinner.classList.remove('hidden');
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                renderCards(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                grid.innerHTML = `<p class="text-red-600 text-center col-span-full">เกิดข้อผิดพลาดในการโหลดข้อมูล: ${error.message}</p>`;
+            } finally {
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        // 2. สร้างการ์ดแสดงผล
+        function renderCards(data) {
+            if (data.length === 0) {
+                grid.innerHTML = `<p class="text-gray-600 text-center col-span-full text-xl">ยังไม่มีเนื้อหา... คลิก 'เพิ่มเนื้อหาใหม่' เพื่อเริ่มต้น!</p>`;
+                return;
+            }
+
+            // เรียงข้อมูลจากใหม่ไปเก่า (ตาม timestamp)
+            data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 transform hover:shadow-2xl hover:-translate-y-1';
+
+                // สร้างเนื้อหาตัวอย่าง (ไม่เกิน 150 ตัวอักษร และลบ Markdown ออก)
+                let plainTextSnippet = item.markdownContent
+                    .replace(/#+\s/g, '') // ลบ h1, h2, ...
+                    .replace(/[\*_`~]/g, '') // ลบ bold, italic, ...
+                    .replace(/\[.*\]\(.*\)/g, '$1') // ลบ link
+                    .replace(/!\[.*\]\(.*\)/g, ''); // ลบ image
+
+                const snippet = plainTextSnippet.substring(0, 150) + (plainTextSnippet.length > 150 ? '...' : '');
+
+                card.innerHTML = `
+                    <div class="h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4 truncate">${item.title}</h3>
+                        <p class="text-gray-600 mb-8 min-h-[4.5rem]">${snippet}</p>
+                        <button class="read-more-btn bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition duration-300 self-start">
+                            อ่านเพิ่มเติม
+                        </button>
+                    </div>
+                `;
+
+                // เพิ่ม Event Listener ให้ปุ่ม "อ่านเพิ่มเติม"
+                card.querySelector('.read-more-btn').addEventListener('click', () => {
+                    showFullPost(item);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        // 3. แสดงเนื้อหาฉบับเต็มใน Modal
+        function showFullPost(item) {
+            modalTitleView.textContent = item.title;
+            // แปลง Markdown เป็น HTML
+            const htmlContent = converter.makeHtml(item.markdownContent);
+            modalContentView.innerHTML = htmlContent;
+            showViewModal();
+        }
+
+        // 4. จัดการการส่งฟอร์ม (เพิ่มเนื้อหาใหม่)
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            if (checkUrlPlaceholder()) return;
+
+            const title = titleInput.value;
+            const markdownContent = contentInput.value;
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'กำลังบันทึก...';
+            submitBtn.classList.add('opacity-70');
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // 'no-cors' สำหรับการส่ง POST ไปยัง Apps Script
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title, markdownContent }),
+                });
+                
+                // หมายเหตุ: fetch แบบ 'no-cors' จะไม่สามารถอ่าน response ได้
+                // เราจึงต้อง optimistic update (อัปเดต UI โดยไม่ต้องรอการยืนยัน)
+                // หรือ fetch ข้อมูลใหม่ทั้งหมด
+                
+                hideFormModal();
+                fetchData(); // ดึงข้อมูลใหม่ทั้งหมดเพื่อแสดงผล
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'บันทึก';
+                submitBtn.classList.remove('opacity-70');
+            }
+        }
+
+        // 5. ตรวจสอบว่าผู้ใช้ใส่ URL หรือยัง
+        function checkUrlPlaceholder() {
+            if (APPS_SCRIPT_URL === 'YOUR_WEB_APP_URL_HERE') {
+                alert('กรุณาใส่ URL ของ Google Apps Script Web App ในไฟล์ index.html (ตัวแปร APPS_SCRIPT_URL) ก่อนครับ');
+                loadingSpinner.classList.add('hidden');
+                grid.innerHTML = `<p class="text-red-600 text-center col-span-full">
+                    <strong>ข้อผิดพลาด:</strong> กรุณาตั้งค่า 
+                    <code>APPS_SCRIPT_URL</code> 
+                    ในไฟล์ <code>index.html</code> ก่อนใช้งาน
+                </p>`;
+                return true;
+            }
+            return false;
+        }
+
+        // เริ่มการทำงาน: เพิ่ม Event Listener ให้ฟอร์ม และดึงข้อมูล
+        postForm.addEventListener('submit', handleFormSubmit);
+        document.addEventListener('DOMContentLoaded', fetchData);
+
+    </script>
+</body>
+</html>
+
+
+
