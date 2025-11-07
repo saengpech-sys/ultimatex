@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTS AI ChatLoop - พัฒนาทักษะการคิดขั้นสูงด้วย AI</title>
+    
+    <!-- โหลด Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- โหลด Google Fonts (Prompt) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- ไอคอน (Heroicons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/heroicons/2.1.1/24/outline/heroicons.min.css">
+
+    <style>
+        /* ใช้ฟอนต์ Prompt เป็นฟอนต์หลัก */
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+        
+        /* สไตล์สำหรับ Gradient Text */
+        .gradient-text {
+            background-image: linear-gradient(to right, #2dd4bf, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* พื้นหลัง Hero แบบ Gradient Mesh (Subtle) */
+        .hero-bg {
+            background-color: #0f172a; /* สีพื้นฐาน (slate-900) */
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0) 60%);
+            animation: pulse-glow 10s infinite alternate;
+        }
+        .hero-bg::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0) 60%);
+            animation: pulse-glow 12s infinite alternate-reverse;
+        }
+        
+        @keyframes pulse-glow {
+            from {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-gray-300">
+
+    <!-- ==== 1. Navigation Bar ==== -->
+    <header class="bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-700/50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold gradient-text">
+                🎓 HOTS AI ChatLoop
+            </a>
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#features" class="hover:text-cyan-400 transition-colors">ฟีเจอร์</a>
+                <a href="#benefits" class="hover:text-cyan-400 transition-colors">ประโยชน์</a>
+                <a href="#tech" class="hover:text-cyan-400 transition-colors">เทคโนโลยี</a>
+            </div>
+            <a href="https://hots-ai-chatloop.web.app" target="_blank" class="bg-blue-600 text-white px-5 py-2 rounded-full font-medium hover:bg-blue-700 transition-transform hover:scale-105">
+                เข้าสู่ระบบ
+            </a>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- ==== 2. Hero Section ==== -->
+        <section class="hero-bg py-24 md:py-32 lg:py-40">
+            <div class="container mx-auto px-6 text-center relative z-10">
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight">
+                    ปฏิวัติการเรียนรู้
+                    <span class="block gradient-text">พัฒนาทักษะการคิดขั้นสูง (HOTS)</span>
+                    ด้วย AI
+                </h1>
+                <p class="mt-6 text-lg md:text-xl text-slate-300 max-w-3xl mx-auto">
+                    แพลตฟอร์มประเมินและพัฒนาทักษะ HOTS สำหรับนักเรียนมัธยม
+                    พร้อมระบบติดตาม Learning Outcomes แบบ Real-time
+                </p>
+                <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="https://hots-ai-chatloop.web.app" target="_blank" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-full font-semibold text-lg hover:from-cyan-600 hover:to-blue-700 transition-transform hover:scale-105 shadow-lg">
+                        เริ่มต้นใช้งาน (นักเรียน)
+                    </a>
+                    <a href="https://hots-ai-chatloop.web.app" target="_blank" class="bg-slate-700 text-slate-200 px-8 py-3 rounded-full font-semibold text-lg hover:bg-slate-600 transition-transform hover:scale-105">
+                        ดู Dashboard (ครู)
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==== 3. Features Section ==== -->
+        <section id="features" class="py-20 md:py-28 bg-slate-950">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">ฟีเจอร์ที่ไม่ใช่แค่ 'ฉลาด' แต่ 'เข้าใจ' ผู้เรียน</h2>
+                    <p class="text-lg text-slate-400 mt-3 max-w-2xl mx-auto">ขับเคลื่อนการเรียนรู้ด้วยเครื่องมือที่ออกแบบมาเพื่อการพัฒนาทักษะที่แท้จริง</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Feature Card 1 -->
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl hover:border-cyan-500 transition-all transform hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+                            <!-- ไอคอน: Chat Bubble -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI Chatbot Assessment</h3>
+                        <p class="text-slate-400">ประเมินทักษะ HOTS 4 มิติ (วิเคราะห์, ให้เหตุผล, สร้างสรรค์, ใช้หลักฐาน) พร้อม Feedback ภาษาไทยทันที</p>
+                    </div>
+                    
+                    <!-- Feature Card 2 -->
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl hover:border-cyan-500 transition-all transform hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+                            <!-- ไอคอน: Chart Bar -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 0 1 9.75 19.875V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Learning Outcomes Tracking</h3>
+                        <p class="text-slate-400">ติดตามความคืบหน้า LO รายบุคคลแบบ Real-time รู้ทันทีว่าใครผ่านหรือไม่ผ่านจุดประสงค์ใด</p>
+                    </div>
+                    
+                    <!-- Feature Card 3 -->
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl hover:border-cyan-500 transition-all transform hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+                            <!-- ไอคอน: Sparkles -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">คลังคำถาม HOTS อัจฉริยะ</h3>
+                        <p class="text-slate-400">AI ช่วยสร้างคำถามที่ตรงตาม LOs ของรายวิชา ครูสามารถแก้ไข เพิ่ม ลบ และสุ่มคำถามให้นักเรียนได้</p>
+                    </div>
+                    
+                    <!-- Feature Card 4 -->
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl hover:border-cyan-500 transition-all transform hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+                            <!-- ไอคอน: Academic Cap -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Teacher Dashboard</h3>
+                        <p class="text-slate-400">รายงานความคืบหน้านักเรียน Real-time กรองข้อมูลได้ตามชั้น/ห้อง และ Export รายงานเป็น CSV ได้ครบถ้วน</p>
+                    </div>
+                    
+                    <!-- Feature Card 5 -->
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl hover:border-cyan-500 transition-all transform hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+                            <!-- ไอคอน: User -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A1.875 1.875 0 0 1 18.126 22.5H5.874a1.875 1.875 0 0 1-1.373-2.382Z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Student Dashboard</h3>
+                        <p class="text-slate-400">นักเรียนดูประวัติการแชท คะแนนย้อนหลัง และกราฟแสดงพัฒนาการของตนเอง สร้างแรงจูงใจในการเรียนรู้</p>
+                    </div>
+                    
+                    <!-- Feature Card 6 -->
+                    <div class="bg-slate-800/50 p-6 rounded-2xl border border-slate-700 shadow-xl hover:border-cyan-500 transition-all transform hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4">
+                            <!-- ไอคอน: Shield Exclamation -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">ป้องกันการ Copy-Paste</h3>
+                        <p class="text-slate-400">ระบบป้องกันการคัดลอกและวางข้อความที่รัดกุม ทั้งฝั่ง Client และ Server เพื่อการประเมินที่เที่ยงตรง</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==== 4. Benefits Section ==== -->
+        <section id="benefits" class="py-20 md:py-28 bg-slate-900">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">ออกแบบมาเพื่อทุกคนในระบบการศึกษา</h2>
+                    <p class="text-lg text-slate-400 mt-3 max-w-2xl mx-auto">ไม่ว่าคุณจะเป็นนักเรียน ครู หรือผู้บริหาร</p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <!-- For Students -->
+                    <div class="bg-slate-800 p-8 rounded-2xl transform transition-all hover:scale-105">
+                        <span class="text-5xl">👨‍🎓</span>
+                        <h3 class="text-2xl font-semibold text-white mt-4 mb-2">สำหรับนักเรียน</h3>
+                        <p class="text-slate-400">ฝึกคิดวิเคราะห์ผ่านคำถาม HOTS ที่ท้าทาย รับ Feedback ทันทีเพื่อพัฒนาตนเอง และติดตามพัฒนาการของตนเองได้ตลอดเวลา</p>
+                    </div>
+                    <!-- For Teachers -->
+                    <div class="bg-slate-800 p-8 rounded-2xl transform transition-all hover:scale-105">
+                        <span class="text-5xl">👨‍🏫</span>
+                        <h3 class="text-2xl font-semibold text-white mt-4 mb-2">สำหรับครู</h3>
+                        <p class="text-slate-400">ประหยัดเวลาในการประเมินและให้ Feedback ด้วย AI สร้างคลังคำถามได้ง่าย และติดตามความก้าวหน้านักเรียนแบบ Real-time</p>
+                    </div>
+                    <!-- For Schools -->
+                    <div class="bg-slate-800 p-8 rounded-2xl transform transition-all hover:scale-105">
+                        <span class="text-5xl">🏫</span>
+                        <h3 class="text-2xl font-semibold text-white mt-4 mb-2">สำหรับโรงเรียน</h3>
+                        <p class="text-slate-400">ยกระดับคุณภาพการศึกษาด้วยเครื่องมือประเมินทักษะการคิดขั้นสูงที่แม่นยำ พร้อมรายงานสรุปผลเพื่อการพัฒนาหลักสูตร</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==== 5. Technology Section ==== -->
+        <section id="tech" class="py-20 md:py-28 bg-slate-950">
+            <div class="container mx-auto px-6">
+                <div class="text-center">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">ขับเคลื่อนด้วยเทคโนโลยีที่ทันสมัย</h2>
+                    <p class="text-lg text-slate-400 mt-3 max-w-2xl mx-auto">ผสานพลังของ AI, Cloud, และ Web Technologies เพื่อประสบการณ์ที่ดีที่สุด</p>
+                    <div class="mt-12 flex flex-wrap justify-center items-center gap-x-12 gap-y-6">
+                        <span class="text-xl font-medium text-slate-300">🤖 OpenAI GPT-4o-mini</span>
+                        <span class="text-xl font-medium text-slate-300">⚡ Vue 3 + Vite</span>
+                        <span class="text-xl font-medium text-slate-300">🔥 Firebase</span>
+                        <span class="text-xl font-medium text-slate-300">📦 Node.js 20</span>
+                        <span class="text-xl font-medium text-slate-300">🌙 Dark Mode</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==== 6. Final CTA Section ==== -->
+        <section class="py-20 md:py-32 hero-bg">
+            <div class="container mx-auto px-6 text-center relative z-10">
+                <h2 class="text-4xl md:text-5xl font-bold text-white">
+                    พร้อมยกระดับ
+                    <span class="gradient-text">การคิดขั้นสูง</span>
+                    ในห้องเรียนของคุณหรือยัง?
+                </h2>
+                <p class="mt-4 text-lg text-slate-300 max-w-xl mx-auto">
+                    เข้าร่วม HOTS AI ChatLoop วันนี้ และสัมผัสประสบการณ์การเรียนรู้แห่งอนาคต
+                </p>
+                <a href="https://hots-ai-chatloop.web.app" target="_blank" class="mt-8 inline-block bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-10 py-4 rounded-full font-semibold text-xl hover:from-cyan-600 hover:to-blue-700 transition-transform hover:scale-105 shadow-2xl">
+                    ทดลองใช้งานฟรี
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==== 7. Footer ==== -->
+    <footer class="bg-slate-950 border-t border-slate-700/50 py-8">
+        <div class="container mx-auto px-6 text-center text-slate-500">
+            <p>&copy; 2024-2025 HOTS AI ChatLoop. All Rights Reserved.</p>
+            <p class="text-sm mt-1">พัฒนาระบบโดย: นายแสงเพชร คำโพธิ์ ครู วิทยฐานะครูชำนาญการ โรงเรียนสระบุรีวิทยาคม จ.สระบุรี</p>
+            <p class="text-sm mt-1">ติดต่อ 061-6452453 อีเมล : s.khumpo@sbw.ac.th</p>
+        </div>
+    </footer>
+
+</body>
+</html>
