@@ -3,71 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A.R.C.E. Framework Infographic</title>
+    <title>A.R.C.E. Framework - Dark Mode</title>
+    <!-- 1. Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Load Google Fonts (Sarabun & Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 3. Load Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- 
-    Infographic Narrative Plan:
-    1. Hero: Introduce A.R.C.E. as the 'Mental OS' for the 21st Century.
-    2. Philosophy: Visualize the shift from 'Answer User' to 'Solution Architect'.
-    3. The Four Pillars: A 2x2 grid detailing each pillar (A, R, C, E) with key questions.
-    4. The AI Synergy: The "Global Pitch" visualized as a Horizontal Stacked Bar Chart, showing Human-Led vs. AI-Assisted tasks. This is the core data visualization.
-    5. New Workflow: A 'Before' and 'After' HTML/CSS flow diagram contrasting the old process with the new A.R.C.E. iterative loop.
-    6. Conclusion: Reinforce the "From Insight to Impact" tagline.
-    -->
-    
-    <!-- 
-    Chosen Color Palette: 'Brilliant Blues'
-    - Primary: #004aad
-    - Secondary: #006ee6
-    - Accent 1: #66a8ff
-    - Accent 2 / Background: #e6f0ff
-    This palette was chosen for its professional, 'architectural', and intelligent feel, matching the 'Solution Architect' theme.
-    -->
-    
-    <!-- 
-    Visualization Choices:
-    - S1 (Hero): Goal: Inform. Viz: Large HTML Text. Justification: Strong, clear introduction. NO SVG.
-    - S2 (Philosophy): Goal: Compare. Viz: HTML/CSS 'Before/After' Cards. Justification: Clearly visualizes the conceptual shift. NO SVG.
-    - S3 (Pillars): Goal: Organize. Viz: HTML/CSS 4-Card Grid with Unicode Icons. Justification: Segments the 4 pillars clearly for easy digestion. NO SVG.
-    - S4 (AI Synergy): Goal: Compare (Composition). Viz: Chart.js Horizontal Stacked Bar (Canvas). Justification: This is the key insight. It perfectly visualizes the *composition* of Human vs. AI contribution for each A.R.C.E. step. Uses Canvas as required. NO SVG.
-    - S5 (Workflow): Goal: Change / Organize. Viz: HTML/CSS Flow Diagram. Justification: Clearly shows the process change from linear to iterative. Uses styled HTML, NO SVG/Mermaid.
-    
-    - Confirmation: NEITHER Mermaid JS NOR SVG were used anywhere in this output.
-    -->
 
+    <!-- 4. Custom CSS for Theming and Dark Mode -->
     <style>
+        /* Infographic Narrative Plan & Visualization Choices:
+          (As provided by the user)
+        */
+
         :root {
+            /* Chosen Color Palette: 'Brilliant Blues' (Adapted for Light/Dark)
+              - Primary: #004aad
+              - Secondary: #006ee6
+              - Accent 1: #66a8ff
+              - Background: #e6f0ff
+            */
+
+            /* Define Light Theme Variables */
+            --color-bg: #e6f0ff;
+            --color-card-bg: #ffffff;
+            --color-text: #1a202c;
+            --color-text-secondary: #4a5568;
+            --color-text-muted: #6b7281;
             --color-primary: #004aad;
             --color-secondary: #006ee6;
             --color-accent: #66a8ff;
-            --color-bg: #e6f0ff;
+            --color-danger: #dc2626;
+            --color-border: #d1d5db;
+            --color-flow-ai-bg: #f0f7ff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
         }
+
+        .dark {
+            /* Define Dark Theme Variables */
+            --color-bg: #0f172a; /* slate-900 */
+            --color-card-bg: #1e293b; /* slate-800 */
+            --color-text: #e2e8f0; /* slate-200 */
+            --color-text-secondary: #94a3b8; /* slate-400 */
+            --color-text-muted: #64748b; /* slate-500 */
+            --color-primary: #66a8ff; /* Original accent */
+            --color-secondary: #93c5fd; /* Lighter blue */
+            --color-accent: #006ee6; /* Original secondary */
+            --color-danger: #f87171; /* red-400 */
+            --color-border: #334155; /* slate-700 */
+            --color-flow-ai-bg: #334155; /* slate-700 */
+            --shadow-color: rgba(0, 0, 0, 0.25);
+        }
+
+        /* Base Body Styling */
         body {
             font-family: 'Sarabun', 'Inter', sans-serif;
             background-color: var(--color-bg);
-            color: #1a202c;
+            color: var(--color-text);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
-        .header-text {
-            color: var(--color-primary);
-        }
+
+        /* Custom Utility Classes for Theming */
+        .text-primary { color: var(--color-primary); }
+        .text-secondary { color: var(--color-text-secondary); }
+        .text-muted { color: var(--color-text-muted); }
+        .text-danger { color: var(--color-danger); }
+        .bg-card { background-color: var(--color-card-bg); }
+        
+        /* Card Styling */
         .card {
-            background-color: white;
+            background-color: var(--color-card-bg);
             border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
             transition: all 0.3s ease-in-out;
         }
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 25px -5px var(--shadow-color), 0 10px 10px -5px var(--shadow-color);
         }
+        .card-bordered {
+            border: 2px solid var(--color-primary);
+        }
+
+        /* Pillar Icon */
         .pillar-icon {
             font-size: 3rem;
             line-height: 1;
             color: var(--color-secondary);
         }
+
+        /* Chart Container */
         .chart-container {
             position: relative;
             width: 100%;
@@ -82,19 +113,22 @@
                 height: 24rem;
             }
         }
+
+        /* Flow Diagram Styling */
         .flow-step {
-            background-color: white;
+            background-color: var(--color-card-bg);
             border: 2px solid var(--color-secondary);
             color: var(--color-primary);
             font-weight: 600;
             padding: 0.75rem 1.25rem;
             border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
             text-align: center;
+            transition: all 0.3s ease;
         }
         .flow-step-ai {
             border-color: var(--color-accent);
-            background-color: #f0f7ff;
+            background-color: var(--color-flow-ai-bg);
         }
         .flow-arrow {
             font-size: 2rem;
@@ -102,28 +136,59 @@
             margin-left: 0.5rem;
             margin-right: 0.5rem;
         }
+
+        /* Theme Toggle Button */
+        #theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+            background-color: var(--color-card-bg);
+            color: var(--color-text-secondary);
+            border: 2px solid var(--color-border);
+            border-radius: 9999px;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+        #theme-toggle:hover {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-card"> <!-- Default to bg-card which will be themed -->
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" aria-label="Toggle dark mode">
+        <span id="theme-icon-light">☀️</span>
+        <span id="theme-icon-dark" class="hidden">🌙</span>
+    </button>
 
     <main class="container mx-auto px-4 py-12 md:py-16">
 
         <section class="text-center mb-16">
-            <h1 class="text-4xl md:text-6xl font-bold header-text mb-4">A.R.C.E.</h1>
-            <h2 class="text-2xl md:text-3xl font-semibold text-gray-700 mb-6">กรอบแนวคิดเพื่อการแก้ปัญหาอัจฉริยะแห่งศตวรรษที่ 21</h2>
+            <h1 class="text-4xl md:text-6xl font-bold text-primary mb-4">A.R.C.E.</h1>
+            <h2 class="text-2xl md:text-3xl font-semibold text-secondary mb-6">กรอบแนวคิดเพื่อการแก้ปัญหาอัจฉริยะแห่งศตวรรษที่ 21</h2>
             <p class="text-xl md:text-2xl font-semibold italic" style="color: var(--color-secondary);">
                 "From Insight to Impact. Analyze, Reason, Create, Evidenced."
             </p>
         </section>
 
         <section class="mb-16">
-            <h2 class="text-3xl font-bold text-center header-text mb-8">ปรัชญา: การเปลี่ยนผ่านทักษะมนุษย์</h2>
-            <p class="text-lg text-center max-w-3xl mx-auto mb-10">
+            <h2 class="text-3xl font-bold text-center text-primary mb-8">ปรัชญา: การเปลี่ยนผ่านทักษะมนุษย์</h2>
+            <p class="text-lg text-center max-w-3xl mx-auto mb-10 text-secondary">
                 ในยุคที่ AI สร้างคำตอบได้ในเสี้ยววินาที ทักษะที่สำคัญที่สุดได้เปลี่ยนไป A.R.C.E. คือ "ระบบปฏิบัติการทางความคิด" ที่ยกระดับคุณจาก:
             </p>
             <div class="flex flex-col md:flex-row justify-center items-stretch gap-8">
                 <div class="card p-8 w-full md:w-2/5">
-                    <h3 class="text-2xl font-bold text-red-600 mb-4">ยุคเก่า: "ผู้ใช้คำตอบ"</h3>
+                    <h3 class="text-2xl font-bold text-danger mb-4">ยุคเก่า: "ผู้ใช้คำตอบ"</h3>
                     <ul class="list-disc list-inside space-y-2 text-lg">
                         <li>เน้น "การจำความรู้"</li>
                         <li>ค้นหาคำตอบสำเร็จรูป</li>
@@ -131,12 +196,12 @@
                     </ul>
                 </div>
                 
-                <div class="flex items-center justify-center text-4xl font-bold text-gray-500 transform scale-150">
+                <div class="flex items-center justify-center text-4xl font-bold text-muted transform scale-150">
                     →
                 </div>
                 
-                <div class="card p-8 w-full md:w-2/5" style="border: 2px solid var(--color-primary);">
-                    <h3 class="text-2xl font-bold header-text mb-4">ยุคใหม่: "สถาปนิกโซลูชัน"</h3>
+                <div class="card card-bordered p-8 w-full md:w-2/5">
+                    <h3 class="text-2xl font-bold text-primary mb-4">ยุคใหม่: "สถาปนิกโซลูชัน"</h3>
                     <ul class="list-disc list-inside space-y-2 text-lg">
                         <li>เน้น "การสร้างโครงสร้าง" (Structuring)</li>
                         <li>เน้น "การตรวจสอบ" (Validating)</li>
@@ -147,15 +212,15 @@
         </section>
         
         <section class="mb-16">
-            <h2 class="text-3xl font-bold text-center header-text mb-12">สี่เสาหลักแห่งการคิด (The Four Pillars)</h2>
+            <h2 class="text-3xl font-bold text-center text-primary mb-12">สี่เสาหลักแห่งการคิด (The Four Pillars)</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
                 <div class="card p-6">
                     <div class="pillar-icon mb-4">🧭</div>
-                    <h3 class="text-2xl font-bold mb-3 header-text">A = Analysis</h3>
-                    <p class="text-lg font-semibold text-gray-700 mb-4">"การสลายความซับซ้อน"</p>
+                    <h3 class="text-2xl font-bold mb-3 text-primary">A = Analysis</h3>
+                    <p class="text-lg font-semibold text-secondary mb-4">"การสลายความซับซ้อน"</p>
                     <p class="mb-4">ไม่ใช่แค่ "การแยกแยะ" แต่คือการค้นหา "แก่น" ของปัญหา, "ความต้องการที่ซ่อนเร้น" และ "ความสัมพันธ์" ระหว่างส่วนต่างๆ</p>
-                    <p class="font-semibold text-gray-600">คำถามสำคัญ:</p>
+                    <p class="font-semibold text-secondary">คำถามสำคัญ:</p>
                     <ul class="list-disc list-inside space-y-1 mt-2">
                         <li>ปัญหาที่แท้จริงคืออะไร?</li>
                         <li>ข้อจำกัด (Constraints) คืออะไร?</li>
@@ -165,10 +230,10 @@
                 
                 <div class="card p-6">
                     <div class="pillar-icon mb-4">🏗️</div>
-                    <h3 class="text-2xl font-bold mb-3 header-text">R = Reasoning</h3>
-                    <p class="text-lg font-semibold text-gray-700 mb-4">"การสร้างโครงสร้างแห่งตรรกะ"</p>
+                    <h3 class="text-2xl font-bold mb-3 text-primary">R = Reasoning</h3>
+                    <p class="text-lg font-semibold text-secondary mb-4">"การสร้างโครงสร้างแห่งตรรกะ"</p>
                     <p class="mb-4">ไม่ใช่แค่ "การคิดตามลำดับ" แต่คือการสร้าง "แบบแปลน" หรือ "อัลกอริทึม" ที่มีประสิทธิภาพ และเลือก "โมเดล" ที่เหมาะสมที่สุด</p>
-                    <p class="font-semibold text-gray-600">คำถามสำคัญ:</p>
+                    <p class="font-semibold text-secondary">คำถามสำคัญ:</p>
                     <ul class="list-disc list-inside space-y-1 mt-2">
                         <li>ทำไมต้องทำขั้นตอนนี้ก่อน?</li>
                         <li>ตรรกะนี้มีช่องโหว่หรือไม่?</li>
@@ -178,10 +243,10 @@
                 
                 <div class="card p-6">
                     <div class="pillar-icon mb-4">💡</div>
-                    <h3 class="text-2xl font-bold mb-3 header-text">C = Creativity</h3>
-                    <p class="text-lg font-semibold text-gray-700 mb-4">"การทลายกรอบเดิม"</p>
+                    <h3 class="text-2xl font-bold mb-3 text-primary">C = Creativity</h3>
+                    <p class="text-lg font-semibold text-secondary mb-4">"การทลายกรอบเดิม"</p>
                     <p class="mb-4">ไม่ใช่แค่ "การคิดไอเดียใหม่" แต่คือการมองหา "การปรับปรุง" (Optimization) ที่ดีขึ้น 10 เท่า และการประยุกต์ใช้ความรู้ข้ามศาสตร์</p>
-                    <p class="font-semibold text-gray-600">คำถามสำคัญ:</p>
+                    <p class="font-semibold text-secondary">คำถามสำคัญ:</p>
                     <ul class="list-disc list-inside space-y-1 mt-2">
                         <li>มีวิธีที่ง่ายกว่า, เร็วกว่า, หรือประหยัดกว่านี้หรือไม่?</li>
                         <li>เราจะ Refactor กระบวนการนี้ให้ 'คลีน' ขึ้นได้อย่างไร?</li>
@@ -190,10 +255,10 @@
                 
                 <div class="card p-6">
                     <div class="pillar-icon mb-4">🔬</div>
-                    <h3 class="text-2xl font-bold mb-3 header-text">E = Evidence</h3>
-                    <p class="text-lg font-semibold text-gray-700 mb-4">"การพิสูจน์เชิงวิทยาศาสตร์"</p>
+                    <h3 class="text-2xl font-bold mb-3 text-primary">E = Evidence</h3>
+                    <p class="text-lg font-semibold text-secondary mb-4">"การพิสูจน์เชิงวิทยาศาสตร์"</p>
                     <p class="mb-4">ไม่ใช่แค่ "การทดสอบ" แต่คือการออกแบบ "การทดลอง" เพื่อพิสูจน์สมมติฐาน, การใช้ "ข้อมูลเชิงประจักษ์" และการ "ดีบัก" อย่างเป็นระบบ</p>
-                    <p class="font-semibold text-gray-600">คำถามสำคัญ:</p>
+                    <p class="font-semibold text-secondary">คำถามสำคัญ:</p>
                     <ul class="list-disc list-inside space-y-1 mt-2">
                         <li>เรารู้ได้อย่างไรว่ามัน 'ดีขึ้น' จริง?</li>
                         <li>เราวัดผล (Metrics) ความสำเร็จด้วยอะไร?</li>
@@ -205,24 +270,24 @@
         </section>
 
         <section class="card p-6 md:p-8 mb-16">
-            <h2 class="text-3xl font-bold text-center header-text mb-4">A.R.C.E. และการทำงานร่วมกับ AI</h2>
-            <p class="text-lg text-center max-w-3xl mx-auto mb-8">
+            <h2 class="text-3xl font-bold text-center text-primary mb-4">A.R.C.E. และการทำงานร่วมกับ AI</h2>
+            <p class="text-lg text-center max-w-3xl mx-auto mb-8 text-secondary">
                 นี่คือ "วงจรที่สมบูรณ์แบบ" สำหรับ Human-AI Collaboration AI ไม่ได้มาแทนที่มนุษย์ แต่มาเป็น "ผู้ช่วย" (Copilot) กราฟนี้แสดงการแบ่งงานที่สมบูรณ์แบบระหว่างมนุษย์กับ AI ในแต่ละขั้นตอน
             </p>
             <div class="chart-container">
                 <canvas id="aiCollaborationChart"></canvas>
             </div>
-            <p class="text-center text-sm text-gray-600 mt-4">
+            <p class="text-center text-sm text-muted mt-4">
                 <span class="inline-block w-4 h-4 rounded-full" style="background-color: var(--color-primary); vertical-align: middle; margin-right: 4px;"></span> มนุษย์เป็นหลัก (Human-Led & Accountable)
                 <span class="inline-block w-4 h-4 rounded-full ml-4" style="background-color: var(--color-accent); vertical-align: middle; margin-right: 4px;"></span> AI ช่วยร่าง/เสนอ (AI-Assisted)
             </p>
         </section>
 
         <section>
-            <h2 class="text-3xl font-bold text-center header-text mb-12">Workflow ที่เปลี่ยนไป: จากเส้นตรงสู่การวนซ้ำ</h2>
+            <h2 class="text-3xl font-bold text-center text-primary mb-12">Workflow ที่เปลี่ยนไป: จากเส้นตรงสู่การวนซ้ำ</h2>
             
             <div class="mb-10">
-                <h3 class="text-2xl font-semibold text-center text-red-600 mb-6">Workflow ยุคเก่า (เส้นตรง)</h3>
+                <h3 class="text-2xl font-semibold text-center text-danger mb-6">Workflow ยุคเก่า (เส้นตรง)</h3>
                 <div class="flex flex-wrap items-center justify-center gap-y-4">
                     <div class="flow-step">Idea</div>
                     <div class="flow-arrow">→</div>
@@ -231,7 +296,7 @@
             </div>
 
             <div>
-                <h3 class="text-2xl font-semibold text-center header-text mb-6">Workflow ยุคใหม่ (A.R.C.E. Loop)</h3>
+                <h3 class="text-2xl font-semibold text-center text-primary mb-6">Workflow ยุคใหม่ (A.R.C.E. Loop)</h3>
                 <div class="flex flex-wrap items-center justify-center gap-y-4">
                     <div class="flow-step">Analysis</div>
                     <div class="flow-arrow">→</div>
@@ -246,7 +311,7 @@
             </div>
         </section>
         
-        <footer class="text-center mt-16 border-t pt-8 border-gray-300">
+        <footer class="text-center mt-16 border-t pt-8" style="border-color: var(--color-border);">
             <p class="text-xl md:text-2xl font-semibold italic" style="color: var(--color-secondary);">
                 A.R.C.E. Framework: From Insight to Impact.
             </p>
@@ -256,83 +321,121 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const ctx = document.getElementById('aiCollaborationChart').getContext('2d');
-            
-            const chartData = {
-                labels: ['Evidence (E)', 'Creativity (C)', 'Reasoning (R)', 'Analysis (A)'],
-                datasets: [
-                    {
-                        label: 'Human-Led & Accountable',
-                        data: [100, 20, 20, 100],
-                        backgroundColor: 'var(--color-primary)',
-                    },
-                    {
-                        label: 'AI-Assisted',
-                        data: [0, 80, 80, 0],
-                        backgroundColor: 'var(--color-accent)',
-                    }
-                ]
-            };
-            
-            const chartOptions = {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        stacked: true,
-                        ticks: {
-                            callback: function(value) { return value + '%' }
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIconLight = document.getElementById('theme-icon-light');
+            const themeIconDark = document.getElementById('theme-icon-dark');
+            const docElement = document.documentElement;
+            let chartInstance = null;
+
+            // Function to get CSS variable
+            const getCssVar = (varName) => getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+
+            // Function to set the theme
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    docElement.classList.add('dark');
+                    themeIconLight.classList.add('hidden');
+                    themeIconDark.classList.remove('hidden');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    docElement.classList.remove('dark');
+                    themeIconLight.classList.remove('hidden');
+                    themeIconDark.classList.add('hidden');
+                    localStorage.setItem('theme', 'light');
+                }
+                // Update chart colors after theme change
+                updateChartColors();
+            }
+
+            // Theme toggle button event
+            themeToggle.addEventListener('click', () => {
+                const newTheme = docElement.classList.contains('dark') ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+
+            // Chart.js rendering function
+            function renderChart() {
+                const ctx = document.getElementById('aiCollaborationChart').getContext('2d');
+                
+                const chartData = {
+                    labels: ['Evidence (E)', 'Creativity (C)', 'Reasoning (R)', 'Analysis (A)'],
+                    datasets: [
+                        {
+                            label: 'Human-Led & Accountable',
+                            data: [100, 20, 20, 100],
+                            backgroundColor: getCssVar('--color-primary'),
                         },
-                        title: {
-                            display: true,
-                            text: 'สัดส่วนการทำงาน (Contribution)'
+                        {
+                            label: 'AI-Assisted',
+                            data: [0, 80, 80, 0],
+                            backgroundColor: getCssVar('--color-accent'),
                         }
-                    },
-                    y: {
-                        stacked: true,
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            title: function(tooltipItems) {
-                                const item = tooltipItems[0];
-                                let label = item.chart.data.labels[item.dataIndex];
-                                if (Array.isArray(label)) {
-                                  return label.join(' ');
-                                } else {
-                                  return label;
-                                }
+                    ]
+                };
+                
+                const chartOptions = {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) { return value + '%' },
+                                color: getCssVar('--color-text-secondary'),
                             },
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
+                            title: {
+                                display: true,
+                                text: 'สัดส่วนการทำงาน (Contribution)',
+                                color: getCssVar('--color-text-secondary'),
+                            },
+                            grid: {
+                                color: getCssVar('--color-border'),
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                color: getCssVar('--color-text-secondary'),
+                            },
+                            grid: {
+                                display: false,
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: getCssVar('--color-card-bg'),
+                            titleColor: getCssVar('--color-text'),
+                            bodyColor: getCssVar('--color-text-secondary'),
+                            borderColor: getCssVar('--color-border'),
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += context.parsed.x + '%';
+                                    }
+                                    return label;
                                 }
-                                if (context.parsed.x !== null) {
-                                    label += context.parsed.x + '%';
-                                }
-                                return label;
                             }
                         }
                     }
+                };
+
+                // Destroy old chart if it exists
+                if (chartInstance) {
+                    chartInstance.destroy();
                 }
-            };
 
-            new Chart(ctx, {
-                type: 'bar',
-                data: chartData,
-                options: chartOptions
-            });
-        });
-    </script>
-
-</body>
-</html>
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: chartOptions
+                }
