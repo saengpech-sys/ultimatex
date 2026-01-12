@@ -214,11 +214,15 @@
         createApp({
             setup() {
                 // State
+                // ค่า Default URL ที่ฝังมา
+                const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby5GDXvro-cNniJ_Onztf-QhvbPHbMhCBpqo9fbndPoRYjKMEb1ZfS6d4ztRNXZPSpe/exec';
+
                 const prompts = ref([]);
                 const loading = ref(false);
                 const saving = ref(false);
-                const scriptUrl = ref('');
-                const tempScriptUrl = ref('');
+                // กำหนดค่าเริ่มต้นให้เป็น URL ที่ระบุมาเลย
+                const scriptUrl = ref(DEFAULT_SCRIPT_URL);
+                const tempScriptUrl = ref(DEFAULT_SCRIPT_URL);
                 const isAddModalOpen = ref(false);
                 const isSettingsOpen = ref(false);
                 const selectedPrompt = ref(null);
@@ -233,12 +237,12 @@
                 onMounted(() => {
                     const storedUrl = localStorage.getItem('google_script_url');
                     if (storedUrl) {
+                        // ถ้าเคยตั้งค่าไว้ ให้ใช้ค่าเดิมของผู้ใช้
                         scriptUrl.value = storedUrl;
                         tempScriptUrl.value = storedUrl;
-                        fetchPrompts();
-                    } else {
-                        isSettingsOpen.value = true;
                     }
+                    // ดึงข้อมูลทันที เพราะมี URL แล้ว
+                    fetchPrompts();
                 });
 
                 // Methods
