@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Vault - HTML Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        [v-cloak] { display: none; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen">
+
+    <div id="app" v-cloak>
+        
+        <!-- Header -->
+        <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="bg-gradient-to-r from-cyan-500 to-blue-600 p-2 rounded-lg">
+                        <svg class="text-white w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-white tracking-tight">Prompt Vault</h1>
+                        <p class="text-xs text-slate-400 flex items-center gap-1">
+                            <span v-if="loading" class="flex items-center gap-1"><span class="animate-spin">⌛</span> กำลังโหลด...</span>
+                            <span v-else>{{ filteredPrompts.length }} รายการ</span>
+                            <span v-if="!loading" class="text-slate-600">|</span>
+                            <span v-if="!loading" class="text-green-400">Online</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-2 sm:gap-3">
+                    <button @click="fetchPrompts" :disabled="loading" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-800" title="รีเฟรชข้อมูล">
+                        <svg :class="{'animate-spin': loading}" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <button @click="isSettingsOpen = true" class="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-slate-800" title="ตั้งค่า">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+                    <button @click="isAddModalOpen = true" :disabled="loading" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white px-4 py-2 rounded-lg font-medium transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span class="hidden sm:inline">เพิ่ม Prompt</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Search & Filter -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                <div class="relative flex-1">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input v-model="searchTerm" type="text" placeholder="ค้นหา Prompt..." class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm">
+                </div>
+                <div class="flex gap-2">
+                    <div class="relative">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                        <select v-model="filterQuality" class="appearance-none bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-10 text-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
+                            <option value="All">ทุกระดับ</option>
+                            <option value="S">S - ระดับเทพ</option>
+                            <option value="A">A - ดีมาก</option>
+                            <option value="B">B - ทั่วไป</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State / Settings Prompt -->
+            <div v-if="!scriptUrl" class="text-center py-20 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                <h3 class="text-xl font-bold text-white mb-2">ยังไม่ได้เชื่อมต่อ Database</h3>
+                <p class="text-slate-400 mb-4">กรุณากดปุ่มตั้งค่าเพื่อใส่ URL ของ Google Apps Script</p>
+                <button @click="isSettingsOpen = true" class="px-4 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-500 transition-colors">ตั้งค่าตอนนี้</button>
+            </div>
+
+            <!-- Loading State -->
+            <div v-else-if="loading && prompts.length === 0" class="text-center py-20">
+                <div class="animate-spin text-blue-500 text-4xl mb-4">⌛</div>
+                <p class="text-slate-400">กำลังโหลดข้อมูล...</p>
+            </div>
+
+            <!-- Grid -->
+            <div v-else-if="filteredPrompts.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-for="prompt in filteredPrompts" :key="prompt.id" @click="selectedPrompt = prompt" class="group relative bg-slate-800 rounded-xl border border-slate-700 hover:border-blue-500/50 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden flex flex-col h-full">
+                    <!-- Quality Badge -->
+                    <div class="absolute top-3 right-3 px-2 py-0.5 rounded text-xs font-bold border" :class="getQualityColor(prompt.quality)">
+                        {{ prompt.quality }}-Tier
+                    </div>
+                    <div class="p-5 flex-1">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="bg-slate-700 text-slate-300 text-[10px] px-2 py-1 rounded-full uppercase tracking-wider">{{ prompt.category }}</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2 line-clamp-1 group-hover:text-blue-400 transition-colors">{{ prompt.title }}</h3>
+                        <p class="text-slate-400 text-sm line-clamp-3 leading-relaxed mb-4">{{ prompt.content }}</p>
+                    </div>
+                    <div class="p-4 bg-slate-900/50 border-t border-slate-700 flex justify-between items-center text-xs text-slate-500">
+                        <span>คลิกเพื่อดูรายละเอียด</span>
+                        <svg class="w-3 h-3 text-slate-600 group-hover:text-blue-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Not Found -->
+            <div v-else class="text-center py-20 bg-slate-900/50 rounded-2xl border border-slate-800 border-dashed">
+                <svg class="w-12 h-12 text-slate-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <h3 class="text-xl font-medium text-white mb-2">ไม่พบ Prompt</h3>
+                <p class="text-slate-500 text-sm mt-2">(ตรวจสอบ Google Sheet ว่ามีแถวหัวข้อ Title, Content... หรือไม่)</p>
+            </div>
+        </main>
+
+        <!-- Modals -->
+
+        <!-- Add Modal -->
+        <div v-if="isAddModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]">
+            <div class="bg-slate-800 w-full max-w-lg rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
+                <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-white">เพิ่ม Prompt ใหม่</h2>
+                    <button @click="isAddModalOpen = false" class="text-slate-400 hover:text-white">✕</button>
+                </div>
+                <form @submit.prevent="savePrompt" class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">หัวข้อ</label>
+                        <input v-model="newPrompt.title" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 outline-none" placeholder="ตั้งชื่อ Prompt...">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">หมวดหมู่</label>
+                            <select v-model="newPrompt.category" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none">
+                                <option value="General">ทั่วไป</option>
+                                <option value="Marketing">การตลาด</option>
+                                <option value="Coding">เขียนโปรแกรม</option>
+                                <option value="Creative">งานสร้างสรรค์</option>
+                                <option value="Academic">วิชาการ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-400 mb-1">ระดับคุณภาพ</label>
+                            <select v-model="newPrompt.quality" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none">
+                                <option value="B">B - ทั่วไป</option>
+                                <option value="A">A - ดีมาก</option>
+                                <option value="S">S - สุดยอด</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-400 mb-1">เนื้อหา Prompt</label>
+                        <textarea v-model="newPrompt.content" required rows="5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none font-mono text-sm" placeholder="ใส่ Prompt..."></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" :disabled="saving" class="w-full py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg font-bold shadow-lg shadow-blue-600/20 transition-all flex justify-center items-center gap-2">
+                            <span v-if="saving" class="animate-spin">⌛</span>
+                            {{ saving ? 'กำลังบันทึกลง Sheet...' : 'บันทึกข้อมูล' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Detail Modal -->
+        <div v-if="selectedPrompt" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click="selectedPrompt = null">
+            <div class="bg-slate-900 w-full max-w-2xl rounded-2xl border border-slate-700 shadow-2xl overflow-hidden relative flex flex-col max-h-[90vh]" @click.stop>
+                <div class="p-6 border-b border-slate-700 flex justify-between items-start bg-slate-800/50">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-2 py-0.5 rounded text-xs font-bold border" :class="getQualityColor(selectedPrompt.quality)">
+                                {{ selectedPrompt.quality }}-Tier
+                            </span>
+                            <span class="text-slate-400 text-sm">{{ selectedPrompt.category }}</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white leading-tight">{{ selectedPrompt.title }}</h2>
+                    </div>
+                    <button @click="selectedPrompt = null" class="text-slate-400 hover:text-white">✕</button>
+                </div>
+                <div class="p-6 overflow-y-auto custom-scrollbar">
+                    <div class="bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-sm leading-relaxed text-slate-300 whitespace-pre-wrap">{{ selectedPrompt.content }}</div>
+                </div>
+                <div class="p-6 border-t border-slate-700 bg-slate-800/50 flex justify-end">
+                    <button @click="copyToClipboard(selectedPrompt.content)" class="flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg" :class="copied ? 'bg-green-600 text-white shadow-green-600/20' : 'bg-white text-slate-900 hover:bg-slate-200'">
+                        <span>{{ copied ? '✓ คัดลอกเรียบร้อย' : '📋 คัดลอก Prompt' }}</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div v-if="isSettingsOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+            <div class="bg-slate-800 w-full max-w-md rounded-2xl border border-slate-700 p-6 shadow-2xl">
+                <h3 class="text-xl font-bold text-white mb-4">ตั้งค่าการเชื่อมต่อ</h3>
+                <p class="text-slate-400 text-sm mb-4">กรุณานำ <strong>Web App URL</strong> จาก Google Apps Script มาวางที่นี่</p>
+                <form @submit.prevent="saveSettings" class="space-y-4">
+                    <input v-model="tempScriptUrl" placeholder="https://script.google.com/macros/s/..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-blue-500 outline-none text-xs">
+                    <div class="flex justify-end gap-2">
+                        <button type="button" @click="isSettingsOpen = false" class="px-4 py-2 text-slate-300 hover:text-white">ยกเลิก</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">บันทึก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        createApp({
+            setup() {
+                // State
+                const prompts = ref([]);
+                const loading = ref(false);
+                const saving = ref(false);
+                const scriptUrl = ref('');
+                const tempScriptUrl = ref('');
+                const isAddModalOpen = ref(false);
+                const isSettingsOpen = ref(false);
+                const selectedPrompt = ref(null);
+                const searchTerm = ref('');
+                const filterQuality = ref('All');
+                const copied = ref(false);
+
+                // New Prompt Form Data
+                const newPrompt = ref({ title: '', content: '', category: 'General', quality: 'B' });
+
+                // On Mount
+                onMounted(() => {
+                    const storedUrl = localStorage.getItem('google_script_url');
+                    if (storedUrl) {
+                        scriptUrl.value = storedUrl;
+                        tempScriptUrl.value = storedUrl;
+                        fetchPrompts();
+                    } else {
+                        isSettingsOpen.value = true;
+                    }
+                });
+
+                // Methods
+                const getValue = (obj, keys, defaultVal) => {
+                    const foundKey = Object.keys(obj).find(k => keys.includes(k.toLowerCase()));
+                    return foundKey ? obj[foundKey] : defaultVal;
+                };
+
+                const fetchPrompts = async () => {
+                    if (!scriptUrl.value) return;
+                    loading.value = true;
+                    try {
+                        const response = await fetch(`${scriptUrl.value}?t=${Date.now()}`);
+                        const data = await response.json();
+                        prompts.value = data.map(item => ({
+                            id: getValue(item, ['id'], Date.now()),
+                            title: getValue(item, ['title', 'header', 'หัวข้อ', 'name'], 'Untitled'),
+                            content: getValue(item, ['content', 'body', 'เนื้อหา', 'prompt'], ''),
+                            category: getValue(item, ['category', 'cat', 'หมวดหมู่'], 'General'),
+                            quality: getValue(item, ['quality', 'tier', 'ระดับ'], 'B')
+                        })).reverse();
+                    } catch (error) {
+                        console.error("Fetch error:", error);
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                const savePrompt = async () => {
+                    if (!scriptUrl.value) return isSettingsOpen.value = true;
+                    saving.value = true;
+                    const promptData = { id: Date.now(), ...newPrompt.value };
+                    
+                    // Optimistic update
+                    prompts.value.unshift(promptData);
+                    isAddModalOpen.value = false;
+                    
+                    // Reset form
+                    newPrompt.value = { title: '', content: '', category: 'General', quality: 'B' };
+
+                    try {
+                        await fetch(scriptUrl.value, {
+                            method: 'POST',
+                            body: JSON.stringify(promptData),
+                            mode: 'no-cors'
+                        });
+                        // Re-fetch to sync
+                        setTimeout(fetchPrompts, 1500);
+                    } catch (error) {
+                        console.error("Save error:", error);
+                        alert("บันทึกไม่สำเร็จ");
+                    } finally {
+                        saving.value = false;
+                    }
+                };
+
+                const saveSettings = () => {
+                    localStorage.setItem('google_script_url', tempScriptUrl.value);
+                    scriptUrl.value = tempScriptUrl.value;
+                    isSettingsOpen.value = false;
+                    fetchPrompts();
+                };
+
+                const copyToClipboard = (text) => {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-999999px";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        copied.value = true;
+                        setTimeout(() => copied.value = false, 2000);
+                    } catch (err) {
+                        console.error('Unable to copy', err);
+                    }
+                    document.body.removeChild(textArea);
+                };
+
+                const getQualityColor = (tier) => {
+                    switch (tier) {
+                        case 'S': return 'border-amber-400/50 bg-amber-900/10 text-amber-400';
+                        case 'A': return 'border-purple-400/50 bg-purple-900/10 text-purple-400';
+                        default: return 'border-slate-600/50 bg-slate-800/50 text-slate-400';
+                    }
+                };
+
+                // Computed
+                const filteredPrompts = computed(() => {
+                    return prompts.value.filter(p => {
+                        const matchesSearch = (p.title + p.content).toLowerCase().includes(searchTerm.value.toLowerCase());
+                        const matchesQuality = filterQuality.value === 'All' || p.quality === filterQuality.value;
+                        return matchesSearch && matchesQuality;
+                    });
+                });
+
+                return {
+                    prompts, loading, saving, scriptUrl, tempScriptUrl,
+                    isAddModalOpen, isSettingsOpen, selectedPrompt, searchTerm, filterQuality, copied,
+                    newPrompt,
+                    fetchPrompts, savePrompt, saveSettings, copyToClipboard, getQualityColor, filteredPrompts
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
