@@ -247,7 +247,7 @@
     // Import Firebase modules via ESM
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- Config & Constants ---
     // User can replace this with their own Teachable Machine model URL
@@ -263,7 +263,7 @@
             const currentGesture = ref('Neutral');
             const confidence = ref(0);
             const inputSequence = ref([]);
-            const correctSequence = ref(['Class 1', 'Class 2', 'Class 3']); // Reset to A, B, C as per initial requirements
+            const correctSequence = ref(['A', 'B', 'C']); // Reset to A, B, C as per initial requirements
             const logs = ref([]);
             const isScanning = ref(false);
             const isError = ref(false);
@@ -471,36 +471,42 @@
                 db = getFirestore(app);
                 appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-                // Auth
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                // Auth Logic: Custom Token or Anonymous
+                const initAuth = async () => {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                };
+
+                await initAuth();
                 
-                // Get User ID
+                // Listen to Auth State
                 onAuthStateChanged(auth, (user) => {
                     if (user) {
                         userId = user.uid;
-                        // Listen for Logs
+                        
+                        // FIX: Remove orderBy/limit to prevent permission errors (Rule 2)
+                        // Use simple collection query
                         const q = query(
-                            collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), 
-                            orderBy('timestamp', 'desc'), // Might need index, fallback to JS sort if fail
-                            limit(20)
+                            collection(db, 'artifacts', appId, 'public', 'data', 'access_logs')
                         );
                         
+                        // Client-side Sort & Limit
                         onSnapshot(q, (snapshot) => {
-                            logs.value = snapshot.docs.map(doc => ({
+                            const rawLogs = snapshot.docs.map(doc => ({
                                 id: doc.id,
                                 ...doc.data()
-                            })).sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)); // Client-side sort fallback
+                            }));
+                            
+                            // Sort in JS: Newest first
+                            logs.value = rawLogs
+                                .sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0))
+                                .slice(0, 20); // Limit to latest 20
+                            
                         }, (err) => {
                             console.error("Firestore Error:", err);
-                             // Fallback without ordering if index missing
-                             const qSimple = query(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), limit(20));
-                             onSnapshot(qSimple, (snap) => {
-                                logs.value = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                             });
                         });
                     }
                 });
