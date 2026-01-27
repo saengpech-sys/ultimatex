@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Gesture Password</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Font (Kanit) -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <!-- Vue.js 3 (Global) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- TensorFlow.js & Teachable Machine -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .mono-font {
+            font-family: 'Share Tech Mono', monospace;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: rgba(56, 189, 248, 0.8);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scan 2s linear infinite;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+        }
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        .camera-overlay {
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.8) 100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen selection:bg-cyan-500 selection:text-white overflow-x-hidden">
+
+<div id="app" class="container mx-auto p-4 max-w-6xl">
+    
+    <!-- Header -->
+    <header class="mb-8 flex justify-between items-center border-b border-slate-700 pb-4">
+        <div>
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-600 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.2-2.85.57-4.136M12 9a2 2 0 100 4 2 2 0 000-4z" />
+                </svg>
+                AI Gesture Lock
+            </h1>
+            <p class="text-slate-400 text-sm mt-1">Security System powered by TensorFlow.js</p>
+        </div>
+        
+        <!-- Status Badge -->
+        <div :class="`px-6 py-2 rounded-full font-bold text-lg shadow-lg transition-all duration-300 flex items-center gap-2 ${statusColor}`">
+            <span :class="`w-3 h-3 rounded-full ${isUnlocked ? 'bg-white animate-pulse' : 'bg-white'}`"></span>
+            {{ statusText }}
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT COLUMN: Camera & Input -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Camera Feed -->
+            <div class="relative bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-slate-700 aspect-video group">
+                <!-- Video Element -->
+                <canvas id="canvas" class="w-full h-full object-cover opacity-90"></canvas>
+                
+                <!-- Loading State -->
+                <div v-if="loading" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 z-20">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mb-4"></div>
+                    <p class="text-cyan-400 animate-pulse">Initializing Neural Network...</p>
+                </div>
+
+                <!-- Overlay UI -->
+                <div class="absolute inset-0 pointer-events-none border-4 border-slate-800/50 rounded-2xl">
+                    <div class="scan-line" v-if="isScanning"></div>
+                </div>
+
+                <!-- Detection Label -->
+                <div class="absolute bottom-4 left-4 right-4 bg-slate-900/80 backdrop-blur-md p-3 rounded-xl border border-slate-700 flex justify-between items-center z-10">
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase tracking-wider">Detected Gesture</p>
+                        <p class="text-xl font-bold text-white flex items-center gap-2">
+                            <span v-if="currentGesture === 'Neutral'" class="text-slate-500">Waiting...</span>
+                            <span v-else class="text-cyan-400">{{ currentGesture }}</span>
+                            <span class="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-0.5 rounded ml-2" v-if="confidence > 0">
+                                {{ (confidence * 100).toFixed(1) }}%
+                            </span>
+                        </p>
+                    </div>
+                    <div class="h-8 w-8 rounded-full flex items-center justify-center bg-slate-800 border border-slate-600">
+                        <div :class="`w-3 h-3 rounded-full ${isScanning ? 'bg-red-500 animate-ping' : 'bg-slate-500'}`"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setup / Controls -->
+            <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-cyan-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                    </svg>
+                    System Configuration
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Model Loader -->
+                    <div class="col-span-1 md:col-span-2">
+                        <label class="block text-sm text-slate-400 mb-1">Teachable Machine Model URL (Folder)</label>
+                        <div class="flex gap-2">
+                            <input type="text" v-model="modelURL" placeholder="https://teachablemachine.withgoogle.com/models/..." 
+                                class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors">
+                            <button @click="loadModel" :disabled="loading" 
+                                class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+                                Load AI
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">*Leave blank to use Simulation Mode (Manual Buttons)</p>
+                    </div>
+
+                    <!-- Password Config -->
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Set Correct Sequence</label>
+                        <div class="flex items-center gap-2 bg-slate-900 p-2 rounded-lg border border-slate-600">
+                             <div class="flex gap-1">
+                                <span v-for="(char, idx) in correctSequence" :key="idx" 
+                                    class="w-6 h-6 flex items-center justify-center bg-slate-700 rounded text-xs font-bold text-white">
+                                    {{ char }}
+                                </span>
+                             </div>
+                             <button @click="resetPassword" class="ml-auto text-xs text-red-400 hover:text-red-300">Reset</button>
+                        </div>
+                    </div>
+
+                     <!-- Simulation Controls (Fallback) -->
+                     <div>
+                        <label class="block text-sm text-slate-400 mb-1">Simulation (Test Mode)</label>
+                        <div class="flex gap-2">
+                            <button @click="simulateGesture('A')" class="bg-slate-700 hover:bg-slate-600 text-white w-8 h-8 rounded-lg text-sm font-bold">A</button>
+                            <button @click="simulateGesture('B')" class="bg-slate-700 hover:bg-slate-600 text-white w-8 h-8 rounded-lg text-sm font-bold">B</button>
+                            <button @click="simulateGesture('C')" class="bg-slate-700 hover:bg-slate-600 text-white w-8 h-8 rounded-lg text-sm font-bold">C</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Feedback & Logs -->
+        <div class="lg:col-span-5 space-y-6">
+            
+            <!-- Input Sequence Display -->
+            <div class="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700">
+                <h3 class="text-sm uppercase tracking-wider text-slate-400 mb-4 font-semibold">Security Input</h3>
+                
+                <div class="flex justify-center items-center gap-4 h-20 bg-slate-900/50 rounded-lg border-2 border-dashed border-slate-700 mb-4 transition-all"
+                     :class="{'border-red-500 bg-red-900/10': isError, 'border-green-500 bg-green-900/10': isUnlocked}">
+                    
+                    <template v-if="inputSequence.length === 0">
+                        <span class="text-slate-600 text-sm animate-pulse">Waiting for gesture...</span>
+                    </template>
+                    
+                    <transition-group name="list">
+                        <div v-for="(gesture, index) in inputSequence" :key="index + gesture"
+                             class="w-10 h-10 flex items-center justify-center rounded-lg bg-cyan-900 text-cyan-200 font-bold border border-cyan-500/50 shadow-[0_0_10px_rgba(34,211,238,0.3)] text-lg">
+                            {{ gesture }}
+                        </div>
+                    </transition-group>
+                </div>
+
+                <div class="flex justify-between text-xs text-slate-500">
+                    <span>Required Length: {{ correctSequence.length }}</span>
+                    <span v-if="isError" class="text-red-400 font-bold">ACCESS DENIED - RESETTING</span>
+                    <span v-if="isUnlocked" class="text-green-400 font-bold">ACCESS GRANTED</span>
+                </div>
+            </div>
+
+            <!-- Access Logs -->
+            <div class="bg-slate-800 rounded-xl border border-slate-700 flex flex-col h-[400px]">
+                <div class="p-4 border-b border-slate-700 bg-slate-800/80 rounded-t-xl flex justify-between items-center">
+                    <h3 class="font-semibold text-white flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        Access Logs (Firebase)
+                    </h3>
+                    <span class="text-xs bg-purple-900 text-purple-200 px-2 py-1 rounded">{{ logs.length }} Events</span>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-2 space-y-2">
+                    <div v-if="logs.length === 0" class="text-center text-slate-500 py-10">
+                        No activity recorded yet.
+                    </div>
+                    
+                    <div v-for="log in logs" :key="log.id" 
+                         class="p-3 rounded-lg border flex justify-between items-center text-sm transition-all hover:bg-slate-700/50"
+                         :class="log.status === 'Unlocked' ? 'bg-green-900/20 border-green-800/50' : 'bg-red-900/20 border-red-800/50'">
+                        <div>
+                            <div class="font-mono text-xs text-slate-400">{{ formatDate(log.timestamp) }}</div>
+                            <div class="font-bold mt-1" :class="log.status === 'Unlocked' ? 'text-green-400' : 'text-red-400'">
+                                {{ log.status }}
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-500 bg-slate-900 px-2 py-1 rounded">
+                            Seq: {{ log.sequence ? log.sequence.join('-') : '-' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    const { createApp, ref, computed, onMounted, watch } = Vue;
+    
+    // Import Firebase modules via ESM
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- Config & Constants ---
+    // User can replace this with their own Teachable Machine model URL
+    const DEFAULT_MODEL_URL = ""; 
+    const CONFIDENCE_THRESHOLD = 0.85; // [NFR1]
+    const DEBOUNCE_TIME = 1000; // ms [NFR3]
+
+    createApp({
+        setup() {
+            // App State
+            const modelURL = ref(DEFAULT_MODEL_URL);
+            const loading = ref(true);
+            const currentGesture = ref('Neutral');
+            const confidence = ref(0);
+            const inputSequence = ref([]);
+            const correctSequence = ref(['Class 1', 'Class 2', 'Class 3']); // Reset to A, B, C as per initial requirements
+            const logs = ref([]);
+            const isScanning = ref(false);
+            const isError = ref(false);
+            
+            // Computed Status
+            const isUnlocked = computed(() => {
+                // [FR3] Check logic
+                if (inputSequence.value.length !== correctSequence.value.length) return false;
+                return JSON.stringify(inputSequence.value) === JSON.stringify(correctSequence.value);
+            });
+
+            const statusText = computed(() => {
+                if (isError.value) return "LOCKED (INVALID)";
+                if (isUnlocked.value) return "UNLOCKED";
+                return "LOCKED";
+            });
+
+            const statusColor = computed(() => {
+                if (isError.value) return "bg-red-600 text-white shadow-red-500/50";
+                if (isUnlocked.value) return "bg-green-600 text-white shadow-green-500/50";
+                return "bg-slate-700 text-slate-300";
+            });
+
+            // AI/Webcam Variables
+            let model, webcam, ctx, maxPredictions;
+            let lastGestureTime = 0;
+            let lastRegisteredGesture = null;
+
+            // Firebase Variables
+            let db, auth, appId, userId;
+
+            // --- Methods ---
+
+            // [FR5] Data Logging
+            const logToFirebase = async (status, sequence) => {
+                if (!db || !userId) return;
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), {
+                        status: status,
+                        sequence: sequence,
+                        timestamp: serverTimestamp(), // Store server time
+                        userId: userId
+                    });
+                } catch (e) {
+                    console.error("Logging failed:", e);
+                }
+            };
+
+            // Logic to handle gesture input (from AI or Sim)
+            const processGestureInput = (gestureName, score = 1.0) => {
+                if (isUnlocked.value || isError.value) return; // Stop if resolved
+                
+                // [NFR3] Debounce Logic: 
+                // 1. Must be high confidence
+                // 2. Must be different from last *processed* gesture OR enough time passed
+                // 3. Must NOT be 'Neutral'
+                if (score < CONFIDENCE_THRESHOLD) return;
+
+                currentGesture.value = gestureName;
+                confidence.value = score;
+
+                if (gestureName === 'Neutral') {
+                    lastRegisteredGesture = null; // Reset "holding" state
+                    return; 
+                }
+
+                const now = Date.now();
+                if (gestureName !== lastRegisteredGesture && (now - lastGestureTime > 500)) {
+                    // [FR2] Add to sequence
+                    inputSequence.value.push(gestureName);
+                    lastRegisteredGesture = gestureName;
+                    lastGestureTime = now;
+                    
+                    // Sound Feedback (Optional)
+                    // new Audio('beep.mp3').play().catch(e=>{});
+                }
+            };
+
+            // Watcher for Sequence Completion [FR3, FR4, FR6]
+            watch(inputSequence, async (newVal) => {
+                if (newVal.length === correctSequence.value.length) {
+                    // Check Result
+                    const isCorrect = JSON.stringify(newVal) === JSON.stringify(correctSequence.value);
+                    
+                    if (isCorrect) {
+                        // Success
+                        await logToFirebase('Unlocked', newVal);
+                        // [FR6] Auto Reset after delay
+                        setTimeout(() => {
+                            inputSequence.value = [];
+                            lastRegisteredGesture = null;
+                        }, 3000);
+                    } else {
+                        // Fail
+                        isError.value = true;
+                        await logToFirebase('Locked (Failed Attempt)', newVal);
+                        // [FR6] Auto Reset immediately
+                        setTimeout(() => {
+                            isError.value = false;
+                            inputSequence.value = [];
+                            lastRegisteredGesture = null;
+                        }, 1500);
+                    }
+                }
+            }, { deep: true });
+
+            // --- AI Setup ---
+            const loadModel = async () => {
+                loading.value = true;
+                if (!modelURL.value) {
+                    alert("Please enter a valid Teachable Machine URL or use the Simulation buttons.");
+                    loading.value = false;
+                    return;
+                }
+                
+                try {
+                    const modelPath = modelURL.value + "model.json";
+                    const metadataPath = modelURL.value + "metadata.json";
+                    
+                    model = await tmImage.load(modelPath, metadataPath);
+                    maxPredictions = model.getTotalClasses();
+
+                    // Webcam Setup [FR1]
+                    const flip = true; 
+                    webcam = new tmImage.Webcam(640, 480, flip); 
+                    await webcam.setup(); 
+                    await webcam.play();
+                    
+                    // Canvas Setup
+                    const canvas = document.getElementById("canvas");
+                    canvas.width = 640; 
+                    canvas.height = 480;
+                    ctx = canvas.getContext("2d");
+                    
+                    window.requestAnimationFrame(loop);
+                    isScanning.value = true;
+                    loading.value = false;
+                } catch (e) {
+                    console.error("AI Error:", e);
+                    alert("Failed to load AI Model. Check URL or Camera permissions. You can still use Simulation buttons.");
+                    loading.value = false;
+                }
+            };
+
+            const loop = async () => {
+                // FIX: Add check for webcam existence
+                if (!webcam) return;
+                
+                try {
+                    // FIX: Ensure canvas exists before updating
+                    if (webcam.canvas) {
+                        webcam.update();
+                        await predict();
+                    }
+                } catch (e) {
+                    console.error("Loop error:", e);
+                }
+                
+                window.requestAnimationFrame(loop);
+            };
+
+            const predict = async () => {
+                // FIX: Safety check for all required objects
+                if (!model || !webcam || !webcam.canvas) return;
+
+                // [FR1, NFR2] Inference
+                const prediction = await model.predict(webcam.canvas);
+                
+                // Draw webcam to canvas (FIX: Add safety check)
+                if (ctx && webcam.canvas) {
+                    ctx.drawImage(webcam.canvas, 0, 0);
+                }
+
+                let highestProb = 0;
+                let bestClass = "Neutral";
+
+                for (let i = 0; i < maxPredictions; i++) {
+                    if (prediction[i].probability > highestProb) {
+                        highestProb = prediction[i].probability;
+                        bestClass = prediction[i].className;
+                    }
+                }
+                
+                // Map generic class names to Logic if needed, 
+                // assuming user trained Classes as "A", "B", "C", "Neutral"
+                processGestureInput(bestClass, highestProb);
+            };
+
+            // --- Simulation Mode ---
+            const simulateGesture = (char) => {
+                processGestureInput(char, 0.99);
+            };
+
+            const resetPassword = () => {
+                inputSequence.value = [];
+                isError.value = false;
+            };
+
+            // --- Initialization ---
+            onMounted(async () => {
+                // Firebase Init
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+                // Auth
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                // Get User ID
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        // Listen for Logs
+                        const q = query(
+                            collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), 
+                            orderBy('timestamp', 'desc'), // Might need index, fallback to JS sort if fail
+                            limit(20)
+                        );
+                        
+                        onSnapshot(q, (snapshot) => {
+                            logs.value = snapshot.docs.map(doc => ({
+                                id: doc.id,
+                                ...doc.data()
+                            })).sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)); // Client-side sort fallback
+                        }, (err) => {
+                            console.error("Firestore Error:", err);
+                             // Fallback without ordering if index missing
+                             const qSimple = query(collection(db, 'artifacts', appId, 'public', 'data', 'access_logs'), limit(20));
+                             onSnapshot(qSimple, (snap) => {
+                                logs.value = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                             });
+                        });
+                    }
+                });
+
+                // Setup Canvas (Black screen initially)
+                const canvas = document.getElementById("canvas");
+                if(canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.fillStyle = "#000";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+                
+                loading.value = false; // Ready for user to click "Load AI"
+            });
+
+            // Utils
+            const formatDate = (ts) => {
+                if (!ts) return "Just now";
+                return new Date(ts.seconds * 1000).toLocaleTimeString('th-TH');
+            };
+
+            return {
+                modelURL, loading, currentGesture, confidence,
+                inputSequence, correctSequence, logs,
+                isUnlocked, isError, isScanning,
+                statusText, statusColor,
+                loadModel, simulateGesture, resetPassword, formatDate
+            };
+        }
+    }).mount('#app');
+</script>
+
+<style>
+/* Transitions */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+</style>
+</body>
+</html>
