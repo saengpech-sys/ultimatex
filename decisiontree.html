@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Decision Tree Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .node circle {
+            fill: #1e293b;
+            stroke: #3b82f6;
+            stroke-width: 2px;
+        }
+        .node text {
+            font-size: 12px;
+            font-family: 'Prompt', sans-serif;
+            fill: #e2e8f0;
+        }
+        .link {
+            fill: none;
+            stroke: #475569;
+            stroke-width: 2px;
+        }
+        .node-decision {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .text-follow { fill: #10b981; font-weight: bold; }
+        .text-reverse { fill: #ef4444; font-weight: bold; }
+        .bg-panel { background-color: #1e293b; }
+        
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid #334155;
+            border-radius: 50%;
+            border-top: 4px solid #3b82f6;
+            width: 30px;
+            height: 30px;
+            -webkit-animation: spin 1s linear infinite; /* Safari */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-panel border-b border-slate-700 p-4 shadow-md z-10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-blue-400">Trading Decision Tree <span class="text-slate-400 text-sm font-normal">| Follow vs Reverse</span></h1>
+                <p class="text-xs text-slate-400 mt-1">วิเคราะห์เงื่อนไขจากประวัติการเทรด: Win = Follow (เทรดตาม), Loss = Reverse (เทรดสวน)</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex flex-col">
+                    <label for="maxDepth" class="text-xs text-slate-400 mb-1">ความลึกของ Tree (Max Depth)</label>
+                    <input type="range" id="maxDepth" min="2" max="6" value="3" class="w-32 cursor-pointer" oninput="document.getElementById('depthValue').innerText = this.value">
+                    <span id="depthValue" class="text-xs text-center text-blue-400 font-bold">3</span>
+                </div>
+                <label class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-200 text-sm font-medium">
+                    อัปโหลดไฟล์ CSV
+                    <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+                </label>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden relative">
+        
+        <!-- Sidebar Stats -->
+        <aside class="w-64 bg-panel border-r border-slate-700 p-4 flex flex-col overflow-y-auto z-10 shadow-lg">
+            <h2 class="text-lg font-semibold border-b border-slate-600 pb-2 mb-4">ข้อมูลชุดข้อมูล</h2>
+            
+            <div id="statsPanel" class="hidden flex-col space-y-4">
+                <div class="bg-slate-800 p-3 rounded-md">
+                    <p class="text-xs text-slate-400">จำนวนออเดอร์ทั้งหมดที่วิเคราะห์</p>
+                    <p class="text-2xl font-bold text-white" id="totalRows">-</p>
+                </div>
+                
+                <div class="bg-emerald-900/30 border border-emerald-800 p-3 rounded-md">
+                    <p class="text-xs text-emerald-400">Win (ควร Follow)</p>
+                    <p class="text-2xl font-bold text-emerald-500" id="totalFollow">-</p>
+                </div>
+                
+                <div class="bg-rose-900/30 border border-rose-800 p-3 rounded-md">
+                    <p class="text-xs text-rose-400">Loss (ควร Reverse)</p>
+                    <p class="text-2xl font-bold text-rose-500" id="totalReverse">-</p>
+                </div>
+
+                <div class="mt-4">
+                    <p class="text-xs text-slate-400 mb-2">ฟีเจอร์ที่ใช้ในการสร้าง Tree:</p>
+                    <ul class="text-sm text-slate-300 list-disc pl-5 space-y-1">
+                        <li>RSI (Numeric)</li>
+                        <li>ATR (Numeric)</li>
+                        <li>Trend (Category)</li>
+                        <li>Session (Category)</li>
+                        <li>Hour (Numeric)</li>
+                        <li>Signal (Category)</li>
+                    </ul>
+                </div>
+                
+                <button id="rebuildBtn" class="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-md transition text-sm">
+                    สร้าง Tree ใหม่ (Rebuild)
+                </button>
+            </div>
+
+            <div id="loadingPanel" class="hidden flex-col items-center justify-center py-10 space-y-4">
+                <div class="loader"></div>
+                <p class="text-sm text-slate-400">กำลังประมวลผลข้อมูล...</p>
+            </div>
+
+            <div id="emptyPanel" class="flex flex-col items-center justify-center py-10 text-center">
+                <svg class="w-12 h-12 text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <p class="text-sm text-slate-400">อัปโหลดไฟล์ trades_all...csv เพื่อเริ่มการวิเคราะห์</p>
+            </div>
+        </aside>
+
+        <!-- D3 Canvas Area -->
+        <div class="flex-1 relative bg-slate-900 overflow-hidden" id="tree-container">
+            <!-- Zoom Controls -->
+            <div class="absolute bottom-4 right-4 bg-slate-800 rounded-lg shadow-lg flex flex-col border border-slate-700 z-10">
+                <button id="zoomIn" class="p-2 hover:bg-slate-700 rounded-t-lg border-b border-slate-600 text-slate-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                </button>
+                <button id="zoomReset" class="p-2 hover:bg-slate-700 border-b border-slate-600 text-slate-300 text-xs font-bold">
+                    RESET
+                </button>
+                <button id="zoomOut" class="p-2 hover:bg-slate-700 rounded-b-lg text-slate-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Core Application Logic ---
+        
+        let globalData = [];
+        let svg, g, zoom; // D3 instances
+        const containerId = '#tree-container';
+
+        // Feature configurations
+        const FEATURES = [
+            { name: 'rsi', type: 'numeric' },
+            { name: 'atr', type: 'numeric' },
+            { name: 'hour', type: 'numeric' },
+            { name: 'trend', type: 'categorical' },
+            { name: 'session', type: 'categorical' },
+            { name: 'original_signal', type: 'categorical' }
+        ];
+
+        // Event Listeners
+        document.getElementById('csvFileInput').addEventListener('change', handleFileUpload);
+        document.getElementById('rebuildBtn').addEventListener('click', () => buildAndRenderTree(globalData));
+        document.getElementById('maxDepth').addEventListener('change', () => {
+            if(globalData.length > 0) buildAndRenderTree(globalData);
+        });
+
+        function showLoading(show) {
+            document.getElementById('loadingPanel').classList.toggle('hidden', !show);
+            document.getElementById('statsPanel').classList.toggle('hidden', show || globalData.length === 0);
+            document.getElementById('emptyPanel').classList.toggle('hidden', show || globalData.length > 0);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showLoading(true);
+
+            Papa.parse(file, {
+                header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    processData(results.data);
+                },
+                error: function(err) {
+                    alert("เกิดข้อผิดพลาดในการอ่านไฟล์ CSV: " + err.message);
+                    showLoading(false);
+                }
+            });
+        }
+
+        function processData(rawData) {
+            // Filter: Need is_win to determine Follow/Reverse
+            const cleanData = [];
+            let followCount = 0;
+            let reverseCount = 0;
+
+            rawData.forEach(row => {
+                if (row.is_win === 'WIN' || row.is_win === 'LOSS') {
+                    // Extract relevant features
+                    const item = {
+                        target: row.is_win === 'WIN' ? 'Follow' : 'Reverse'
+                    };
+
+                    FEATURES.forEach(f => {
+                        let val = row[f.name];
+                        if (f.name === 'original_signal' && !val && row['signal']) {
+                            val = row['signal']; // Fallback
+                        }
+                        item[f.name] = val;
+                    });
+
+                    // Basic validation (ignore rows with missing crucial numerics if any)
+                    if (item.rsi !== null && item.rsi !== undefined) {
+                        cleanData.push(item);
+                        if (item.target === 'Follow') followCount++;
+                        else reverseCount++;
+                    }
+                }
+            });
+
+            globalData = cleanData;
+
+            // Update UI Stats
+            document.getElementById('totalRows').innerText = cleanData.length;
+            document.getElementById('totalFollow').innerText = followCount;
+            document.getElementById('totalReverse').innerText = reverseCount;
+
+            showLoading(false);
+
+            if (cleanData.length === 0) {
+                alert("ไม่พบข้อมูลที่มีค่า is_win เป็น WIN หรือ LOSS ในไฟล์นี้");
+                return;
+            }
+
+            buildAndRenderTree(cleanData);
+        }
+
+
+        // --- Decision Tree Algorithm (Simplified CART JS Implementation) ---
+
+        // Calculate Gini Impurity for a dataset
+        function calculateGini(data) {
+            if (data.length === 0) return 0;
+            let follow = 0;
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].target === 'Follow') follow++;
+            }
+            const pFollow = follow / data.length;
+            const pReverse = 1 - pFollow;
+            return 1 - (Math.pow(pFollow, 2) + Math.pow(pReverse, 2));
+        }
+
+        // Find the best split for the current data
+        function findBestSplit(data) {
+            let bestGini = Infinity;
+            let bestSplit = null;
+            const baseGini = calculateGini(data);
+
+            if (baseGini === 0) return null; // Pure node
+
+            FEATURES.forEach(feature => {
+                const fname = feature.name;
+                
+                if (feature.type === 'categorical') {
+                    // Get unique values
+                    const uniqueVals = [...new Set(data.map(d => d[fname]).filter(v => v !== null && v !== undefined && v !== ''))];
+                    
+                    uniqueVals.forEach(val => {
+                        const left = data.filter(d => d[fname] === val);
+                        const right = data.filter(d => d[fname] !== val);
+                        
+                        if (left.length > 0 && right.length > 0) {
+                            const giniLeft = calculateGini(left);
+                            const giniRight = calculateGini(right);
+                            const weightedGini = (left.length / data.length) * giniLeft + (right.length / data.length) * giniRight;
+                            
+                            if (weightedGini < bestGini) {
+                                bestGini = weightedGini;
+                                bestSplit = {
+                                    feature: fname,
+                                    type: 'categorical',
+                                    value: val,
+                                    operator: '==',
+                                    leftData: left,
+                                    rightData: right
+                                };
+                            }
+                        }
+                    });
+                } else if (feature.type === 'numeric') {
+                    // For performance, test 10 quantiles instead of every value
+                    const values = data.map(d => d[fname]).filter(v => v !== null && !isNaN(v)).sort((a,b) => a-b);
+                    if(values.length === 0) return;
+                    
+                    const min = values[0];
+                    const max = values[values.length - 1];
+                    if (min === max) return;
+
+                    const step = (max - min) / 10;
+                    for (let i = 1; i < 10; i++) {
+                        const threshold = min + (step * i);
+                        
+                        const left = data.filter(d => d[fname] <= threshold);
+                        const right = data.filter(d => d[fname] > threshold);
+                        
+                        if (left.length > 0 && right.length > 0) {
+                            const giniLeft = calculateGini(left);
+                            const giniRight = calculateGini(right);
+                            const weightedGini = (left.length / data.length) * giniLeft + (right.length / data.length) * giniRight;
+                            
+                            if (weightedGini < bestGini) {
+                                bestGini = weightedGini;
+                                bestSplit = {
+                                    feature: fname,
+                                    type: 'numeric',
+                                    value: parseFloat(threshold.toFixed(2)),
+                                    operator: '<=',
+                                    leftData: left,
+                                    rightData: right
+                                };
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Minimum impurity decrease to accept split (prevent overfitting)
+            if (baseGini - bestGini < 0.005) return null; 
+            
+            return bestSplit;
+        }
+
+        // Recursive tree builder
+        function buildTree(data, depth, maxDepth) {
+            let followCount = data.filter(d => d.target === 'Follow').length;
+            let reverseCount = data.length - followCount;
+            let prediction = followCount >= reverseCount ? 'Follow' : 'Reverse';
+            let pure = (followCount === 0 || reverseCount === 0);
+
+            const node = {
+                name: "Node",
+                samples: data.length,
+                follow: followCount,
+                reverse: reverseCount,
+                prediction: prediction
+            };
+
+            // Stop conditions
+            if (depth >= maxDepth || pure || data.length < 5) {
+                node.isLeaf = true;
+                return node;
+            }
+
+            const split = findBestSplit(data);
+            
+            if (!split) {
+                node.isLeaf = true;
+                return node;
+            }
+
+            node.isLeaf = false;
+            node.feature = split.feature;
+            node.operator = split.operator;
+            node.value = split.value;
+            node.condition = `${split.feature} ${split.operator} ${split.value}`;
+
+            // Left = True branch, Right = False branch
+            node.children = [
+                buildTree(split.leftData, depth + 1, maxDepth),
+                buildTree(split.rightData, depth + 1, maxDepth)
+            ];
+
+            // Assign branch labels for rendering
+            node.children[0].branchLabel = "Yes (True)";
+            node.children[1].branchLabel = "No (False)";
+
+            return node;
+        }
+
+        function buildAndRenderTree(data) {
+            const maxDepth = parseInt(document.getElementById('maxDepth').value);
+            const treeData = buildTree(data, 0, maxDepth);
+            renderD3Tree(treeData);
+        }
+
+        // --- D3.js Visualization ---
+
+        function renderD3Tree(treeData) {
+            const container = document.getElementById('tree-container');
+            container.innerHTML = ''; // Clear previous
+
+            // Re-add zoom controls
+            container.innerHTML = `
+            <div class="absolute bottom-4 right-4 bg-slate-800 rounded-lg shadow-lg flex flex-col border border-slate-700 z-10">
+                <button id="zoomIn" class="p-2 hover:bg-slate-700 rounded-t-lg border-b border-slate-600 text-slate-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                </button>
+                <button id="zoomReset" class="p-2 hover:bg-slate-700 border-b border-slate-600 text-slate-300 text-xs font-bold">RESET</button>
+                <button id="zoomOut" class="p-2 hover:bg-slate-700 rounded-b-lg text-slate-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                </button>
+            </div>`;
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            svg = d3.select(container)
+                .append("svg")
+                .attr("width", "100%")
+                .attr("height", "100%")
+                .attr("class", "cursor-move");
+
+            g = svg.append("g");
+
+            zoom = d3.zoom()
+                .scaleExtent([0.1, 3])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                });
+
+            svg.call(zoom);
+
+            // Zoom Control Listeners
+            document.getElementById('zoomIn').onclick = () => svg.transition().call(zoom.scaleBy, 1.3);
+            document.getElementById('zoomOut').onclick = () => svg.transition().call(zoom.scaleBy, 0.7);
+            document.getElementById('zoomReset').onclick = () => {
+                svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity.translate(width / 2, 50).scale(1));
+            };
+
+            const root = d3.hierarchy(treeData);
+
+            // Dynamic sizing based on tree depth and breadth
+            const treeLayout = d3.tree().nodeSize([180, 120]); 
+            treeLayout(root);
+
+            // Center the tree initially
+            svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, 80).scale(1));
+
+            // Links (Lines)
+            g.selectAll(".link")
+                .data(root.links())
+                .join("path")
+                .attr("class", "link")
+                .attr("d", d3.linkVertical()
+                    .x(d => d.x)
+                    .y(d => d.y)
+                );
+
+            // Link Labels (Yes/No)
+            g.selectAll(".link-label")
+                .data(root.links())
+                .join("text")
+                .attr("class", "link-label")
+                .attr("font-size", "10px")
+                .attr("fill", "#94a3b8")
+                .attr("x", d => (d.source.x + d.target.x) / 2)
+                .attr("y", d => (d.source.y + d.target.y) / 2)
+                .attr("dy", -5)
+                .attr("text-anchor", "middle")
+                .text(d => d.target.data.branchLabel || "");
+
+            // Nodes
+            const node = g.selectAll(".node")
+                .data(root.descendants())
+                .join("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+
+            // Node Rectangles (Boxes)
+            node.append("rect")
+                .attr("width", 150)
+                .attr("height", d => d.data.isLeaf ? 80 : 90)
+                .attr("x", -75)
+                .attr("y", -15)
+                .attr("rx", 8)
+                .attr("fill", "#1e293b")
+                .attr("stroke", d => d.data.isLeaf ? (d.data.prediction === 'Follow' ? '#10b981' : '#ef4444') : '#3b82f6')
+                .attr("stroke-width", 2)
+                .attr("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.3))");
+
+            // Node Text
+            node.each(function(d) {
+                const el = d3.select(this);
+                let yOffset = 5;
+
+                if (!d.data.isLeaf) {
+                    // Condition Text
+                    el.append("text")
+                        .attr("x", 0)
+                        .attr("y", yOffset)
+                        .attr("text-anchor", "middle")
+                        .attr("font-weight", "bold")
+                        .attr("fill", "#60a5fa")
+                        .text(d.data.condition);
+                    yOffset += 20;
+                }
+
+                // Stats Text
+                el.append("text")
+                    .attr("x", 0)
+                    .attr("y", yOffset)
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", "11px")
+                    .text(`Samples: ${d.data.samples}`);
+                
+                yOffset += 16;
+                
+                el.append("text")
+                    .attr("x", 0)
+                    .attr("y", yOffset)
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", "11px")
+                    .html(`<tspan fill="#10b981">F: ${d.data.follow}</tspan> | <tspan fill="#ef4444">R: ${d.data.reverse}</tspan>`);
+
+                yOffset += 22;
+
+                // Decision Text (Leaf only)
+                if (d.data.isLeaf) {
+                    el.append("text")
+                        .attr("x", 0)
+                        .attr("y", yOffset)
+                        .attr("text-anchor", "middle")
+                        .attr("class", d.data.prediction === 'Follow' ? 'text-follow' : 'text-reverse')
+                        .text(`Action: ${d.data.prediction.toUpperCase()}`);
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
