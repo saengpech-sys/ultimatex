@@ -44,13 +44,19 @@
             border-top: 4px solid #3b82f6;
             width: 30px;
             height: 30px;
-            -webkit-animation: spin 1s linear infinite; /* Safari */
+            -webkit-animation: spin 1s linear infinite;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -100,8 +106,8 @@
                 </div>
 
                 <div class="mt-4">
-                    <p class="text-xs text-slate-400 mb-2">ฟีเจอร์ที่ใช้ในการสร้าง Tree:</p>
-                    <ul class="text-sm text-slate-300 list-disc pl-5 space-y-1">
+                    <p class="text-xs text-slate-400 mb-2">ฟีเจอร์ที่ใช้:</p>
+                    <ul class="text-xs text-slate-300 list-disc pl-5 space-y-1">
                         <li>RSI (Numeric)</li>
                         <li>ATR (Numeric)</li>
                         <li>Trend (Category)</li>
@@ -111,19 +117,27 @@
                     </ul>
                 </div>
                 
-                <button id="rebuildBtn" class="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-md transition text-sm">
-                    สร้าง Tree ใหม่ (Rebuild)
-                </button>
-                
-                <button id="showCodeBtn" class="mt-2 w-full border border-emerald-500 text-emerald-400 hover:bg-emerald-900/30 py-2 rounded-md transition text-sm flex justify-center items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                    สร้างโค้ด Rule Base
-                </button>
+                <div class="border-t border-slate-700 pt-4 mt-2 space-y-2">
+                    <button id="rebuildBtn" class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-md transition text-sm">
+                        รีเฟรช Tree เดี่ยว
+                    </button>
+                    
+                    <button id="showCodeBtn" class="w-full border border-emerald-500 text-emerald-400 hover:bg-emerald-900/30 py-2 rounded-md transition text-sm flex justify-center items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        โค้ด Tree เดี่ยว
+                    </button>
+
+                    <!-- New Random Forest Button -->
+                    <button id="buildRFBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 mt-2 rounded-md transition text-sm flex justify-center items-center shadow-lg">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        สร้าง Random Forest
+                    </button>
+                </div>
             </div>
 
             <div id="loadingPanel" class="hidden flex-col items-center justify-center py-10 space-y-4">
                 <div class="loader"></div>
-                <p class="text-sm text-slate-400">กำลังประมวลผลข้อมูล...</p>
+                <p class="text-sm text-slate-400" id="loadingText">กำลังประมวลผลข้อมูล...</p>
             </div>
 
             <div id="emptyPanel" class="flex flex-col items-center justify-center py-10 text-center">
@@ -149,12 +163,12 @@
         </div>
     </main>
 
-    <!-- Code Modal -->
+    <!-- Code Modal (Single Tree) -->
     <div id="codeModal" class="fixed inset-0 bg-slate-900/90 hidden z-50 flex items-center justify-center backdrop-blur-sm">
         <div class="bg-slate-800 rounded-lg w-11/12 max-w-4xl flex flex-col shadow-2xl border border-slate-600 max-h-[90vh]">
             <div class="flex justify-between items-center p-4 border-b border-slate-700">
                 <div>
-                    <h3 class="text-lg font-bold text-emerald-400">Trading Rule Base Code</h3>
+                    <h3 class="text-lg font-bold text-emerald-400">Single Tree - Rule Base Code</h3>
                     <p class="text-xs text-slate-400 mt-1">คัดลอกเงื่อนไขเหล่านี้ไปใช้ใน EA หรือ Trading Bot ของคุณ</p>
                 </div>
                 <button id="closeModalBtn" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
@@ -171,11 +185,54 @@
         </div>
     </div>
 
+    <!-- Random Forest Modal -->
+    <div id="rfModal" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex items-center justify-center backdrop-blur-md">
+        <div class="bg-slate-800 rounded-lg w-11/12 max-w-5xl h-[90vh] flex flex-col shadow-2xl border border-indigo-500/50">
+            <div class="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-800/80 rounded-t-lg">
+                <div>
+                    <h3 class="text-xl font-bold text-indigo-400 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        Random Forest Analysis (Ensemble)
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-1">วิเคราะห์ความสำคัญของตัวแปร และสร้างโค้ดแบบโหวตจากหลาย Tree เพื่อความแม่นยำที่สูงขึ้น</p>
+                </div>
+                <button id="closeRfModalBtn" class="text-slate-400 hover:text-white text-3xl font-bold leading-none">&times;</button>
+            </div>
+            
+            <div class="flex-1 flex overflow-hidden">
+                <!-- Left Panel: Feature Importance -->
+                <div class="w-1/3 border-r border-slate-700 p-6 flex flex-col overflow-y-auto bg-slate-800/50">
+                    <h4 class="text-lg font-semibold text-white mb-4 border-b border-slate-600 pb-2">Feature Importance</h4>
+                    <p class="text-xs text-slate-400 mb-6">ฟีเจอร์ใดมีผลต่อการแยก Win/Loss มากที่สุด (คะแนนรวมจากทุก Tree)</p>
+                    
+                    <div id="featureImportanceContainer" class="space-y-5">
+                        <!-- Bars injected here via JS -->
+                    </div>
+                </div>
+                
+                <!-- Right Panel: Generated Ensemble Code -->
+                <div class="w-2/3 flex flex-col bg-[#0d1117]">
+                    <div class="p-3 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
+                        <span class="text-sm font-semibold text-emerald-400">Generated Code (Majority Vote)</span>
+                        <button id="copyRfCodeBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white py-1 px-4 rounded text-xs transition flex items-center shadow-md">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            Copy Code
+                        </button>
+                    </div>
+                    <div class="flex-1 overflow-auto p-4">
+                        <pre><code id="rfCodeOutput" class="text-xs text-indigo-300 font-mono leading-relaxed"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- Core Application Logic ---
         
         let globalData = [];
-        let currentTreeData = null; // เพิ่มตัวแปรเก็บข้อมูล Tree ปัจจุบัน
+        let currentTreeData = null; 
+        let currentForest = []; // เก็บ Array ของ Tree ใน Random Forest
         let svg, g, zoom; // D3 instances
         const containerId = '#tree-container';
 
@@ -195,8 +252,24 @@
         document.getElementById('maxDepth').addEventListener('change', () => {
             if(globalData.length > 0) buildAndRenderTree(globalData);
         });
+        
+        // Random Forest Trigger
+        document.getElementById('buildRFBtn').addEventListener('click', () => {
+            if (globalData.length < 10) {
+                alert("ข้อมูลน้อยเกินไปสำหรับการทำ Random Forest (ต้องการอย่างน้อย 10 แถว)");
+                return;
+            }
+            showLoading(true, "กำลังฝึกสอนโมเดล Random Forest (10 Trees)...");
+            
+            // ใช้ setTimeout เพื่อให้ UI อัปเดต Loading ก่อนรันการคำนวณที่หนัก
+            setTimeout(() => {
+                buildRandomForest(globalData, 10);
+                showLoading(false);
+            }, 100);
+        });
 
-        function showLoading(show) {
+        function showLoading(show, text = "กำลังประมวลผลข้อมูล...") {
+            document.getElementById('loadingText').innerText = text;
             document.getElementById('loadingPanel').classList.toggle('hidden', !show);
             document.getElementById('statsPanel').classList.toggle('hidden', show || globalData.length === 0);
             document.getElementById('emptyPanel').classList.toggle('hidden', show || globalData.length > 0);
@@ -223,17 +296,13 @@
         }
 
         function processData(rawData) {
-            // Filter: Need is_win to determine Follow/Reverse
             const cleanData = [];
             let followCount = 0;
             let reverseCount = 0;
 
             rawData.forEach(row => {
                 if (row.is_win === 'WIN' || row.is_win === 'LOSS') {
-                    // Extract relevant features
-                    const item = {
-                        target: row.is_win === 'WIN' ? 'Follow' : 'Reverse'
-                    };
+                    const item = { target: row.is_win === 'WIN' ? 'Follow' : 'Reverse' };
 
                     FEATURES.forEach(f => {
                         let val = row[f.name];
@@ -243,7 +312,6 @@
                         item[f.name] = val;
                     });
 
-                    // Basic validation (ignore rows with missing crucial numerics if any)
                     if (item.rsi !== null && item.rsi !== undefined) {
                         cleanData.push(item);
                         if (item.target === 'Follow') followCount++;
@@ -254,7 +322,6 @@
 
             globalData = cleanData;
 
-            // Update UI Stats
             document.getElementById('totalRows').innerText = cleanData.length;
             document.getElementById('totalFollow').innerText = followCount;
             document.getElementById('totalReverse').innerText = reverseCount;
@@ -270,9 +337,8 @@
         }
 
 
-        // --- Decision Tree Algorithm (Simplified CART JS Implementation) ---
+        // --- Decision Tree Algorithm ---
 
-        // Calculate Gini Impurity for a dataset
         function calculateGini(data) {
             if (data.length === 0) return 0;
             let follow = 0;
@@ -284,19 +350,26 @@
             return 1 - (Math.pow(pFollow, 2) + Math.pow(pReverse, 2));
         }
 
-        // Find the best split for the current data
-        function findBestSplit(data) {
+        // เพิ่มพารามิเตอร์ isRandomForest เพื่อทำ Feature Bagging
+        function findBestSplit(data, isRandomForest = false) {
             let bestGini = Infinity;
             let bestSplit = null;
             const baseGini = calculateGini(data);
 
             if (baseGini === 0) return null; // Pure node
 
-            FEATURES.forEach(feature => {
+            // Feature Bagging สำหรับ Random Forest (สุ่มหยิบฟีเจอร์มาจำนวน sqrt(total_features))
+            let activeFeatures = FEATURES;
+            if (isRandomForest) {
+                const numFeaturesToTry = Math.max(1, Math.floor(Math.sqrt(FEATURES.length)));
+                // Shuffle array and pick first N
+                activeFeatures = [...FEATURES].sort(() => 0.5 - Math.random()).slice(0, numFeaturesToTry);
+            }
+
+            activeFeatures.forEach(feature => {
                 const fname = feature.name;
                 
                 if (feature.type === 'categorical') {
-                    // Get unique values
                     const uniqueVals = [...new Set(data.map(d => d[fname]).filter(v => v !== null && v !== undefined && v !== ''))];
                     
                     uniqueVals.forEach(val => {
@@ -316,13 +389,14 @@
                                     value: val,
                                     operator: '==',
                                     leftData: left,
-                                    rightData: right
+                                    rightData: right,
+                                    impurityDecrease: baseGini - weightedGini // เก็บค่าการลดลงของ Gini เพื่อทำ Feature Importance
                                 };
                             }
                         }
                     });
                 } else if (feature.type === 'numeric') {
-                    // For performance, test 10 quantiles instead of every value
+                    // Test quantiles
                     const values = data.map(d => d[fname]).filter(v => v !== null && !isNaN(v)).sort((a,b) => a-b);
                     if(values.length === 0) return;
                     
@@ -350,7 +424,8 @@
                                     value: parseFloat(threshold.toFixed(2)),
                                     operator: '<=',
                                     leftData: left,
-                                    rightData: right
+                                    rightData: right,
+                                    impurityDecrease: baseGini - weightedGini
                                 };
                             }
                         }
@@ -358,14 +433,12 @@
                 }
             });
 
-            // Minimum impurity decrease to accept split (prevent overfitting)
             if (baseGini - bestGini < 0.005) return null; 
-            
             return bestSplit;
         }
 
         // Recursive tree builder
-        function buildTree(data, depth, maxDepth) {
+        function buildTree(data, depth, maxDepth, isRandomForest = false) {
             let followCount = data.filter(d => d.target === 'Follow').length;
             let reverseCount = data.length - followCount;
             let prediction = followCount >= reverseCount ? 'Follow' : 'Reverse';
@@ -376,16 +449,16 @@
                 samples: data.length,
                 follow: followCount,
                 reverse: reverseCount,
-                prediction: prediction
+                prediction: prediction,
+                impurityDecrease: 0 // เริ่มต้น
             };
 
-            // Stop conditions
             if (depth >= maxDepth || pure || data.length < 5) {
                 node.isLeaf = true;
                 return node;
             }
 
-            const split = findBestSplit(data);
+            const split = findBestSplit(data, isRandomForest);
             
             if (!split) {
                 node.isLeaf = true;
@@ -397,14 +470,13 @@
             node.operator = split.operator;
             node.value = split.value;
             node.condition = `${split.feature} ${split.operator} ${split.value}`;
+            node.impurityDecrease = split.impurityDecrease;
 
-            // Left = True branch, Right = False branch
             node.children = [
-                buildTree(split.leftData, depth + 1, maxDepth),
-                buildTree(split.rightData, depth + 1, maxDepth)
+                buildTree(split.leftData, depth + 1, maxDepth, isRandomForest),
+                buildTree(split.rightData, depth + 1, maxDepth, isRandomForest)
             ];
 
-            // Assign branch labels for rendering
             node.children[0].branchLabel = "Yes (True)";
             node.children[1].branchLabel = "No (False)";
 
@@ -413,24 +485,136 @@
 
         function buildAndRenderTree(data) {
             const maxDepth = parseInt(document.getElementById('maxDepth').value);
-            const treeData = buildTree(data, 0, maxDepth);
-            currentTreeData = treeData; // บันทึก Tree ไว้สำหรับแปลงเป็น Code
+            const treeData = buildTree(data, 0, maxDepth, false); // false = Single Tree
+            currentTreeData = treeData; 
             renderD3Tree(treeData);
         }
 
-        // --- Rule Base Code Generator ---
+        // --- Random Forest Logic ---
+
+        function bootstrapData(data) {
+            const sample = [];
+            for (let i = 0; i < data.length; i++) {
+                const randomIndex = Math.floor(Math.random() * data.length);
+                sample.push(data[randomIndex]);
+            }
+            return sample;
+        }
+
+        function buildRandomForest(data, numTrees = 10) {
+            const forest = [];
+            const maxDepth = parseInt(document.getElementById('maxDepth').value);
+            
+            for (let i = 0; i < numTrees; i++) {
+                const sample = bootstrapData(data); // สุ่มข้อมูลใส่คืน
+                // true = เปิดใช้งาน Feature Bagging
+                const tree = buildTree(sample, 0, maxDepth, true); 
+                forest.push(tree);
+            }
+            
+            currentForest = forest;
+            displayRandomForestResults(forest, data.length);
+        }
+
+        function calculateFeatureImportance(forest, totalSamples) {
+            const importanceMap = {};
+            FEATURES.forEach(f => importanceMap[f.name] = 0);
+
+            // เดินสำรวจ Node ทั้งหมดเพื่อเก็บคะแนน Impurity Decrease
+            function traverseTreeForImportance(node) {
+                if (node.isLeaf || !node.feature) return;
+                
+                // Weight ความสำคัญด้วยสัดส่วนของ samples ที่ผ่าน node นี้
+                const weightedDrop = node.impurityDecrease * (node.samples / totalSamples);
+                if(importanceMap[node.feature] !== undefined) {
+                    importanceMap[node.feature] += weightedDrop;
+                }
+                
+                traverseTreeForImportance(node.children[0]);
+                traverseTreeForImportance(node.children[1]);
+            }
+
+            forest.forEach(tree => traverseTreeForImportance(tree));
+
+            // แปลงเป็น %
+            const totalImportance = Object.values(importanceMap).reduce((sum, val) => sum + val, 0);
+            const resultList = [];
+            
+            for (const feature in importanceMap) {
+                const rawScore = importanceMap[feature];
+                const percentage = totalImportance > 0 ? (rawScore / totalImportance) * 100 : 0;
+                resultList.push({ name: feature, score: percentage });
+            }
+
+            // เรียงลำดับจากมากไปน้อย
+            return resultList.sort((a, b) => b.score - a.score);
+        }
+
+        function displayRandomForestResults(forest, totalSamples) {
+            const importances = calculateFeatureImportance(forest, totalSamples);
+            const container = document.getElementById('featureImportanceContainer');
+            container.innerHTML = '';
+
+            importances.forEach((imp, index) => {
+                const pct = imp.score.toFixed(1);
+                const html = `
+                    <div class="mb-2">
+                        <div class="flex justify-between items-end mb-1">
+                            <span class="text-sm font-medium text-slate-200">${index + 1}. ${imp.name.toUpperCase()}</span>
+                            <span class="text-xs font-bold text-indigo-400">${pct}%</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-2.5">
+                            <div class="bg-indigo-500 h-2.5 rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+
+            const codeStr = generateRandomForestCode(forest);
+            document.getElementById('rfCodeOutput').textContent = codeStr;
+            document.getElementById('rfModal').classList.remove('hidden');
+        }
+
+        function generateRandomForestCode(forest) {
+            const featureList = FEATURES.map(f => f.name).join(', ');
+            let code = `// --- Generated Random Forest (${forest.length} Trees) ---\n`;
+            code += `// ใช้หลักการ Majority Vote เพื่อลด Overfitting ให้ EA ทำงานเสถียรขึ้น\n\n`;
+
+            forest.forEach((tree, index) => {
+                code += `function rf_tree_${index}(features) {\n`;
+                code += `    const { ${featureList} } = features;\n`;
+                code += generateRuleCode(tree, "    ");
+                code += `    return "Follow";\n}\n\n`;
+            });
+
+            code += `function getTradeActionEnsemble(features) {\n`;
+            code += `    let followVotes = 0;\n`;
+            code += `    let reverseVotes = 0;\n\n`;
+            
+            for(let i=0; i < forest.length; i++) {
+                code += `    if (rf_tree_${i}(features) === "Follow") followVotes++; else reverseVotes++;\n`;
+            }
+            
+            code += `\n    // หากผลโหวต Follow ชนะหรือเสมอ ให้เทรดตามสัญญาณ (Follow)\n`;
+            code += `    return followVotes >= reverseVotes ? "Follow" : "Reverse";\n`;
+            code += `}\n`;
+            
+            return code;
+        }
+
+        // --- Rule Base Code Generator (Shared) ---
 
         function generateRuleCode(node, indent = "") {
             if (!node) return "";
             
             if (node.isLeaf) {
-                return `${indent}return "${node.prediction}"; // (อ้างอิงจาก ${node.samples} ออเดอร์ -> Win: ${node.follow}, Loss: ${node.reverse})\n`;
+                return `${indent}return "${node.prediction}"; // (อ้างอิงจาก Win: ${node.follow}, Loss: ${node.reverse})\n`;
             }
 
             let code = "";
             let condition = "";
             
-            // สร้างเงื่อนไขตามประเภทข้อมูล
             if (node.operator === '==') {
                 condition = `${node.feature} == "${node.value}"`;
             } else {
@@ -446,16 +630,16 @@
             return code;
         }
 
-        // Event Listeners สำหรับ Modal Code
+        // --- Event Listeners สำหรับ Modal ---
+
+        // Single Tree Code Modal
         document.getElementById('showCodeBtn').addEventListener('click', () => {
             if (!currentTreeData) {
                 alert("กรุณาอัปโหลดไฟล์ข้อมูลก่อนครับ");
                 return;
             }
-            
             const featureList = FEATURES.map(f => f.name).join(', ');
-            const codeHeader = `// --- Generated Trading Rules (Decision Tree) ---\n// ระบบแนะนำให้ทำสิ่งนี้กับสัญญาณที่เข้ามา:\n// "Follow"  = เข้าเทรดตามสัญญาณปกติ (โอกาส Win สูง)\n// "Reverse" = เข้าเทรดสวนทางสัญญาณ (โอกาส Loss สูง หากเล่นตาม)\n\nfunction getTradeAction(features) {\n    // ดึงค่า Feature ปัจจุบัน\n    const { ${featureList} } = features;\n\n`;
-            
+            const codeHeader = `// --- Single Decision Tree Rules ---\nfunction getTradeAction(features) {\n    const { ${featureList} } = features;\n\n`;
             const codeBody = generateRuleCode(currentTreeData, "    ");
             const codeFooter = `\n    return "Follow"; // Default Action\n}`;
             
@@ -467,11 +651,14 @@
             document.getElementById('codeModal').classList.add('hidden');
         });
 
-        // ฟังก์ชันคัดลอกโค้ด
-        document.getElementById('copyCodeBtn').addEventListener('click', () => {
-            const code = document.getElementById('codeOutput').textContent;
-            
-            // สร้าง textarea เพื่อรองรับการ Copy (ป้องกันข้อจำกัดในบางเบราว์เซอร์)
+        // Random Forest Modal
+        document.getElementById('closeRfModalBtn').addEventListener('click', () => {
+            document.getElementById('rfModal').classList.add('hidden');
+        });
+
+        // Copy Handlers
+        function copyToClipboard(elementId, btnElement) {
+            const code = document.getElementById(elementId).textContent;
             const textArea = document.createElement("textarea");
             textArea.value = code;
             document.body.appendChild(textArea);
@@ -479,27 +666,28 @@
             document.execCommand("copy");
             document.body.removeChild(textArea);
             
-            // เปลี่ยนข้อความปุ่มชั่วคราวเพื่อแจ้งผู้ใช้
-            const btn = document.getElementById('copyCodeBtn');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> คัดลอกสำเร็จ!`;
-            btn.classList.replace('bg-blue-600', 'bg-emerald-600');
-            btn.classList.replace('hover:bg-blue-700', 'hover:bg-emerald-700');
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = `Copied!`;
             
             setTimeout(() => { 
-                btn.innerHTML = originalHTML; 
-                btn.classList.replace('bg-emerald-600', 'bg-blue-600');
-                btn.classList.replace('hover:bg-emerald-700', 'hover:bg-blue-700');
+                btnElement.innerHTML = originalHTML; 
             }, 2000);
+        }
+
+        document.getElementById('copyCodeBtn').addEventListener('click', function() {
+            copyToClipboard('codeOutput', this);
+        });
+        
+        document.getElementById('copyRfCodeBtn').addEventListener('click', function() {
+            copyToClipboard('rfCodeOutput', this);
         });
 
-        // --- D3.js Visualization ---
+        // --- D3.js Visualization (Single Tree) ---
 
         function renderD3Tree(treeData) {
             const container = document.getElementById('tree-container');
-            container.innerHTML = ''; // Clear previous
+            container.innerHTML = '';
 
-            // Re-add zoom controls
             container.innerHTML = `
             <div class="absolute bottom-4 right-4 bg-slate-800 rounded-lg shadow-lg flex flex-col border border-slate-700 z-10">
                 <button id="zoomIn" class="p-2 hover:bg-slate-700 rounded-t-lg border-b border-slate-600 text-slate-300">
@@ -530,7 +718,6 @@
 
             svg.call(zoom);
 
-            // Zoom Control Listeners
             document.getElementById('zoomIn').onclick = () => svg.transition().call(zoom.scaleBy, 1.3);
             document.getElementById('zoomOut').onclick = () => svg.transition().call(zoom.scaleBy, 0.7);
             document.getElementById('zoomReset').onclick = () => {
@@ -539,14 +726,11 @@
 
             const root = d3.hierarchy(treeData);
 
-            // Dynamic sizing based on tree depth and breadth
             const treeLayout = d3.tree().nodeSize([180, 120]); 
             treeLayout(root);
 
-            // Center the tree initially
             svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, 80).scale(1));
 
-            // Links (Lines)
             g.selectAll(".link")
                 .data(root.links())
                 .join("path")
@@ -556,7 +740,6 @@
                     .y(d => d.y)
                 );
 
-            // Link Labels (Yes/No)
             g.selectAll(".link-label")
                 .data(root.links())
                 .join("text")
@@ -569,14 +752,12 @@
                 .attr("text-anchor", "middle")
                 .text(d => d.target.data.branchLabel || "");
 
-            // Nodes
             const node = g.selectAll(".node")
                 .data(root.descendants())
                 .join("g")
                 .attr("class", "node")
                 .attr("transform", d => `translate(${d.x},${d.y})`);
 
-            // Node Rectangles (Boxes)
             node.append("rect")
                 .attr("width", 150)
                 .attr("height", d => d.data.isLeaf ? 80 : 90)
@@ -588,13 +769,11 @@
                 .attr("stroke-width", 2)
                 .attr("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.3))");
 
-            // Node Text
             node.each(function(d) {
                 const el = d3.select(this);
                 let yOffset = 5;
 
                 if (!d.data.isLeaf) {
-                    // Condition Text
                     el.append("text")
                         .attr("x", 0)
                         .attr("y", yOffset)
@@ -605,7 +784,6 @@
                     yOffset += 20;
                 }
 
-                // Stats Text
                 el.append("text")
                     .attr("x", 0)
                     .attr("y", yOffset)
@@ -624,7 +802,6 @@
 
                 yOffset += 22;
 
-                // Decision Text (Leaf only)
                 if (d.data.isLeaf) {
                     el.append("text")
                         .attr("x", 0)
