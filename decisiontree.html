@@ -57,6 +57,12 @@
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Setup Modal Checkboxes */
+        .feature-checkbox:checked + div {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden">
@@ -65,8 +71,8 @@
     <header class="bg-panel border-b border-slate-700 p-4 shadow-md z-10">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-blue-400">Trading Decision Tree <span class="text-slate-400 text-sm font-normal">| Follow vs Reverse</span></h1>
-                <p class="text-xs text-slate-400 mt-1">วิเคราะห์เงื่อนไขจากประวัติการเทรด: Win = Follow (เทรดตาม), Loss = Reverse (เทรดสวน)</p>
+                <h1 class="text-2xl font-bold text-blue-400">Universal Decision Tree <span class="text-slate-400 text-sm font-normal">| Data Analyzer</span></h1>
+                <p class="text-xs text-slate-400 mt-1">วิเคราะห์เงื่อนไขจากไฟล์ CSV ใดก็ได้: เลือกเป้าหมายและฟีเจอร์ด้วยตัวคุณเอง</p>
             </div>
             <div class="flex items-center space-x-4">
                 <div class="flex flex-col">
@@ -91,29 +97,24 @@
             
             <div id="statsPanel" class="hidden flex-col space-y-4">
                 <div class="bg-slate-800 p-3 rounded-md">
-                    <p class="text-xs text-slate-400">จำนวนออเดอร์ทั้งหมดที่วิเคราะห์</p>
+                    <p class="text-xs text-slate-400">จำนวนแถวที่นำมาวิเคราะห์</p>
                     <p class="text-2xl font-bold text-white" id="totalRows">-</p>
                 </div>
                 
                 <div class="bg-emerald-900/30 border border-emerald-800 p-3 rounded-md">
-                    <p class="text-xs text-emerald-400">Win (ควร Follow)</p>
-                    <p class="text-2xl font-bold text-emerald-500" id="totalFollow">-</p>
+                    <p class="text-xs text-emerald-400">Target: Follow</p>
+                    <p class="text-xl font-bold text-emerald-500" id="totalFollow">-</p>
                 </div>
                 
                 <div class="bg-rose-900/30 border border-rose-800 p-3 rounded-md">
-                    <p class="text-xs text-rose-400">Loss (ควร Reverse)</p>
-                    <p class="text-2xl font-bold text-rose-500" id="totalReverse">-</p>
+                    <p class="text-xs text-rose-400">Target: Reverse</p>
+                    <p class="text-xl font-bold text-rose-500" id="totalReverse">-</p>
                 </div>
 
                 <div class="mt-4">
                     <p class="text-xs text-slate-400 mb-2">ฟีเจอร์ที่ใช้:</p>
-                    <ul class="text-xs text-slate-300 list-disc pl-5 space-y-1">
-                        <li>RSI (Numeric)</li>
-                        <li>ATR (Numeric)</li>
-                        <li>Trend (Category)</li>
-                        <li>Session (Category)</li>
-                        <li>Hour (Numeric)</li>
-                        <li>Signal (Category)</li>
+                    <ul id="activeFeaturesList" class="text-xs text-slate-300 list-disc pl-5 space-y-1">
+                        <!-- Dynamic list -->
                     </ul>
                 </div>
                 
@@ -127,10 +128,13 @@
                         โค้ด Tree เดี่ยว
                     </button>
 
-                    <!-- New Random Forest Button -->
                     <button id="buildRFBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 mt-2 rounded-md transition text-sm flex justify-center items-center shadow-lg">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                         สร้าง Random Forest
+                    </button>
+
+                    <button id="reconfigureBtn" class="w-full bg-slate-800 border border-slate-600 hover:bg-slate-700 text-slate-300 py-2 mt-2 rounded-md transition text-xs">
+                        ตั้งค่าข้อมูลใหม่ (Reconfigure)
                     </button>
                 </div>
             </div>
@@ -142,7 +146,7 @@
 
             <div id="emptyPanel" class="flex flex-col items-center justify-center py-10 text-center">
                 <svg class="w-12 h-12 text-slate-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                <p class="text-sm text-slate-400">อัปโหลดไฟล์ trades_all...csv เพื่อเริ่มการวิเคราะห์</p>
+                <p class="text-sm text-slate-400">อัปโหลดไฟล์ CSV เพื่อเริ่มการวิเคราะห์</p>
             </div>
         </aside>
 
@@ -163,13 +167,64 @@
         </div>
     </main>
 
+    <!-- Data Setup Modal (Dynamic CSV configuration) -->
+    <div id="setupModal" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex items-center justify-center backdrop-blur-md">
+        <div class="bg-slate-800 rounded-lg w-11/12 max-w-2xl flex flex-col shadow-2xl border border-slate-600 max-h-[90vh]">
+            <div class="p-4 border-b border-slate-700">
+                <h3 class="text-xl font-bold text-white">ตั้งค่าชุดข้อมูล (Data Configuration)</h3>
+                <p class="text-xs text-slate-400 mt-1">เลือกเป้าหมาย (Target) และฟีเจอร์ (Features) ที่ต้องการนำมาวิเคราะห์</p>
+            </div>
+            
+            <div class="p-6 flex-1 overflow-y-auto space-y-6">
+                <!-- Target Selection -->
+                <div class="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
+                    <h4 class="text-sm font-semibold text-blue-400 mb-3">1. กำหนดเป้าหมายการทำนาย (Target Variable)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-400 mb-1">คอลัมน์เป้าหมาย</label>
+                            <select id="targetColumnSelect" class="w-full bg-slate-900 border border-slate-600 text-white rounded p-2 text-sm focus:outline-none focus:border-blue-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-emerald-400 mb-1">ค่าที่หมายถึง Follow (เช่น WIN)</label>
+                            <select id="followValueSelect" class="w-full bg-slate-900 border border-emerald-600/50 text-emerald-400 rounded p-2 text-sm focus:outline-none focus:border-emerald-500"></select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-rose-400 mb-1">ค่าที่หมายถึง Reverse (เช่น LOSS)</label>
+                            <select id="reverseValueSelect" class="w-full bg-slate-900 border border-rose-600/50 text-rose-400 rounded p-2 text-sm focus:outline-none focus:border-rose-500"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Selection -->
+                <div>
+                    <div class="flex justify-between items-end mb-3">
+                        <h4 class="text-sm font-semibold text-blue-400">2. เลือกฟีเจอร์ที่ใช้พิจารณา (Features)</h4>
+                        <button id="selectAllFeaturesBtn" class="text-xs text-slate-400 hover:text-white underline">เลือกทั้งหมด</button>
+                    </div>
+                    <div id="featuresContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                        <!-- Checkboxes will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-700 flex justify-end space-x-3 bg-slate-800 rounded-b-lg">
+                <button id="cancelSetupBtn" class="bg-slate-700 hover:bg-slate-600 text-white py-2 px-4 rounded-md transition text-sm">
+                    ยกเลิก
+                </button>
+                <button id="applySetupBtn" class="bg-blue-600 hover:bg-blue-500 text-white py-2 px-6 rounded-md transition text-sm font-medium shadow-md">
+                    เริ่มสร้างโมเดล
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Code Modal (Single Tree) -->
-    <div id="codeModal" class="fixed inset-0 bg-slate-900/90 hidden z-50 flex items-center justify-center backdrop-blur-sm">
+    <div id="codeModal" class="fixed inset-0 bg-slate-900/90 hidden z-[60] flex items-center justify-center backdrop-blur-sm">
         <div class="bg-slate-800 rounded-lg w-11/12 max-w-4xl flex flex-col shadow-2xl border border-slate-600 max-h-[90vh]">
             <div class="flex justify-between items-center p-4 border-b border-slate-700">
                 <div>
                     <h3 class="text-lg font-bold text-emerald-400">Single Tree - Rule Base Code</h3>
-                    <p class="text-xs text-slate-400 mt-1">คัดลอกเงื่อนไขเหล่านี้ไปใช้ใน EA หรือ Trading Bot ของคุณ</p>
+                    <p class="text-xs text-slate-400 mt-1">คัดลอกเงื่อนไขเหล่านี้ไปใช้ในโปรแกรมของคุณ</p>
                 </div>
                 <button id="closeModalBtn" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
             </div>
@@ -179,14 +234,14 @@
             <div class="p-4 border-t border-slate-700 flex justify-end bg-slate-800 rounded-b-lg">
                 <button id="copyCodeBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-md transition text-sm flex items-center font-medium shadow-md">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    คัดลอกโค้ด (Copy)
+                    คัดลอกโค้ด
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Random Forest Modal -->
-    <div id="rfModal" class="fixed inset-0 bg-slate-900/95 hidden z-50 flex items-center justify-center backdrop-blur-md">
+    <div id="rfModal" class="fixed inset-0 bg-slate-900/95 hidden z-[60] flex items-center justify-center backdrop-blur-md">
         <div class="bg-slate-800 rounded-lg w-11/12 max-w-5xl h-[90vh] flex flex-col shadow-2xl border border-indigo-500/50">
             <div class="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-800/80 rounded-t-lg">
                 <div>
@@ -194,7 +249,7 @@
                         <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                         Random Forest Analysis (Ensemble)
                     </h3>
-                    <p class="text-xs text-slate-400 mt-1">วิเคราะห์ความสำคัญของตัวแปร และสร้างโค้ดแบบโหวตจากหลาย Tree เพื่อความแม่นยำที่สูงขึ้น</p>
+                    <p class="text-xs text-slate-400 mt-1">วิเคราะห์ความสำคัญของตัวแปร และสร้างโค้ดแบบโหวตจากหลาย Tree</p>
                 </div>
                 <button id="closeRfModalBtn" class="text-slate-400 hover:text-white text-3xl font-bold leading-none">&times;</button>
             </div>
@@ -203,7 +258,7 @@
                 <!-- Left Panel: Feature Importance -->
                 <div class="w-1/3 border-r border-slate-700 p-6 flex flex-col overflow-y-auto bg-slate-800/50">
                     <h4 class="text-lg font-semibold text-white mb-4 border-b border-slate-600 pb-2">Feature Importance</h4>
-                    <p class="text-xs text-slate-400 mb-6">ฟีเจอร์ใดมีผลต่อการแยก Win/Loss มากที่สุด (คะแนนรวมจากทุก Tree)</p>
+                    <p class="text-xs text-slate-400 mb-6">ฟีเจอร์ใดมีผลต่อการแยกคลาสมากที่สุด (รวมจากทุก Tree)</p>
                     
                     <div id="featureImportanceContainer" class="space-y-5">
                         <!-- Bars injected here via JS -->
@@ -228,29 +283,34 @@
     </div>
 
     <script>
-        // --- Core Application Logic ---
+        // --- Core Application Data ---
         
         let globalData = [];
+        let rawCsvData = [];
+        let rawCsvFields = [];
+        let inferredTypes = {};
+        
         let currentTreeData = null; 
-        let currentForest = []; // เก็บ Array ของ Tree ใน Random Forest
-        let svg, g, zoom; // D3 instances
-        const containerId = '#tree-container';
+        let currentForest = []; 
+        let svg, g, zoom; 
+        
+        // Dynamic Features Array
+        let FEATURES = [];
+        let TARGET_CONFIG = {
+            column: '',
+            followValue: '',
+            reverseValue: ''
+        };
 
-        // Feature configurations
-        const FEATURES = [
-            { name: 'rsi', type: 'numeric' },
-            { name: 'atr', type: 'numeric' },
-            { name: 'hour', type: 'numeric' },
-            { name: 'trend', type: 'categorical' },
-            { name: 'session', type: 'categorical' },
-            { name: 'original_signal', type: 'categorical' }
-        ];
-
-        // Event Listeners
+        // --- Event Listeners ---
+        
         document.getElementById('csvFileInput').addEventListener('change', handleFileUpload);
         document.getElementById('rebuildBtn').addEventListener('click', () => buildAndRenderTree(globalData));
         document.getElementById('maxDepth').addEventListener('change', () => {
             if(globalData.length > 0) buildAndRenderTree(globalData);
+        });
+        document.getElementById('reconfigureBtn').addEventListener('click', () => {
+            if(rawCsvData.length > 0) showSetupModal();
         });
         
         // Random Forest Trigger
@@ -260,13 +320,31 @@
                 return;
             }
             showLoading(true, "กำลังฝึกสอนโมเดล Random Forest (10 Trees)...");
-            
-            // ใช้ setTimeout เพื่อให้ UI อัปเดต Loading ก่อนรันการคำนวณที่หนัก
             setTimeout(() => {
                 buildRandomForest(globalData, 10);
                 showLoading(false);
             }, 100);
         });
+
+        // Setup Modal Listeners
+        document.getElementById('cancelSetupBtn').addEventListener('click', () => {
+            document.getElementById('setupModal').classList.add('hidden');
+            if (globalData.length === 0) showLoading(false); // Only if first time
+        });
+        
+        document.getElementById('applySetupBtn').addEventListener('click', applyConfigAndProcess);
+        
+        document.getElementById('targetColumnSelect').addEventListener('change', (e) => {
+            updateTargetValueOptions(e.target.value);
+        });
+
+        document.getElementById('selectAllFeaturesBtn').addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.feature-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+        });
+
+        // --- Helper Functions ---
 
         function showLoading(show, text = "กำลังประมวลผลข้อมูล...") {
             document.getElementById('loadingText').innerText = text;
@@ -275,44 +353,222 @@
             document.getElementById('emptyPanel').classList.toggle('hidden', show || globalData.length > 0);
         }
 
+        // --- Data Parsing & Setup ---
+
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
 
-            showLoading(true);
+            showLoading(true, "กำลังอ่านไฟล์ CSV...");
 
             Papa.parse(file, {
                 header: true,
                 dynamicTyping: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    processData(results.data);
+                    if (results.data.length === 0) {
+                        alert("ไฟล์ว่างเปล่า");
+                        showLoading(false);
+                        return;
+                    }
+                    rawCsvData = results.data;
+                    rawCsvFields = results.meta.fields;
+                    inferDataTypes();
+                    showSetupModal();
+                    showLoading(false);
                 },
                 error: function(err) {
                     alert("เกิดข้อผิดพลาดในการอ่านไฟล์ CSV: " + err.message);
                     showLoading(false);
                 }
             });
+            
+            // Clear input so same file can be selected again
+            event.target.value = null;
         }
 
-        function processData(rawData) {
+        function inferDataTypes() {
+            inferredTypes = {};
+            rawCsvFields.forEach(field => {
+                let val = null;
+                // Look for the first non-null/undefined value to guess type
+                for (let i = 0; i < Math.min(rawCsvData.length, 100); i++) {
+                    if (rawCsvData[i][field] !== null && rawCsvData[i][field] !== undefined && rawCsvData[i][field] !== "") {
+                        val = rawCsvData[i][field];
+                        break;
+                    }
+                }
+                
+                if (typeof val === 'number') {
+                    inferredTypes[field] = 'numeric';
+                } else if (typeof val === 'boolean') {
+                    inferredTypes[field] = 'categorical';
+                } else {
+                    inferredTypes[field] = 'categorical';
+                }
+            });
+        }
+
+        function getUniqueValues(field, max = 50) {
+            const unique = new Set();
+            for (let i = 0; i < rawCsvData.length; i++) {
+                const val = rawCsvData[i][field];
+                if (val !== null && val !== undefined && val !== "") {
+                    unique.add(val);
+                    if (unique.size >= max) break;
+                }
+            }
+            return Array.from(unique);
+        }
+
+        function showSetupModal() {
+            const targetSelect = document.getElementById('targetColumnSelect');
+            const featuresContainer = document.getElementById('featuresContainer');
+            
+            // Populate Target Columns
+            targetSelect.innerHTML = '';
+            rawCsvFields.forEach(field => {
+                const option = document.createElement('option');
+                option.value = field;
+                option.text = field;
+                // Auto-select 'is_win' or 'result' if exists
+                if (field.toLowerCase().includes('win') || field.toLowerCase().includes('result') || field.toLowerCase().includes('target')) {
+                    option.selected = true;
+                }
+                targetSelect.appendChild(option);
+            });
+
+            // Update Value Options for Target
+            updateTargetValueOptions(targetSelect.value);
+
+            // Populate Features Checkboxes
+            featuresContainer.innerHTML = '';
+            rawCsvFields.forEach(field => {
+                const uniqueCount = getUniqueValues(field, 100).length;
+                const type = inferredTypes[field];
+                
+                // Skip highly unique string columns (like IDs, Timestamps, long texts) by default
+                let isChecked = true;
+                if (type === 'categorical' && uniqueCount >= 50) isChecked = false;
+                if (field.toLowerCase().includes('id') || field.toLowerCase().includes('time') || field.toLowerCase().includes('date')) isChecked = false;
+
+                const id = `feat_${field.replace(/\s+/g, '_')}`;
+                const html = `
+                    <label class="cursor-pointer relative">
+                        <input type="checkbox" value="${field}" class="feature-checkbox sr-only" ${isChecked ? 'checked' : ''}>
+                        <div class="border border-slate-600 rounded-md p-2 transition-all hover:bg-slate-700/50">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 border border-slate-500 rounded flex items-center justify-center chk-box">
+                                    <svg class="w-3 h-3 text-blue-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                                <div class="truncate text-sm text-slate-300 font-medium" title="${field}">${field}</div>
+                            </div>
+                            <div class="text-[10px] text-slate-500 mt-1 ml-6">${type === 'numeric' ? '123 Numeric' : 'ABC Categorical'}</div>
+                        </div>
+                    </label>
+                `;
+                featuresContainer.insertAdjacentHTML('beforeend', html);
+            });
+
+            // Add custom style logic for custom checkboxes
+            document.querySelectorAll('.feature-checkbox').forEach(cb => {
+                cb.addEventListener('change', function() {
+                    const svg = this.nextElementSibling.querySelector('svg');
+                    if(this.checked) {
+                        svg.classList.remove('hidden');
+                        this.nextElementSibling.querySelector('.chk-box').classList.add('border-blue-500');
+                    } else {
+                        svg.classList.add('hidden');
+                        this.nextElementSibling.querySelector('.chk-box').classList.remove('border-blue-500');
+                    }
+                });
+                // trigger change to set initial state
+                cb.dispatchEvent(new Event('change'));
+            });
+
+            document.getElementById('setupModal').classList.remove('hidden');
+        }
+
+        function updateTargetValueOptions(targetCol) {
+            const followSelect = document.getElementById('followValueSelect');
+            const reverseSelect = document.getElementById('reverseValueSelect');
+            
+            const uniqueVals = getUniqueValues(targetCol, 50);
+            
+            followSelect.innerHTML = '';
+            reverseSelect.innerHTML = '';
+            
+            uniqueVals.forEach((val, i) => {
+                const opt1 = document.createElement('option');
+                opt1.value = val;
+                opt1.text = val;
+                if (String(val).toLowerCase() === 'win' || String(val) === '1' || String(val).toLowerCase() === 'true' || i === 0) opt1.selected = true;
+                followSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = val;
+                opt2.text = val;
+                if (String(val).toLowerCase() === 'loss' || String(val) === '0' || String(val) === '-1' || String(val).toLowerCase() === 'false' || i === Math.min(1, uniqueVals.length-1)) opt2.selected = true;
+                reverseSelect.appendChild(opt2);
+            });
+        }
+
+        function applyConfigAndProcess() {
+            const targetCol = document.getElementById('targetColumnSelect').value;
+            const followVal = document.getElementById('followValueSelect').value;
+            const reverseVal = document.getElementById('reverseValueSelect').value;
+            
+            TARGET_CONFIG = { column: targetCol, followValue: followVal, reverseValue: reverseVal };
+
+            // Build FEATURES array
+            FEATURES = [];
+            const checkboxes = document.querySelectorAll('.feature-checkbox:checked');
+            checkboxes.forEach(cb => {
+                const fName = cb.value;
+                if (fName !== targetCol) { // Don't use target as feature
+                    FEATURES.push({
+                        name: fName,
+                        type: inferredTypes[fName]
+                    });
+                }
+            });
+
+            if (FEATURES.length === 0) {
+                alert("กรุณาเลือกอย่างน้อย 1 ฟีเจอร์");
+                return;
+            }
+
+            document.getElementById('setupModal').classList.add('hidden');
+            processConfiguredData();
+        }
+
+        function processConfiguredData() {
+            showLoading(true, "กำลังประมวลผล Tree...");
+
             const cleanData = [];
             let followCount = 0;
             let reverseCount = 0;
 
-            rawData.forEach(row => {
-                if (row.is_win === 'WIN' || row.is_win === 'LOSS') {
-                    const item = { target: row.is_win === 'WIN' ? 'Follow' : 'Reverse' };
+            const targetCol = TARGET_CONFIG.column;
+            const followVal = TARGET_CONFIG.followValue;
+            const reverseVal = TARGET_CONFIG.reverseValue;
+
+            rawCsvData.forEach(row => {
+                const val = String(row[targetCol]);
+                if (val === followVal || val === reverseVal) {
+                    const item = { target: val === followVal ? 'Follow' : 'Reverse' };
+                    let isValid = true;
 
                     FEATURES.forEach(f => {
-                        let val = row[f.name];
-                        if (f.name === 'original_signal' && !val && row['signal']) {
-                            val = row['signal']; // Fallback
+                        const cellVal = row[f.name];
+                        item[f.name] = cellVal;
+                        // For numerics, ignore rows if value is completely missing
+                        if (f.type === 'numeric' && (cellVal === null || cellVal === undefined || cellVal === "")) {
+                            isValid = false;
                         }
-                        item[f.name] = val;
                     });
 
-                    if (item.rsi !== null && item.rsi !== undefined) {
+                    if (isValid) {
                         cleanData.push(item);
                         if (item.target === 'Follow') followCount++;
                         else reverseCount++;
@@ -322,20 +578,26 @@
 
             globalData = cleanData;
 
+            // Update UI
             document.getElementById('totalRows').innerText = cleanData.length;
             document.getElementById('totalFollow').innerText = followCount;
             document.getElementById('totalReverse').innerText = reverseCount;
 
+            const featuresListUl = document.getElementById('activeFeaturesList');
+            featuresListUl.innerHTML = '';
+            FEATURES.forEach(f => {
+                featuresListUl.insertAdjacentHTML('beforeend', `<li>${f.name} <span class="text-slate-500">(${f.type})</span></li>`);
+            });
+
             showLoading(false);
 
             if (cleanData.length === 0) {
-                alert("ไม่พบข้อมูลที่มีค่า is_win เป็น WIN หรือ LOSS ในไฟล์นี้");
+                alert("ไม่พบข้อมูลที่ตรงกับเงื่อนไข Target ที่ตั้งไว้ (ข้อมูลอาจเป็นค่าว่างในคอลัมน์ฟีเจอร์)");
                 return;
             }
 
             buildAndRenderTree(cleanData);
         }
-
 
         // --- Decision Tree Algorithm ---
 
@@ -350,19 +612,16 @@
             return 1 - (Math.pow(pFollow, 2) + Math.pow(pReverse, 2));
         }
 
-        // เพิ่มพารามิเตอร์ isRandomForest เพื่อทำ Feature Bagging
         function findBestSplit(data, isRandomForest = false) {
             let bestGini = Infinity;
             let bestSplit = null;
             const baseGini = calculateGini(data);
 
-            if (baseGini === 0) return null; // Pure node
+            if (baseGini === 0) return null;
 
-            // Feature Bagging สำหรับ Random Forest (สุ่มหยิบฟีเจอร์มาจำนวน sqrt(total_features))
             let activeFeatures = FEATURES;
             if (isRandomForest) {
                 const numFeaturesToTry = Math.max(1, Math.floor(Math.sqrt(FEATURES.length)));
-                // Shuffle array and pick first N
                 activeFeatures = [...FEATURES].sort(() => 0.5 - Math.random()).slice(0, numFeaturesToTry);
             }
 
@@ -390,13 +649,12 @@
                                     operator: '==',
                                     leftData: left,
                                     rightData: right,
-                                    impurityDecrease: baseGini - weightedGini // เก็บค่าการลดลงของ Gini เพื่อทำ Feature Importance
+                                    impurityDecrease: baseGini - weightedGini
                                 };
                             }
                         }
                     });
                 } else if (feature.type === 'numeric') {
-                    // Test quantiles
                     const values = data.map(d => d[fname]).filter(v => v !== null && !isNaN(v)).sort((a,b) => a-b);
                     if(values.length === 0) return;
                     
@@ -437,7 +695,6 @@
             return bestSplit;
         }
 
-        // Recursive tree builder
         function buildTree(data, depth, maxDepth, isRandomForest = false) {
             let followCount = data.filter(d => d.target === 'Follow').length;
             let reverseCount = data.length - followCount;
@@ -450,7 +707,7 @@
                 follow: followCount,
                 reverse: reverseCount,
                 prediction: prediction,
-                impurityDecrease: 0 // เริ่มต้น
+                impurityDecrease: 0
             };
 
             if (depth >= maxDepth || pure || data.length < 5) {
@@ -485,7 +742,7 @@
 
         function buildAndRenderTree(data) {
             const maxDepth = parseInt(document.getElementById('maxDepth').value);
-            const treeData = buildTree(data, 0, maxDepth, false); // false = Single Tree
+            const treeData = buildTree(data, 0, maxDepth, false);
             currentTreeData = treeData; 
             renderD3Tree(treeData);
         }
@@ -506,8 +763,7 @@
             const maxDepth = parseInt(document.getElementById('maxDepth').value);
             
             for (let i = 0; i < numTrees; i++) {
-                const sample = bootstrapData(data); // สุ่มข้อมูลใส่คืน
-                // true = เปิดใช้งาน Feature Bagging
+                const sample = bootstrapData(data);
                 const tree = buildTree(sample, 0, maxDepth, true); 
                 forest.push(tree);
             }
@@ -520,11 +776,9 @@
             const importanceMap = {};
             FEATURES.forEach(f => importanceMap[f.name] = 0);
 
-            // เดินสำรวจ Node ทั้งหมดเพื่อเก็บคะแนน Impurity Decrease
             function traverseTreeForImportance(node) {
                 if (node.isLeaf || !node.feature) return;
                 
-                // Weight ความสำคัญด้วยสัดส่วนของ samples ที่ผ่าน node นี้
                 const weightedDrop = node.impurityDecrease * (node.samples / totalSamples);
                 if(importanceMap[node.feature] !== undefined) {
                     importanceMap[node.feature] += weightedDrop;
@@ -536,7 +790,6 @@
 
             forest.forEach(tree => traverseTreeForImportance(tree));
 
-            // แปลงเป็น %
             const totalImportance = Object.values(importanceMap).reduce((sum, val) => sum + val, 0);
             const resultList = [];
             
@@ -546,7 +799,6 @@
                 resultList.push({ name: feature, score: percentage });
             }
 
-            // เรียงลำดับจากมากไปน้อย
             return resultList.sort((a, b) => b.score - a.score);
         }
 
@@ -560,7 +812,7 @@
                 const html = `
                     <div class="mb-2">
                         <div class="flex justify-between items-end mb-1">
-                            <span class="text-sm font-medium text-slate-200">${index + 1}. ${imp.name.toUpperCase()}</span>
+                            <span class="text-sm font-medium text-slate-200">${index + 1}. ${imp.name}</span>
                             <span class="text-xs font-bold text-indigo-400">${pct}%</span>
                         </div>
                         <div class="w-full bg-slate-700 rounded-full h-2.5">
@@ -577,14 +829,17 @@
         }
 
         function generateRandomForestCode(forest) {
-            const featureList = FEATURES.map(f => f.name).join(', ');
+            // Clean variable names to be safe for JS code (replace spaces/dashes with underscores)
+            const getSafeName = (name) => name.replace(/[^a-zA-Z0-9_]/g, '_');
+            const featureList = FEATURES.map(f => getSafeName(f.name)).join(', ');
+            
             let code = `// --- Generated Random Forest (${forest.length} Trees) ---\n`;
-            code += `// ใช้หลักการ Majority Vote เพื่อลด Overfitting ให้ EA ทำงานเสถียรขึ้น\n\n`;
+            code += `// Target Predict: Follow (${TARGET_CONFIG.followValue}) vs Reverse (${TARGET_CONFIG.reverseValue})\n\n`;
 
             forest.forEach((tree, index) => {
                 code += `function rf_tree_${index}(features) {\n`;
                 code += `    const { ${featureList} } = features;\n`;
-                code += generateRuleCode(tree, "    ");
+                code += generateRuleCode(tree, "    ", true);
                 code += `    return "Follow";\n}\n\n`;
             });
 
@@ -605,7 +860,7 @@
 
         // --- Rule Base Code Generator (Shared) ---
 
-        function generateRuleCode(node, indent = "") {
+        function generateRuleCode(node, indent = "", safeNames = false) {
             if (!node) return "";
             
             if (node.isLeaf) {
@@ -615,32 +870,36 @@
             let code = "";
             let condition = "";
             
+            let fname = node.feature;
+            if(safeNames) fname = fname.replace(/[^a-zA-Z0-9_]/g, '_');
+
             if (node.operator === '==') {
-                condition = `${node.feature} == "${node.value}"`;
+                condition = `${fname} == "${node.value}"`;
             } else {
-                condition = `${node.feature} ${node.operator} ${node.value}`;
+                condition = `${fname} ${node.operator} ${node.value}`;
             }
 
             code += `${indent}if (${condition}) {\n`;
-            code += generateRuleCode(node.children[0], indent + "    ");
+            code += generateRuleCode(node.children[0], indent + "    ", safeNames);
             code += `${indent}} else {\n`;
-            code += generateRuleCode(node.children[1], indent + "    ");
+            code += generateRuleCode(node.children[1], indent + "    ", safeNames);
             code += `${indent}}\n`;
 
             return code;
         }
 
-        // --- Event Listeners สำหรับ Modal ---
+        // --- Event Listeners สำหรับ Modal Code ---
 
-        // Single Tree Code Modal
         document.getElementById('showCodeBtn').addEventListener('click', () => {
             if (!currentTreeData) {
-                alert("กรุณาอัปโหลดไฟล์ข้อมูลก่อนครับ");
+                alert("กรุณาอัปโหลดไฟล์และสร้างโมเดลก่อนครับ");
                 return;
             }
-            const featureList = FEATURES.map(f => f.name).join(', ');
-            const codeHeader = `// --- Single Decision Tree Rules ---\nfunction getTradeAction(features) {\n    const { ${featureList} } = features;\n\n`;
-            const codeBody = generateRuleCode(currentTreeData, "    ");
+            const getSafeName = (name) => name.replace(/[^a-zA-Z0-9_]/g, '_');
+            const featureList = FEATURES.map(f => getSafeName(f.name)).join(', ');
+            
+            const codeHeader = `// --- Single Decision Tree Rules ---\n// Target Predict: Follow (${TARGET_CONFIG.followValue}) vs Reverse (${TARGET_CONFIG.reverseValue})\n\nfunction getTradeAction(features) {\n    const { ${featureList} } = features;\n\n`;
+            const codeBody = generateRuleCode(currentTreeData, "    ", true);
             const codeFooter = `\n    return "Follow"; // Default Action\n}`;
             
             document.getElementById('codeOutput').textContent = codeHeader + codeBody + codeFooter;
@@ -651,7 +910,6 @@
             document.getElementById('codeModal').classList.add('hidden');
         });
 
-        // Random Forest Modal
         document.getElementById('closeRfModalBtn').addEventListener('click', () => {
             document.getElementById('rfModal').classList.add('hidden');
         });
