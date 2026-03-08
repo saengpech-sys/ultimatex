@@ -114,6 +114,11 @@
                 <button id="rebuildBtn" class="mt-4 w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-md transition text-sm">
                     สร้าง Tree ใหม่ (Rebuild)
                 </button>
+                
+                <button id="showCodeBtn" class="mt-2 w-full border border-emerald-500 text-emerald-400 hover:bg-emerald-900/30 py-2 rounded-md transition text-sm flex justify-center items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    สร้างโค้ด Rule Base
+                </button>
             </div>
 
             <div id="loadingPanel" class="hidden flex-col items-center justify-center py-10 space-y-4">
@@ -144,10 +149,33 @@
         </div>
     </main>
 
+    <!-- Code Modal -->
+    <div id="codeModal" class="fixed inset-0 bg-slate-900/90 hidden z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-lg w-11/12 max-w-4xl flex flex-col shadow-2xl border border-slate-600 max-h-[90vh]">
+            <div class="flex justify-between items-center p-4 border-b border-slate-700">
+                <div>
+                    <h3 class="text-lg font-bold text-emerald-400">Trading Rule Base Code</h3>
+                    <p class="text-xs text-slate-400 mt-1">คัดลอกเงื่อนไขเหล่านี้ไปใช้ใน EA หรือ Trading Bot ของคุณ</p>
+                </div>
+                <button id="closeModalBtn" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+            <div class="p-4 flex-1 overflow-auto bg-[#0d1117]">
+                <pre><code id="codeOutput" class="text-sm text-green-400 font-mono"></code></pre>
+            </div>
+            <div class="p-4 border-t border-slate-700 flex justify-end bg-slate-800 rounded-b-lg">
+                <button id="copyCodeBtn" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-md transition text-sm flex items-center font-medium shadow-md">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    คัดลอกโค้ด (Copy)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- Core Application Logic ---
         
         let globalData = [];
+        let currentTreeData = null; // เพิ่มตัวแปรเก็บข้อมูล Tree ปัจจุบัน
         let svg, g, zoom; // D3 instances
         const containerId = '#tree-container';
 
@@ -386,8 +414,84 @@
         function buildAndRenderTree(data) {
             const maxDepth = parseInt(document.getElementById('maxDepth').value);
             const treeData = buildTree(data, 0, maxDepth);
+            currentTreeData = treeData; // บันทึก Tree ไว้สำหรับแปลงเป็น Code
             renderD3Tree(treeData);
         }
+
+        // --- Rule Base Code Generator ---
+
+        function generateRuleCode(node, indent = "") {
+            if (!node) return "";
+            
+            if (node.isLeaf) {
+                return `${indent}return "${node.prediction}"; // (อ้างอิงจาก ${node.samples} ออเดอร์ -> Win: ${node.follow}, Loss: ${node.reverse})\n`;
+            }
+
+            let code = "";
+            let condition = "";
+            
+            // สร้างเงื่อนไขตามประเภทข้อมูล
+            if (node.operator === '==') {
+                condition = `${node.feature} == "${node.value}"`;
+            } else {
+                condition = `${node.feature} ${node.operator} ${node.value}`;
+            }
+
+            code += `${indent}if (${condition}) {\n`;
+            code += generateRuleCode(node.children[0], indent + "    ");
+            code += `${indent}} else {\n`;
+            code += generateRuleCode(node.children[1], indent + "    ");
+            code += `${indent}}\n`;
+
+            return code;
+        }
+
+        // Event Listeners สำหรับ Modal Code
+        document.getElementById('showCodeBtn').addEventListener('click', () => {
+            if (!currentTreeData) {
+                alert("กรุณาอัปโหลดไฟล์ข้อมูลก่อนครับ");
+                return;
+            }
+            
+            const featureList = FEATURES.map(f => f.name).join(', ');
+            const codeHeader = `// --- Generated Trading Rules (Decision Tree) ---\n// ระบบแนะนำให้ทำสิ่งนี้กับสัญญาณที่เข้ามา:\n// "Follow"  = เข้าเทรดตามสัญญาณปกติ (โอกาส Win สูง)\n// "Reverse" = เข้าเทรดสวนทางสัญญาณ (โอกาส Loss สูง หากเล่นตาม)\n\nfunction getTradeAction(features) {\n    // ดึงค่า Feature ปัจจุบัน\n    const { ${featureList} } = features;\n\n`;
+            
+            const codeBody = generateRuleCode(currentTreeData, "    ");
+            const codeFooter = `\n    return "Follow"; // Default Action\n}`;
+            
+            document.getElementById('codeOutput').textContent = codeHeader + codeBody + codeFooter;
+            document.getElementById('codeModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('codeModal').classList.add('hidden');
+        });
+
+        // ฟังก์ชันคัดลอกโค้ด
+        document.getElementById('copyCodeBtn').addEventListener('click', () => {
+            const code = document.getElementById('codeOutput').textContent;
+            
+            // สร้าง textarea เพื่อรองรับการ Copy (ป้องกันข้อจำกัดในบางเบราว์เซอร์)
+            const textArea = document.createElement("textarea");
+            textArea.value = code;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            
+            // เปลี่ยนข้อความปุ่มชั่วคราวเพื่อแจ้งผู้ใช้
+            const btn = document.getElementById('copyCodeBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> คัดลอกสำเร็จ!`;
+            btn.classList.replace('bg-blue-600', 'bg-emerald-600');
+            btn.classList.replace('hover:bg-blue-700', 'hover:bg-emerald-700');
+            
+            setTimeout(() => { 
+                btn.innerHTML = originalHTML; 
+                btn.classList.replace('bg-emerald-600', 'bg-blue-600');
+                btn.classList.replace('hover:bg-emerald-700', 'hover:bg-blue-700');
+            }, 2000);
+        });
 
         // --- D3.js Visualization ---
 
