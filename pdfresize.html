@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แอปบีบอัด PDF (PDF Compressor)</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PDF.js for reading PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- jsPDF for creating new PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#ef4444', // Red-500 for PDF theme
+                        secondary: '#b91c1c',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .drag-over {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+        /* Custom scrollbar for progress text */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden transition-all duration-300">
+        <!-- Header -->
+        <div class="bg-primary p-6 text-white text-center">
+            <h1 class="text-3xl font-semibold flex items-center justify-center gap-3">
+                <i class="fa-solid fa-file-pdf"></i>
+                บีบอัดไฟล์ PDF
+            </h1>
+            <p class="mt-2 text-red-100 text-sm">ลดขนาดไฟล์ PDF ของคุณง่ายๆ ทำงานบนเบราว์เซอร์ 100% ปลอดภัย ไม่ต้องอัปโหลด</p>
+        </div>
+
+        <div class="p-8">
+            <!-- Step 1: Upload Area -->
+            <div id="upload-section" class="block">
+                <div id="drop-zone" class="border-2 border-dashed border-gray-300 rounded-xl p-10 text-center cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input type="file" id="file-input" class="hidden" accept="application/pdf">
+                    <div class="text-gray-400 mb-4">
+                        <i class="fa-solid fa-cloud-arrow-up text-6xl"></i>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-700 mb-2">ลากไฟล์ PDF มาวางที่นี่</h3>
+                    <p class="text-gray-500 mb-4">หรือ</p>
+                    <button class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-lg font-medium transition-colors" onclick="document.getElementById('file-input').click()">
+                        เลือกไฟล์
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Settings & Processing -->
+            <div id="settings-section" class="hidden">
+                <div class="flex items-center justify-between mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <i class="fa-solid fa-file-lines text-primary text-2xl"></i>
+                        <div class="truncate">
+                            <h4 id="file-name" class="font-medium text-gray-800 truncate">filename.pdf</h4>
+                            <p id="file-size" class="text-sm text-gray-500">ขนาดดั้งเดิม: 0 MB</p>
+                        </div>
+                    </div>
+                    <button onclick="resetApp()" class="text-gray-400 hover:text-red-500 transition-colors" title="ยกเลิก">
+                        <i class="fa-solid fa-times-circle text-xl"></i>
+                    </button>
+                </div>
+
+                <div id="compression-options" class="mb-8">
+                    <h4 class="font-medium text-gray-700 mb-3">เลือกระดับการบีบอัด:</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <label class="cursor-pointer border-2 border-gray-200 rounded-lg p-3 hover:border-primary peer-checked:border-primary transition-colors flex flex-col items-center text-center">
+                            <input type="radio" name="quality" value="high" class="hidden peer">
+                            <div class="w-full text-gray-700 peer-checked:text-primary mb-1">
+                                <i class="fa-solid fa-compress text-2xl"></i>
+                            </div>
+                            <span class="font-medium">บีบอัดสูงสุด</span>
+                            <span class="text-xs text-gray-500 mt-1">ไฟล์เล็กมาก คุณภาพลดลง (เหมาะสำหรับส่งอีเมล)</span>
+                        </label>
+                        <label class="cursor-pointer border-2 border-primary bg-red-50 rounded-lg p-3 transition-colors flex flex-col items-center text-center relative">
+                            <div class="absolute -top-3 bg-primary text-white text-[10px] px-2 py-1 rounded-full font-bold">แนะนำ</div>
+                            <input type="radio" name="quality" value="medium" class="hidden peer" checked>
+                            <div class="w-full text-primary mb-1">
+                                <i class="fa-solid fa-compress-arrows-alt text-2xl"></i>
+                            </div>
+                            <span class="font-medium text-primary">ปานกลาง</span>
+                            <span class="text-xs text-red-400 mt-1">สมดุลระหว่างขนาดและคุณภาพ</span>
+                        </label>
+                        <label class="cursor-pointer border-2 border-gray-200 rounded-lg p-3 hover:border-primary peer-checked:border-primary transition-colors flex flex-col items-center text-center">
+                            <input type="radio" name="quality" value="low" class="hidden peer">
+                            <div class="w-full text-gray-700 peer-checked:text-primary mb-1">
+                                <i class="fa-solid fa-expand-arrows-alt text-2xl"></i>
+                            </div>
+                            <span class="font-medium">บีบอัดน้อย</span>
+                            <span class="text-xs text-gray-500 mt-1">ไฟล์ใหญ่ขึ้นมาหน่อย คุณภาพสูง (เหมาะสำหรับพิมพ์)</span>
+                        </label>
+                    </div>
+
+                    <button id="start-btn" onclick="startCompression()" class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 rounded-lg mt-6 shadow-md shadow-red-200 transition-all transform hover:scale-[1.02]">
+                        <i class="fa-solid fa-cogs mr-2"></i> เริ่มบีบอัดไฟล์
+                    </button>
+                </div>
+
+                <!-- Progress Area -->
+                <div id="progress-area" class="hidden text-center py-6">
+                    <h4 class="text-lg font-medium text-gray-700 mb-2">กำลังประมวลผล...</h4>
+                    <p id="progress-text" class="text-sm text-gray-500 mb-4">กำลังเตรียมไฟล์</p>
+                    
+                    <div class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
+                        <div id="progress-bar" class="bg-primary h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p class="text-xs text-gray-400">โปรดอย่าปิดหน้านี้ระหว่างทำการบีบอัด</p>
+                </div>
+            </div>
+
+            <!-- Step 3: Result Section -->
+            <div id="result-section" class="hidden text-center py-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 text-green-500 rounded-full mb-4 text-3xl">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-2">บีบอัดสำเร็จ!</h3>
+                
+                <div class="flex justify-center items-center gap-4 my-6">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 w-32">
+                        <p class="text-xs text-gray-500 mb-1">ขนาดเดิม</p>
+                        <p id="old-size-display" class="font-medium text-gray-700 line-through">0 MB</p>
+                    </div>
+                    <i class="fa-solid fa-arrow-right text-gray-400"></i>
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-100 w-32">
+                        <p class="text-xs text-red-400 mb-1">ขนาดใหม่</p>
+                        <p id="new-size-display" class="font-bold text-primary text-lg">0 MB</p>
+                    </div>
+                </div>
+                
+                <p id="savings-text" class="text-sm text-green-600 font-medium mb-8">คุณประหยัดพื้นที่ไปได้ 0%</p>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button id="download-btn" class="bg-primary hover:bg-secondary text-white px-6 py-3 rounded-lg font-medium shadow-md shadow-red-200 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download"></i> ดาวน์โหลดไฟล์ใหม่
+                    </button>
+                    <button onclick="resetApp()" class="bg-white border-2 border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50 px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-redo"></i> บีบอัดไฟล์อื่น
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Set up PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let currentFile = null;
+        let originalSize = 0;
+        let compressedBlob = null;
+
+        // UI Elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        
+        const sectionUpload = document.getElementById('upload-section');
+        const sectionSettings = document.getElementById('settings-section');
+        const sectionResult = document.getElementById('result-section');
+        
+        const fileNameEl = document.getElementById('file-name');
+        const fileSizeEl = document.getElementById('file-size');
+        const optionsArea = document.getElementById('compression-options');
+        const progressArea = document.getElementById('progress-area');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        // Handlers for radio buttons styling
+        const radios = document.querySelectorAll('input[type="radio"][name="quality"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Reset all
+                document.querySelectorAll('input[type="radio"][name="quality"]').forEach(r => {
+                    const label = r.closest('label');
+                    label.classList.remove('border-primary', 'bg-red-50');
+                    label.classList.add('border-gray-200', 'hover:border-primary');
+                    const iconArea = label.querySelector('.w-full');
+                    iconArea.classList.remove('text-primary');
+                    iconArea.classList.add('text-gray-700');
+                    const title = label.querySelector('.font-medium');
+                    title.classList.remove('text-primary');
+                });
+                
+                // Set active
+                if(this.checked) {
+                    const label = this.closest('label');
+                    label.classList.remove('border-gray-200', 'hover:border-primary');
+                    label.classList.add('border-primary', 'bg-red-50');
+                    const iconArea = label.querySelector('.w-full');
+                    iconArea.classList.remove('text-gray-700');
+                    iconArea.classList.add('text-primary');
+                    const title = label.querySelector('.font-medium');
+                    title.classList.add('text-primary');
+                }
+            });
+        });
+
+        // File Drag & Drop Handlers
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (file.type !== 'application/pdf') {
+                alert('กรุณาอัปโหลดไฟล์ PDF เท่านั้น');
+                return;
+            }
+            
+            currentFile = file;
+            originalSize = file.size;
+            
+            fileNameEl.textContent = file.name;
+            fileSizeEl.textContent = `ขนาดดั้งเดิม: ${formatBytes(originalSize)}`;
+            
+            sectionUpload.classList.add('hidden');
+            sectionSettings.classList.remove('hidden');
+        }
+
+        async function startCompression() {
+            if (!currentFile) return;
+
+            const qualitySetting = document.querySelector('input[name="quality"]:checked').value;
+            
+            optionsArea.classList.add('hidden');
+            progressArea.classList.remove('hidden');
+            
+            try {
+                // Determine settings based on selected quality
+                // PDF processing client-side usually involves converting pages to images and back to PDF.
+                let scale = 1.5;
+                let jpegQuality = 0.7;
+
+                if (qualitySetting === 'high') {
+                    scale = 1.0; 
+                    jpegQuality = 0.4;
+                } else if (qualitySetting === 'medium') {
+                    scale = 1.5;
+                    jpegQuality = 0.65;
+                } else if (qualitySetting === 'low') {
+                    scale = 2.0;
+                    jpegQuality = 0.85;
+                }
+
+                const arrayBuffer = await currentFile.arrayBuffer();
+                
+                progressText.textContent = "กำลังโหลดข้อมูล PDF...";
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const totalPages = pdf.numPages;
+                
+                const { jsPDF } = window.jspdf;
+                let doc = null;
+
+                for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                    const percent = Math.round(((pageNum - 1) / totalPages) * 100);
+                    progressBar.style.width = `${percent}%`;
+                    progressText.textContent = `กำลังบีบอัดหน้าที่ ${pageNum} จาก ${totalPages}`;
+
+                    const page = await pdf.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: scale });
+
+                    // Render to Canvas
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    const renderContext = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+                    await page.render(renderContext).promise;
+
+                    // Compress to JPEG
+                    const imgData = canvas.toDataURL('image/jpeg', jpegQuality);
+
+                    // Original page dimensions for jsPDF
+                    const unscaledViewport = page.getViewport({ scale: 1 });
+                    const wPt = unscaledViewport.width;
+                    const hPt = unscaledViewport.height;
+                    const orientation = wPt > hPt ? 'l' : 'p';
+
+                    if (pageNum === 1) {
+                        doc = new jsPDF({
+                            orientation: orientation,
+                            unit: 'pt',
+                            format: [wPt, hPt],
+                            compress: true
+                        });
+                    } else {
+                        doc.addPage([wPt, hPt], orientation);
+                    }
+
+                    doc.addImage(imgData, 'JPEG', 0, 0, wPt, hPt, undefined, 'FAST');
+
+                    // Free memory
+                    canvas.width = 0;
+                    canvas.height = 0;
+                    page.cleanup();
+                }
+
+                progressText.textContent = "กำลังสร้างไฟล์ PDF ใหม่...";
+                progressBar.style.width = '100%';
+
+                // Small timeout to allow UI to update
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                compressedBlob = doc.output('blob');
+                showResult();
+
+            } catch (error) {
+                console.error(error);
+                alert('เกิดข้อผิดพลาดในการบีบอัดไฟล์: ' + error.message);
+                resetApp();
+            }
+        }
+
+        function showResult() {
+            sectionSettings.classList.add('hidden');
+            sectionResult.classList.remove('hidden');
+
+            const newSize = compressedBlob.size;
+            
+            document.getElementById('old-size-display').textContent = formatBytes(originalSize);
+            document.getElementById('new-size-display').textContent = formatBytes(newSize);
+
+            const savingsArea = document.getElementById('savings-text');
+            if (newSize < originalSize) {
+                const percentSaved = ((originalSize - newSize) / originalSize * 100).toFixed(1);
+                savingsArea.textContent = `ลดขนาดลงได้ ${percentSaved}% 🎉`;
+                savingsArea.className = "text-sm text-green-600 font-medium mb-8";
+            } else {
+                savingsArea.textContent = "ไฟล์ต้นฉบับถูกบีบอัดมาดีอยู่แล้ว ขนาดอาจไม่ลดลงมากนัก";
+                savingsArea.className = "text-sm text-yellow-600 font-medium mb-8";
+            }
+
+            // Setup download button
+            const downloadBtn = document.getElementById('download-btn');
+            downloadBtn.onclick = () => {
+                const url = URL.createObjectURL(compressedBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                // create new filename
+                const nameParts = currentFile.name.split('.');
+                nameParts.pop(); // remove extension
+                a.download = `${nameParts.join('.')}_compressed.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+        }
+
+        function resetApp() {
+            currentFile = null;
+            compressedBlob = null;
+            fileInput.value = '';
+            
+            sectionUpload.classList.remove('hidden');
+            sectionSettings.classList.add('hidden');
+            sectionResult.classList.add('hidden');
+            
+            optionsArea.classList.remove('hidden');
+            progressArea.classList.add('hidden');
+            progressBar.style.width = '0%';
+        }
+
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
+    </script>
+</body>
+</html>
